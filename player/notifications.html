@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Notifications</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" /><link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  .notif-row { display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; padding: 16px 18px; background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--r-md); margin-bottom: 6px; transition: all var(--dur-fast); position: relative; }
+  .notif-row:hover { border-color: var(--border-flame); }
+  .notif-row.is-unread::before { content: ""; position: absolute; left: -2px; top: 14px; bottom: 14px; width: 3px; background: var(--orange-500); border-radius: 2px; }
+  .notif-icon { width: 44px; height: 44px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; }
+  .notif-body__title { font-weight: 600; font-size: var(--t-body-sm); margin-bottom: 4px; }
+  .notif-body__body { font-size: var(--t-meta); color: var(--text-secondary); line-height: 1.5; }
+  .notif-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+</style></head>
+<body>
+
+<div class="shell shell--with-rail">
+  <header class="app-header">
+    <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search…" /></div>
+    <div class="header-actions"><button class="icon-bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg><span class="dot"></span></button><div class="avatar-pill"><span class="avatar">J</span><span>Joel</span></div></div>
+  </header>
+  <aside class="nav-rail">
+    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+    <span class="nav-section">Play</span>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/></svg>Dashboard</a>
+    <a class="nav-item" href="tournaments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9H4"/></svg>Tournaments</a>
+    <a class="nav-item" href="challenges.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m14 5 3 3"/></svg>Challenges</a>
+    <span class="nav-section">Account</span>
+    <a class="nav-item" href="wallet-default.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12"/></svg>Wallet</a>
+    <div class="rail-balance"><div class="rail-balance__label">Spendable</div><div class="rail-balance__amount">12,400<span class="unit">coins</span></div></div>
+  </aside>
+
+  <main class="app-main">
+    <div class="row row--between" style="margin-bottom: var(--s-5);">
+      <div><h1 class="page-title">Inbox</h1><p class="page-subtitle">In-app notifications · 4 unread.</p></div>
+      <div class="row" style="gap: 8px;"><button class="btn btn-secondary btn-sm">Mark all read</button><span class="badge badge--unwired">Backend gap D.1</span></div>
+    </div>
+
+    <div class="chip-row" style="margin-bottom: var(--s-4);">
+      <button class="chip-filter is-active">All</button>
+      <button class="chip-filter">Account</button>
+      <button class="chip-filter">Wallet</button>
+      <button class="chip-filter">Competitions</button>
+      <button class="chip-filter">Compliance</button>
+    </div>
+
+    <div class="notif-row is-unread">
+      <div class="notif-icon" style="background: var(--red-tint); color: var(--red-500);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <div><div class="notif-body__title">Cash-out frozen — pending AML review</div><div class="notif-body__body">Your wallet is currently restricted from cash-outs. Reference AML_2026_0481.</div></div>
+      <div class="notif-time">12 min ago</div>
+    </div>
+    <div class="notif-row is-unread">
+      <div class="notif-icon" style="background: var(--amber-tint); color: var(--amber-500);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div><div class="notif-body__title">Your opponent submitted a match result</div><div class="notif-body__body">Cyberpunk · vs Theo_W · waiting on your submission · deadline in 22 h.</div></div>
+      <div class="notif-time">2 h ago</div>
+    </div>
+    <div class="notif-row is-unread">
+      <div class="notif-icon" style="background: var(--orange-tint); color: var(--orange-500);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+      <div><div class="notif-body__title">You won 1st place · Apex Spring Showdown</div><div class="notif-body__body">2,400 coins credited to your pending balance · 48 h hold begins now.</div></div>
+      <div class="notif-time">3 h ago</div>
+    </div>
+    <div class="notif-row is-unread">
+      <div class="notif-icon" style="background: var(--green-tint); color: var(--green-500);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div><div class="notif-body__title">Prize matured · Sunday Series</div><div class="notif-body__body">800 coins now spendable.</div></div>
+      <div class="notif-time">Yesterday</div>
+    </div>
+    <div class="notif-row">
+      <div class="notif-icon" style="background: var(--blue-tint); color: var(--blue-500);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div><div class="notif-body__title">Coin purchase successful</div><div class="notif-body__body">+ 500 coins · Visa •• 4242 · £50.00</div></div>
+      <div class="notif-time">3 d ago</div>
+    </div>
+    <div class="notif-row">
+      <div class="notif-icon" style="background: var(--purple-tint); color: var(--purple-500);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div><div class="notif-body__title">KYC L1 approved</div><div class="notif-body__body">Identity verified. Redemptions unlocked up to £2,000 single / £5,000 / 12 mo.</div></div>
+      <div class="notif-time">8 wk ago</div>
+    </div>
+  </main>
+</div>
+</body></html>

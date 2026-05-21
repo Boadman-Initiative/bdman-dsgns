@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Logo & Wordmark Exploration</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  body {
+    background:
+      radial-gradient(at 80% 0%, rgba(255, 87, 51, 0.08), transparent 50%),
+      radial-gradient(at 10% 100%, rgba(255, 87, 51, 0.05), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+  .doc { max-width: 1240px; margin: 0 auto; padding: 64px 32px 120px; }
+  .doc-head { margin-bottom: 64px; max-width: 720px; }
+  .doc-head h1 { font-family: var(--font-display); font-size: clamp(40px, 5vw, 64px); font-weight: 700; letter-spacing: -0.02em; line-height: 1; margin: 16px 0 12px; }
+  .doc-head .lede { color: var(--text-secondary); font-size: 17px; line-height: 1.6; }
+
+  .lab-section {
+    margin-bottom: 80px;
+  }
+  .lab-section > header {
+    display: flex; align-items: baseline; gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .lab-section h2 {
+    font-family: var(--font-display);
+    font-size: 28px; font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .lab-section .lab-section__index {
+    font-family: var(--font-hud);
+    font-size: 12px;
+    color: var(--orange-500);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .lab-section p {
+    color: var(--text-secondary);
+    max-width: 60ch;
+    font-size: var(--t-body);
+    line-height: 1.6;
+  }
+
+  .lab-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 32px;
+  }
+  @media (min-width: 720px) { .lab-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { .lab-grid--3 { grid-template-columns: 1fr 1fr 1fr; } }
+
+  .lab-card {
+    position: relative;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .lab-card__canvas {
+    min-height: 180px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 36px 24px;
+    background:
+      radial-gradient(at 50% 50%, rgba(255, 87, 51, 0.06), transparent 70%),
+      var(--bg-elevated);
+    position: relative;
+    overflow: hidden;
+  }
+  .lab-card__canvas--dark {
+    background:
+      radial-gradient(at 50% 50%, rgba(255, 87, 51, 0.08), transparent 70%),
+      #07080B;
+  }
+  .lab-card__canvas--cool {
+    /* Neutral cool-slate — no orange tint, doesn't clash with the helmet logo */
+    background:
+      linear-gradient(160deg, #1F2330 0%, #131521 60%, #0A0C12 100%);
+  }
+  .lab-card__canvas--cream {
+    background: linear-gradient(135deg, #F3EFE7, #E8E2D3);
+  }
+  .lab-card__canvas--flame {
+    background:
+      radial-gradient(at 30% 30%, rgba(255, 167, 0, 0.4), transparent 60%),
+      radial-gradient(at 70% 70%, rgba(255, 87, 51, 0.3), transparent 60%),
+      linear-gradient(135deg, #2A0E04, #08090D 80%);
+  }
+  .lab-card__canvas::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .lab-card__meta {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-subtle);
+    display: grid; gap: 4px;
+  }
+  .lab-card__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--t-body);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .lab-card__name .stamp { color: var(--orange-500); }
+  .lab-card__use {
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+  }
+  .lab-card__notes {
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-top: 6px;
+  }
+
+  /* --- LOGO LOCKUP VARIATIONS --- */
+  .lockup {
+    display: inline-flex; align-items: center; gap: 14px;
+    color: var(--text-primary);
+    z-index: 1; position: relative;
+  }
+  .lockup--cream { color: #1A1109; }
+  .lockup__mark {
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lockup__mark img { width: 100%; height: auto; }
+  .lockup__text {
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 36px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .lockup__tag {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* Stacked */
+  .lockup-stacked {
+    display: inline-flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .lockup-stacked img { width: 72px; height: auto; }
+  .lockup-stacked__text {
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .lockup-stacked__bar {
+    width: 32px; height: 2px; background: var(--orange-500);
+  }
+
+  /* Badge stamp — circular, military shield style */
+  .lockup-stamp {
+    width: 144px; height: 144px;
+    border-radius: 50%;
+    border: 2px solid var(--orange-500);
+    display: inline-flex; align-items: center; justify-content: center;
+    position: relative;
+    background:
+      radial-gradient(circle at center, transparent 50%, rgba(255, 87, 51, 0.08) 80%),
+      #07080B;
+  }
+  .lockup-stamp::before {
+    content: "";
+    position: absolute; inset: 6px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 87, 51, 0.45);
+  }
+  .lockup-stamp__inner {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .lockup-stamp img { width: 56px; height: auto; }
+  .lockup-stamp__text {
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--orange-500);
+  }
+  .lockup-stamp__rotating {
+    position: absolute; inset: -8px;
+    font-family: var(--font-hud);
+    font-size: 9px;
+    letter-spacing: 0.42em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .lockup-stamp__rotating svg {
+    width: 100%; height: 100%;
+    animation: spin 24s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Mark only */
+  .lockup-mark-only {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 96px; height: 96px;
+    border-radius: var(--r-lg);
+    background: linear-gradient(180deg, #1A1109, #07080B);
+    border: 1px solid rgba(255, 87, 51, 0.3);
+    box-shadow: var(--shadow-flame);
+  }
+  .lockup-mark-only img { width: 64px; }
+
+  .lockup-mark-only--rounded {
+    border-radius: 50%;
+  }
+  .lockup-mark-only--app-icon {
+    border-radius: 22px;
+    background: linear-gradient(180deg, var(--orange-500), var(--orange-deep));
+    border: none;
+  }
+  .lockup-mark-only--app-icon img {
+    filter: brightness(0) invert(1);
+    width: 56px;
+  }
+
+  /* Etched / engraved variant */
+  .lockup-etched {
+    display: inline-flex; align-items: center; gap: 14px;
+  }
+  .lockup-etched img {
+    width: 64px; height: auto;
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.08));
+  }
+  .lockup-etched__text {
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 38px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #FFF, #6B7280);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+
+  /* Header-bar variant — production header preview */
+  .header-preview {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 22px;
+    background: linear-gradient(180deg, #14151D, #0B0C10);
+    border-bottom: 1px solid rgba(255, 87, 51, 0.15);
+    border-radius: var(--r-md);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  }
+  .header-preview__brand {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .header-preview__brand img { height: 32px; }
+  .header-preview__sep {
+    width: 1px; height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .header-preview__nav {
+    display: flex; gap: 16px;
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+  .header-preview__nav .is-active { color: var(--orange-500); }
+
+  /* Animated flame on hover */
+  .lab-card__canvas--anim {
+    background:
+      radial-gradient(at 50% 60%, rgba(255, 87, 51, 0.18), transparent 65%),
+      var(--bg-elevated);
+  }
+  .anim-flame {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(at var(--mx, 50%) var(--my, 80%), rgba(255, 167, 0, 0.25), transparent 40%);
+    animation: flame 5s ease-in-out infinite;
+    opacity: 0.7;
+  }
+  @keyframes flame {
+    0%, 100% { --mx: 45%; --my: 80%; opacity: 0.6; }
+    50% { --mx: 55%; --my: 75%; opacity: 0.9; }
+  }
+
+  /* Application preview list */
+  .application-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .app-tile {
+    aspect-ratio: 1 / 1;
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .app-tile img { width: 50%; height: auto; }
+  .app-tile--orange { background: linear-gradient(180deg, var(--orange-500), var(--orange-deep)); }
+  .app-tile--orange img { filter: brightness(0) invert(1); }
+  .app-tile--dark { background: linear-gradient(180deg, #14151D, #07080B); border: 1px solid rgba(255, 87, 51, 0.2); }
+  .app-tile--paper { background: linear-gradient(135deg, #F3EFE7, #E0D9C8); }
+  .app-tile--flame {
+    background:
+      radial-gradient(at 30% 30%, var(--orange-300), transparent 60%),
+      linear-gradient(135deg, var(--orange-500), var(--orange-deep));
+  }
+  .app-tile--flame img { filter: brightness(0) invert(1); }
+  .app-tile-label {
+    position: absolute; bottom: 8px; left: 0; right: 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .app-tile--paper .app-tile-label { color: rgba(0, 0, 0, 0.4); }
+</style>
+</head>
+<body>
+
+<div class="doc">
+
+  <div class="doc-head">
+    <span class="stamp" style="color:var(--orange-500)">02 · Identity</span>
+    <h1>Logo &amp; lockup<br><span style="color:var(--orange-500)">exploration</span></h1>
+    <p class="lede">
+      The Spartan helmet is the brand. Six lockup explorations below — pick
+      the one (or two — display + monogram) that the team takes forward into
+      production. Each carries its own use-case and tone, so the system
+      depends less on a single hero treatment and more on contextual fit.
+    </p>
+  </div>
+
+  <!-- ============== 01 FULL LOCKUP ============== -->
+  <section class="lab-section">
+    <header>
+      <span class="lab-section__index">A</span>
+      <h2>Full horizontal lockup</h2>
+    </header>
+    <p>
+      The everyday signature — used in the app header, the marketing site
+      header, on physical media, and as the e-mail header. Helmet mark is
+      flush-left of the wordmark; "BOADMAN" rendered in Barlow Condensed
+      800 with 0.12em tracking — military stamp, not corporate sans.
+    </p>
+
+    <div class="lab-grid lab-grid--3">
+
+      <div class="lab-card">
+        <div class="lab-card__canvas lab-card__canvas--dark">
+          <div class="lockup">
+            <span class="lockup__mark"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></span>
+          </div>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">A1 · Original SVG <span class="stamp">REAL ASSET</span></div>
+          <div class="lab-card__use">The current production logo, lifted from <code class="kbd">boadman-landing</code>. Spartan helmet + cracked-engraved "BOADMAN".</div>
+          <div class="lab-card__notes">_assets/svgs/BoadmanLogo.svg · 1.0× scale</div>
+        </div>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-card__canvas lab-card__canvas--dark">
+          <div class="lockup">
+            <span class="lockup__mark"><img src="../_assets/svgs/BoadmanLogo.svg" alt="" /></span>
+            <span class="lockup__text">BOADMAN</span>
+          </div>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">A2 · Helmet + clean wordmark</div>
+          <div class="lab-card__use">Use when the in-helmet "BOADMAN" doesn't read at small sizes. Hud-condensed type, military stamp. Crisper at any scale.</div>
+          <div class="lab-card__notes">Barlow Condensed 800 · 36px · 0.12em tracking</div>
+        </div>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-card__canvas lab-card__canvas--dark">
+          <div class="lockup-etched">
+            <img src="../_assets/svgs/BoadmanLogo.svg" alt="" />
+            <span class="lockup-etched__text">BOADMAN</span>
+          </div>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">A3 · Etched-metal variant</div>
+          <div class="lab-card__use">Wordmark with a brushed-steel gradient. For premium contexts — print, podium graphics, splash screens.</div>
+          <div class="lab-card__notes">linear-gradient(#FFF → #6B7280) clip-text</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 02 MARK ONLY ============== -->
+  <section class="lab-section">
+    <header>
+      <span class="lab-section__index">B</span>
+      <h2>Mark-only treatments</h2>
+    </header>
+    <p>
+      Helmet alone — for app icons, favicons, in-app badges, and any
+      surface where the wordmark would be illegible. Three treatments:
+      tactical-dark, monochrome-flame, and a deeply rounded iOS-app-icon
+      flame fill.
+    </p>
+
+    <div class="lab-grid">
+
+      <div class="lab-card">
+        <div class="lab-card__canvas lab-card__canvas--cool">
+          <span class="lockup-mark-only" style="background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.4)); border-color: rgba(255,255,255,0.1); box-shadow: 0 12px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);">
+            <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+          </span>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">B1 · Tactical badge <span class="stamp">v2</span></div>
+          <div class="lab-card__use">Dark surface inside the in-app side rail. Neutral cool-slate canvas — no orange tint to fight the helmet itself.</div>
+          <div class="lab-card__notes">96px · radius 12 · subtle inner highlight + drop-shadow</div>
+        </div>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-card__canvas lab-card__canvas--cool">
+          <span class="lockup-mark-only lockup-mark-only--rounded" style="background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.4)); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 12px 32px rgba(0,0,0,0.4);">
+            <img src="../_assets/svgs/BoadmanLogo.svg" alt="" />
+          </span>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">B2 · Round emblem</div>
+          <div class="lab-card__use">Player profile avatars, official-badge contexts where the helmet should read as a coin.</div>
+          <div class="lab-card__notes">96px · circle · neutral slate gradient</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 03 STACKED ============== -->
+  <section class="lab-section">
+    <header>
+      <span class="lab-section__index">C</span>
+      <h2>Stacked &amp; ceremonial lockups</h2>
+    </header>
+    <p>
+      For square spaces (tournament posters, social profile photos, prize
+      certificates, the "champion of the week" header). The stamp variant
+      reads like a military patch — fits the gladiator/Spartan brand
+      vocabulary.
+    </p>
+
+    <div class="lab-grid">
+
+      <div class="lab-card">
+        <div class="lab-card__canvas" style="min-height:240px">
+          <div class="lockup-stacked">
+            <img src="../_assets/svgs/BoadmanLogo.svg" alt="" />
+            <div class="lockup-stacked__bar"></div>
+            <span class="lockup-stacked__text">BOADMAN</span>
+            <span class="stamp" style="font-size:10px; color:var(--text-muted)">COMPETE WITH DISCIPLINE</span>
+          </div>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">C1 · Vertical lockup with tagline</div>
+          <div class="lab-card__use">For posters, prize PDFs, brand presentation decks, store-listing graphics. Tagline reads quietly under the bar.</div>
+          <div class="lab-card__notes">72 mark · 2px flame divider · 24px wordmark · 10px tagline</div>
+        </div>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-card__canvas lab-card__canvas--dark" style="min-height:240px">
+          <span class="lockup-stamp">
+            <span class="lockup-stamp__inner">
+              <img src="../_assets/svgs/BoadmanLogo.svg" alt="" />
+              <span class="lockup-stamp__text">EST · 2026 · UK</span>
+            </span>
+          </span>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">C2 · Spartan stamp / shield</div>
+          <div class="lab-card__use">Champion certificates, "winner of the month" overlay, physical merch (sticker / coin / patch). Doubles as a season-trophy mark.</div>
+          <div class="lab-card__notes">144px circle · double orange border · helmet centred</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 04 SURFACE PREVIEWS ============== -->
+  <section class="lab-section">
+    <header>
+      <span class="lab-section__index">D</span>
+      <h2>Surface previews</h2>
+    </header>
+    <p>
+      The lockups in the contexts they actually live in.
+    </p>
+
+    <div class="header-preview" style="margin-bottom: 24px;">
+      <div class="header-preview__brand">
+        <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      </div>
+      <div class="header-preview__sep"></div>
+      <div class="header-preview__nav">
+        <span class="is-active">Compete</span>
+        <span>Tournaments</span>
+        <span>Wallet</span>
+        <span>Leaderboard</span>
+      </div>
+    </div>
+
+    <div class="application-grid">
+      <div class="app-tile app-tile--dark">
+        <img src="../_assets/svgs/BoadmanLogo.svg" alt="" />
+        <span class="app-tile-label">D3 · Notification · dark</span>
+      </div>
+      <div class="app-tile app-tile--paper">
+        <img src="../_assets/svgs/BoadmanLogo.svg" alt="" />
+        <span class="app-tile-label">D4 · Print · paper</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 05 MOTION PREVIEW ============== -->
+  <section class="lab-section">
+    <header>
+      <span class="lab-section__index">E</span>
+      <h2>Idle motion · splash screen</h2>
+    </header>
+    <p>
+      How the mark behaves on the app's first-load splash and on the
+      sign-in screen. Subtle flame parallax behind the helmet — no
+      distracting bounce, no rotating spin. The mark stays still; the
+      world behind it breathes.
+    </p>
+
+    <div class="lab-grid">
+      <div class="lab-card">
+        <div class="lab-card__canvas lab-card__canvas--flame" style="min-height: 280px;">
+          <span class="anim-flame"></span>
+          <span class="lockup">
+            <span class="lockup__mark" style="width: 96px; height: 96px;"><img src="../_assets/svgs/BoadmanLogo.svg" alt="" /></span>
+            <span class="lockup__text" style="font-size:48px;">BOADMAN</span>
+          </span>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">E1 · Splash screen — animated</div>
+          <div class="lab-card__use">5 s ease-in-out flame parallax behind the mark. Pure CSS keyframes — no asset.</div>
+          <div class="lab-card__notes">@keyframes flame · 5s ease-in-out infinite</div>
+        </div>
+      </div>
+
+      <div class="lab-card">
+        <div class="lab-card__canvas" style="min-height: 280px;">
+          <span class="lockup-stamp" style="width: 200px; height: 200px;">
+            <span class="lockup-stamp__inner">
+              <img src="../_assets/svgs/BoadmanLogo.svg" alt="" style="width: 80px;" />
+              <span class="lockup-stamp__text">EST · 2026 · UK</span>
+            </span>
+            <svg class="lockup-stamp__rotating" viewBox="0 0 200 200">
+              <defs><path id="circle-text" d="M 100,100 m -90,0 a 90,90 0 1,1 180,0 a 90,90 0 1,1 -180,0" /></defs>
+              <text font-family="Barlow Condensed" font-size="11" font-weight="700" letter-spacing="6" fill="rgba(255, 87, 51, 0.6)">
+                <textPath href="#circle-text">BOADMAN · COMPETE WITH DISCIPLINE · BOADMAN · COMPETE WITH DISCIPLINE · </textPath>
+              </text>
+            </svg>
+          </span>
+        </div>
+        <div class="lab-card__meta">
+          <div class="lab-card__name">E2 · Champion stamp — rotating</div>
+          <div class="lab-card__use">For "Champion of the Month" hero overlays and prize-claim animations. Rotates 24 s clockwise.</div>
+          <div class="lab-card__notes">SVG textPath · animation 24s spin infinite</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 06 RECOMMENDATION ============== -->
+  <section class="lab-section">
+    <header>
+      <span class="lab-section__index">↳</span>
+      <h2>Recommendation</h2>
+    </header>
+    <p>
+      Pick a primary + a mark-only and the system is complete. My
+      recommendation:
+    </p>
+
+    <div class="card card-flame" style="margin-top: 24px;">
+      <div class="row" style="gap: 24px; align-items: center;">
+        <div class="lockup">
+          <span class="lockup__mark"><img src="../_assets/svgs/BoadmanLogo.svg" alt="" /></span>
+          <span class="lockup__text">BOADMAN</span>
+        </div>
+        <div style="flex: 1; min-width: 280px;">
+          <div class="stamp" style="color: var(--orange-500); margin-bottom: 8px;">Approved set · A2 + B1 + C1 + D3/D4 + E1</div>
+          <p style="font-size: var(--t-body); line-height: 1.6; color: var(--text-secondary); margin: 0;">
+            <strong style="color: var(--text-primary);">A2 (helmet + clean Barlow Condensed wordmark)</strong> — primary in-product and marketing surfaces.<br>
+            <strong style="color: var(--text-primary);">B1 (tactical badge, neutral slate)</strong> — sidebar mark when wordmark won't fit.<br>
+            <strong style="color: var(--text-primary);">C1 (vertical lockup with tagline)</strong> — posters, prize PDFs, presentation decks.<br>
+            <strong style="color: var(--text-primary);">D3 / D4 (notification dark · print paper)</strong> — push notifications and print materials.<br>
+            <strong style="color: var(--text-primary);">E1 (splash motion)</strong> — first-load and sign-in surface.
+            <br><br>
+            <em style="color: var(--text-muted); font-size: var(--t-meta);">B3 dropped — flame-fill clashed with the brand-orange background of the in-product UI. We'll commission a dedicated app-icon mark separately so the home-screen face doesn't compete with the in-product accent.</em>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>

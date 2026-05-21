@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Games</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" /><link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  .games-grid { display: grid; gap: var(--s-4); }
+  @media (min-width: 640px) { .games-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) { .games-grid { grid-template-columns: 1fr 1fr 1fr; } }
+  .game-card { background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); overflow: hidden; transition: all var(--dur-fast); text-decoration: none; color: inherit; }
+  .game-card:hover { transform: translateY(-2px); border-color: var(--border-flame); }
+  .game-card__art { height: 180px; position: relative; overflow: hidden; }
+  .game-card__art img { width: 100%; height: 100%; object-fit: cover; }
+  .game-card__art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, var(--bg-panel)); }
+  .game-card__body { padding: var(--s-4); }
+  .game-card__title { font-family: var(--font-display); font-weight: 700; font-size: 18px; margin-bottom: 4px; }
+  .game-card__meta { font-size: var(--t-meta); color: var(--text-muted); margin-bottom: 12px; font-family: var(--font-mono); }
+  .game-card__stats { display: flex; gap: 16px; font-size: var(--t-micro); color: var(--text-secondary); }
+  .game-card__stats strong { font-family: var(--font-display); font-weight: 700; color: var(--text-primary); font-size: 14px; display: block; }
+</style></head>
+<body>
+
+<div class="shell shell--with-rail">
+  <header class="app-header">
+    <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search games…" /></div>
+    <div class="header-actions"><button class="icon-bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button><div class="avatar-pill"><span class="avatar">J</span><span>Joel</span></div></div>
+  </header>
+  <aside class="nav-rail">
+    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+    <span class="nav-section">Play</span>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/></svg>Dashboard</a>
+    <a class="nav-item" href="tournaments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9H4"/></svg>Tournaments</a>
+    <a class="nav-item" href="challenges.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m14 5 3 3"/></svg>Challenges</a>
+    <a class="nav-item is-active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Games</a>
+    <span class="nav-section">Account</span>
+    <a class="nav-item" href="wallet-default.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12"/></svg>Wallet</a>
+    <div class="rail-balance"><div class="rail-balance__label">Spendable</div><div class="rail-balance__amount">12,400<span class="unit">coins</span></div></div>
+  </aside>
+
+  <main class="app-main">
+    <div class="row row--between" style="margin-bottom: var(--s-5);">
+      <div><h1 class="page-title">Games</h1><p class="page-subtitle">All supported titles. Pick one to challenge a friend or join a live tournament.</p></div>
+    </div>
+
+    <div class="chip-row" style="margin-bottom: var(--s-5);">
+      <button class="chip-filter is-active">All</button>
+      <button class="chip-filter">Shooters</button>
+      <button class="chip-filter">Sports</button>
+      <button class="chip-filter">Battle Royale</button>
+      <button class="chip-filter">Fighting</button>
+      <button class="chip-filter">Strategy</button>
+    </div>
+
+    <div class="games-grid">
+      <a href="#" class="game-card"><div class="game-card__art"><img src="../_assets/games/ApexLegendsBanner.png" alt="" /></div><div class="game-card__body"><div class="game-card__title">Apex Legends</div><div class="game-card__meta">Battle Royale · FFA · PC / Console</div><div class="game-card__stats"><div><strong>12</strong>Live tournaments</div><div><strong>3,800</strong>Active 1v1</div><div><strong>£42K</strong>Lifetime prize</div></div></div></a>
+      <a href="#" class="game-card"><div class="game-card__art"><img src="../_assets/games/CallOfDutyFull.png" alt="" /></div><div class="game-card__body"><div class="game-card__title">Call of Duty</div><div class="game-card__meta">BR · MP · PC / Console</div><div class="game-card__stats"><div><strong>9</strong>Live tournaments</div><div><strong>2,100</strong>Active 1v1</div></div></div></a>
+      <a href="#" class="game-card"><div class="game-card__art"><img src="../_assets/games/CyberPunk.png" alt="" /></div><div class="game-card__body"><div class="game-card__title">Cyberpunk 2077</div><div class="game-card__meta">RPG · PvP · PC</div><div class="game-card__stats"><div><strong>4</strong>Live tournaments</div><div><strong>800</strong>Active 1v1</div></div></div></a>
+      <a href="#" class="game-card"><div class="game-card__art" style="background: linear-gradient(135deg, #1A2540, #0B0C10);"></div><div class="game-card__body"><div class="game-card__title">Valorant</div><div class="game-card__meta">FPS · Tactical · PC</div><div class="game-card__stats"><div><strong>8</strong>Live tournaments</div></div></div></a>
+      <a href="#" class="game-card"><div class="game-card__art" style="background: linear-gradient(135deg, #0F2A18, #0B0C10);"></div><div class="game-card__body"><div class="game-card__title">FC25</div><div class="game-card__meta">Sports · Football · PC / Console</div><div class="game-card__stats"><div><strong>14</strong>Live tournaments</div></div></div></a>
+      <a href="#" class="game-card"><div class="game-card__art" style="background: linear-gradient(135deg, #2A1109, #0B0C10);"></div><div class="game-card__body"><div class="game-card__title">Rocket League</div><div class="game-card__meta">Sports · Cars · PC / Console</div><div class="game-card__stats"><div><strong>5</strong>Live tournaments</div></div></div></a>
+    </div>
+  </main>
+</div>
+</body></html>

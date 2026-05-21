@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Design System &amp; Prototype</title>
+<link rel="stylesheet" href="_tokens/tokens.css" />
+<link rel="stylesheet" href="_tokens/components.css" />
+<style>
+  body {
+    background:
+      radial-gradient(at 85% -10%, rgba(255, 87, 51, 0.10), transparent 50%),
+      radial-gradient(at 5% 100%, rgba(255, 167, 0, 0.06), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+  .nav-doc { max-width: 1280px; margin: 0 auto; padding: 56px 32px 100px; }
+  .nav-doc header { display: grid; gap: 16px; margin-bottom: 48px; max-width: 760px; }
+  .nav-doc h1 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 5.5vw, 72px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin: 0;
+    line-height: 0.95;
+  }
+  .nav-doc h1 .flame { color: var(--orange-500); text-shadow: 0 0 32px rgba(255, 87, 51, 0.45); }
+  .nav-doc h2 {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 600;
+    margin: 56px 0 16px;
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  .nav-doc h2::after { content: ""; flex: 1; height: 1px; background: var(--border-subtle); }
+  .nav-doc .lede { color: var(--text-secondary); font-size: 16px; line-height: 1.65; }
+  .top-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  .hero-mark { height: 88px; margin-bottom: 12px; filter: drop-shadow(0 0 24px rgba(255, 87, 51, 0.3)); }
+  .label-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-hud);
+    font-size: 11px; font-weight: 700;
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    width: fit-content;
+  }
+  .link-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  @media (min-width: 720px) { .link-grid { grid-template-columns: 1fr 1fr; } }
+  .link-card {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 14px; align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .link-card:hover {
+    border-color: var(--border-flame);
+    background: linear-gradient(180deg, var(--orange-tint), transparent 50%), var(--bg-panel);
+    transform: translateY(-1px);
+  }
+  .link-card__num {
+    font-family: var(--font-hud);
+    font-weight: 800; font-size: 16px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+  }
+  .link-card__title { font-family: var(--font-display); font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+  .link-card__meta { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .link-card__status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+  }
+  .link-card__status--done { background: var(--green-tint); color: var(--green-500); }
+  .link-card__status--gap { background: var(--amber-tint); color: var(--amber-500); }
+  .link-card__status--todo { background: var(--bg-elevated); color: var(--text-muted); }
+  .link-card[data-status="todo"] { opacity: 0.5; pointer-events: none; }
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+  @media (min-width: 720px) { .stats-bar { grid-template-columns: repeat(4, 1fr); } }
+  .stats-bar > div { background: var(--bg-panel); padding: 16px 20px; }
+  .stats-bar__label { font-family: var(--font-hud); font-size: 10px; text-transform: uppercase; letter-spacing: var(--tr-stamp); color: var(--text-muted); font-weight: 700; }
+  .stats-bar__value { font-family: var(--font-display); font-weight: 700; font-size: 22px; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="nav-doc">
+
+  <header>
+    <img class="hero-mark" src="_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+    <span class="label-pill"><span style="width:8px;height:8px;border-radius:50%;background:var(--orange-500); box-shadow: 0 0 6px var(--orange-500);"></span> v2 · stakeholder share · 21 May 2026</span>
+    <h1>Compete with<br><span class="flame">discipline.</span></h1>
+    <p class="lede">
+      The Boadman design system + interactive prototype. Built for stakeholder
+      review and as the production-ready frontend spec. Tokens, components
+      and screens here lift directly into the production app.
+    </p>
+    <div class="top-actions">
+      <a class="btn btn-primary btn-uppercase" href="_components/logo-exploration.html">Logo lab</a>
+      <a class="btn btn-secondary btn-uppercase" href="_components/showcase.html">Components</a>
+      <a class="btn btn-secondary btn-uppercase" href="brand-spec.md">Brand spec</a>
+      <a class="btn btn-ghost btn-uppercase" href="backend-gaps.md">Backend gaps</a>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div><div class="stats-bar__label">Surfaces designed</div><div class="stats-bar__value">22</div></div>
+    <div><div class="stats-bar__label">Backend gaps logged</div><div class="stats-bar__value" style="color: var(--amber-500);">14</div></div>
+    <div><div class="stats-bar__label">Actor surfaces</div><div class="stats-bar__value">4</div></div>
+    <div><div class="stats-bar__label">v1 launch target</div><div class="stats-bar__value" style="color: var(--orange-500);">Jul 2026</div></div>
+  </div>
+
+  <h2><span class="stamp" style="color: var(--orange-500)">A</span> Player</h2>
+  <p class="lede" style="margin-bottom: 24px;">The default actor — any signed-in end user. Account lifecycle, wallet, competitions, disputes, notifications.</p>
+
+  <div class="link-grid">
+    <a href="player/auth.html" class="link-card"><span class="link-card__num">01</span><div><div class="link-card__title">Authentication</div><div class="link-card__meta">sign-up · login · forgot · reset · re-consent</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/profile.html" class="link-card"><span class="link-card__num">02</span><div><div class="link-card__title">Profile &amp; KYC</div><div class="link-card__meta">settings · KYC intro · outcomes · rectification</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/wallet.html" class="link-card"><span class="link-card__num">03</span><div><div class="link-card__title">Wallet — frozen variant</div><div class="link-card__meta">vault card · multi-hold · activity feed</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/wallet-default.html" class="link-card"><span class="link-card__num">04</span><div><div class="link-card__title">Wallet — default (no freeze)</div><div class="link-card__meta">healthy state · cash-out armed</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/buy-coins.html" class="link-card"><span class="link-card__num">05</span><div><div class="link-card__title">Buy coins</div><div class="link-card__meta">amount → Stripe → success / failure</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/cash-out.html" class="link-card"><span class="link-card__num">06</span><div><div class="link-card__title">Cash out</div><div class="link-card__meta">amount → method → confirmation · blocked</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/payout-methods.html" class="link-card"><span class="link-card__num">07</span><div><div class="link-card__title">Payout methods</div><div class="link-card__meta">list · add Stripe / Paystack</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/games.html" class="link-card"><span class="link-card__num">08</span><div><div class="link-card__title">Games · catalogue + detail</div><div class="link-card__meta">browse · open game · launch competition</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/tournaments.html" class="link-card"><span class="link-card__num">09</span><div><div class="link-card__title">Tournaments hub</div><div class="link-card__meta">filter · sort · join · host</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/tournament-detail.html" class="link-card"><span class="link-card__num">10</span><div><div class="link-card__title">Tournament detail — 4 states</div><div class="link-card__meta">open · live · awaiting · completed</div></div><span class="link-card__status link-card__status--gap">Designed · gaps</span></a>
+    <a href="player/tournament-create.html" class="link-card"><span class="link-card__num">11</span><div><div class="link-card__title">Create tournament</div><div class="link-card__meta">host form · winner-count · prize split</div></div><span class="link-card__status link-card__status--gap">Designed · gaps</span></a>
+    <a href="player/challenges.html" class="link-card"><span class="link-card__num">12</span><div><div class="link-card__title">Challenges hub + create</div><div class="link-card__meta">1v1 · sent / received · create invite</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/match.html" class="link-card"><span class="link-card__num">13</span><div><div class="link-card__title">Match detail</div><div class="link-card__meta">active · submit · disputed · completed</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/disputes.html" class="link-card"><span class="link-card__num">14</span><div><div class="link-card__title">Disputes &amp; complaints</div><div class="link-card__meta">file complaint · my open cases</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="player/notifications.html" class="link-card"><span class="link-card__num">15</span><div><div class="link-card__title">Notifications inbox</div><div class="link-card__meta">in-app · filter · mark all read</div></div><span class="link-card__status link-card__status--gap">Designed · gaps</span></a>
+    <a href="player/account-states.html" class="link-card"><span class="link-card__num">16</span><div><div class="link-card__title">Account terminal states</div><div class="link-card__meta">suspended · banned · GDPR erasure</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+  </div>
+
+  <h2><span class="stamp" style="color: var(--orange-500)">B</span> Brand</h2>
+  <p class="lede" style="margin-bottom: 24px;">Brand Managers act on behalf of an approved Brand. Separate wallet, host tournaments, sponsor competitions.</p>
+
+  <div class="link-grid">
+    <a href="brand/register.html" class="link-card"><span class="link-card__num">17</span><div><div class="link-card__title">Register a brand</div><div class="link-card__meta">apply · my brands · pending review</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a href="brand/dashboard.html" class="link-card"><span class="link-card__num">18</span><div><div class="link-card__title">Brand dashboard — 4 states</div><div class="link-card__meta">approved · suspended · EDD-paused · frozen</div></div><span class="link-card__status link-card__status--gap">Designed · gaps</span></a>
+    <a href="brand/wallet.html" class="link-card"><span class="link-card__num">19</span><div><div class="link-card__title">Brand wallet + top-up</div><div class="link-card__meta">balance · activity · Stripe top-up</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+  </div>
+
+  <h2><span class="stamp" style="color: var(--purple-500)">C</span> Admin &amp; MLRO</h2>
+  <p class="lede" style="margin-bottom: 24px;">Compliance theme — deep slate, purple accent. Calm institutional voice. Designed for back-office on desktop.</p>
+
+  <div class="link-grid">
+    <a href="admin/aml-flag-detail.html" class="link-card"><span class="link-card__num">20</span><div><div class="link-card__title">AML flag detail · investigating</div><div class="link-card__meta">command-center slate · SLA ring · decision tiles</div></div><span class="link-card__status link-card__status--done">Designed</span></a>
+    <a class="link-card" data-status="todo"><span class="link-card__num">21</span><div><div class="link-card__title">Compliance overview · all queues</div><div class="link-card__meta">to be designed in next batch</div></div><span class="link-card__status link-card__status--todo">Pending</span></a>
+    <a class="link-card" data-status="todo"><span class="link-card__num">22</span><div><div class="link-card__title">KYC + sanctions + disputes queues</div><div class="link-card__meta">to be designed in next batch</div></div><span class="link-card__status link-card__status--todo">Pending</span></a>
+  </div>
+
+  <h2><span class="stamp" style="color: var(--text-muted)">D</span> System &amp; foundation</h2>
+  <div class="link-grid">
+    <a href="_components/showcase.html" class="link-card"><span class="link-card__num">D1</span><div><div class="link-card__title">Component library</div><div class="link-card__meta">tokens · components · theme toggle</div></div><span class="link-card__status link-card__status--done">Live</span></a>
+    <a href="_components/logo-exploration.html" class="link-card"><span class="link-card__num">D2</span><div><div class="link-card__title">Logo &amp; lockup exploration</div><div class="link-card__meta">A2 · B1 · C1 · D3 / D4 · E1 — approved set</div></div><span class="link-card__status link-card__status--done">Live</span></a>
+    <a href="brand-spec.md" class="link-card"><span class="link-card__num">D3</span><div><div class="link-card__title">Brand &amp; design spec</div><div class="link-card__meta">canonical reference · palette · type · components</div></div><span class="link-card__status link-card__status--done">v2</span></a>
+    <a href="backend-gaps.md" class="link-card"><span class="link-card__num">D4</span><div><div class="link-card__title">Backend-gaps register</div><div class="link-card__meta">design-driven engineering roadmap</div></div><span class="link-card__status link-card__status--gap">14 entries</span></a>
+  </div>
+
+  <p style="margin-top: 64px; padding-top: 28px; border-top: 1px dashed var(--border-subtle); font-size: var(--t-meta); color: var(--text-muted); font-family: var(--font-mono); line-height: 1.6;">
+    Provisional rates (challenge fee 12 %, tournament commission 12 % player / 15 % brand, publisher royalty 15 %, min wager 100 coins) are interim — pending SP8-ECON formal economics review.
+  </p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Disputes &amp; complaints</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" /><link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  .case-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 14px; align-items: center; padding: 14px 18px; background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--r-md); margin-bottom: 8px; }
+</style></head>
+<body>
+
+<div class="shell shell--with-rail">
+  <header class="app-header">
+    <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search…" /></div>
+    <div class="header-actions"><button class="icon-bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button><div class="avatar-pill"><span class="avatar">J</span><span>Joel</span></div></div>
+  </header>
+  <aside class="nav-rail">
+    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+    <span class="nav-section">Play</span>
+    <a class="nav-item" href="tournaments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9H4"/></svg>Tournaments</a>
+    <a class="nav-item" href="challenges.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m14 5 3 3"/></svg>Challenges</a>
+    <span class="nav-section">Account</span>
+    <a class="nav-item" href="wallet-default.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12"/></svg>Wallet</a>
+    <a class="nav-item is-active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>Disputes</a>
+  </aside>
+
+  <main class="app-main">
+    <div class="row row--between" style="margin-bottom: var(--s-5);">
+      <div><h1 class="page-title">Disputes &amp; complaints</h1><p class="page-subtitle">Your open and resolved cases. Disputes contest match results; complaints contest held prizes within the 48 h window.</p></div>
+    </div>
+
+    <div class="chip-row" style="margin-bottom: var(--s-4);">
+      <button class="chip-filter is-active">All open</button>
+      <button class="chip-filter">Disputes</button>
+      <button class="chip-filter">Complaints</button>
+      <button class="chip-filter">Resolved</button>
+    </div>
+
+    <div class="case-row">
+      <div><div style="font-weight: 600;">Disputed · vs Theo_W · Cyberpunk</div><div class="text-muted" style="font-size: var(--t-meta); font-family: var(--font-mono); margin-top: 4px;">DSP_9a82 · raised by you · 21 May · 18:42</div></div>
+      <span class="badge badge--warning">Under review</span>
+      <span class="text-muted" style="font-size: var(--t-meta);">4 h elapsed</span>
+      <button class="btn btn-secondary btn-sm">Open</button>
+    </div>
+    <div class="case-row">
+      <div><div style="font-weight: 600;">Complaint · Apex Spring Showdown · 1st place prize</div><div class="text-muted" style="font-size: var(--t-meta); font-family: var(--font-mono); margin-top: 4px;">CMP_2bcd · raised by Loner_Epic · 21 May · 19:14</div></div>
+      <span class="badge badge--danger">Prize frozen</span>
+      <span class="text-muted" style="font-size: var(--t-meta);">2 h elapsed</span>
+      <button class="btn btn-secondary btn-sm">View</button>
+    </div>
+    <div class="case-row" style="opacity: 0.6;">
+      <div><div style="font-weight: 600;">Dispute resolved · vs Riya_Plays · FC25</div><div class="text-muted" style="font-size: var(--t-meta); font-family: var(--font-mono); margin-top: 4px;">DSP_71aa · marked frivolous · 5 % fee deducted</div></div>
+      <span class="badge badge--neutral">Closed</span>
+      <span class="text-muted" style="font-size: var(--t-meta);">3 d ago</span>
+      <button class="btn btn-ghost btn-sm">Open</button>
+    </div>
+
+    <div class="card" style="margin-top: var(--s-6);">
+      <div class="card-header"><div class="card-title">How disputes &amp; complaints work</div></div>
+      <div class="stack" style="gap: 12px; font-size: var(--t-meta); color: var(--text-secondary); line-height: 1.6;">
+        <div><strong style="color: var(--text-primary);">Dispute a match.</strong> Open within 48 h of result submission. Admin reviews both submissions, both pieces of evidence, and decides: A wins / B wins / cancelled / replay / mark frivolous (5 % fee on disputer).</div>
+        <div><strong style="color: var(--text-primary);">File a complaint on a held prize.</strong> Only available during the 48 h hold and only to other participants in the same competition. Freezes the prize for admin review.</div>
+        <div><strong style="color: var(--text-primary);">Frivolous threshold.</strong> Three frivolous-dispute strikes in a rolling 12 mo triggers a 30 d host-suspension.</div>
+      </div>
+    </div>
+  </main>
+</div>
+</body></html>

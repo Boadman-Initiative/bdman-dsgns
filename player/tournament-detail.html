@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Apex Spring Showdown</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ---- Tournament hero ---- */
+  .t-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid var(--border-default);
+    margin-bottom: var(--s-5);
+    isolation: isolate;
+    background: var(--bg-panel);
+  }
+  .t-hero__bg { position: absolute; inset: 0; z-index: 0; }
+  .t-hero__bg img {
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0.62; transform: scale(1.04);
+  }
+  .t-hero__bg::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(11,12,16,0.4) 0%, rgba(11,12,16,0.88) 75%, var(--bg-page) 100%),
+      linear-gradient(90deg, rgba(11,12,16,0.7) 0%, transparent 60%);
+  }
+  .t-hero__bg::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.35;
+    mix-blend-mode: overlay;
+    z-index: 1;
+  }
+  .t-hero__content {
+    position: relative; z-index: 2;
+    padding: var(--s-6);
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 768px) { .t-hero__content { padding: var(--s-8); } }
+  @media (min-width: 1100px) { .t-hero__content { padding: var(--s-10) var(--s-10) var(--s-8); } }
+
+  .t-hero__meta-strip { display: flex; gap: 10px; flex-wrap: wrap; }
+  .t-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(36px, 6vw, 68px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+    text-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    max-width: 18ch;
+  }
+  .t-hero__sub {
+    color: var(--text-secondary); font-size: var(--t-body);
+    max-width: 56ch;
+  }
+  .t-hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--s-3); }
+
+  /* Stats strip */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    margin-bottom: var(--s-6);
+  }
+  @media (min-width: 640px) { .stats-strip { grid-template-columns: repeat(4, 1fr); } }
+  .stats-strip__cell {
+    background: var(--bg-panel);
+    padding: var(--s-4) var(--s-5);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stats-strip__label {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .stats-strip__value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 26px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stats-strip__sub {
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  @media (min-width: 1100px) {
+    .t-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--s-6); align-items: flex-start; }
+  }
+
+  /* Game pill in hero */
+  .game-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 10px 6px 6px;
+    border-radius: var(--r-pill);
+    background: rgba(11, 12, 16, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-subtle);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .game-pill__icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--orange-500);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+  }
+
+  /* "Awaiting host" state highlight banner */
+  .awaiting-banner {
+    background:
+      linear-gradient(135deg, rgba(255, 170, 34, 0.12), transparent 70%),
+      var(--bg-panel);
+    border: 1px solid rgba(255, 170, 34, 0.32);
+    border-radius: var(--r-lg);
+    padding: var(--s-5);
+    display: flex; gap: var(--s-4); align-items: center;
+    margin-bottom: var(--s-5);
+  }
+  .awaiting-banner__icon {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(255, 170, 34, 0.15);
+    color: var(--amber-500);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .awaiting-banner__icon svg { width: 28px; height: 28px; }
+</style>
+</head>
+<body>
+
+<div class="shell shell--with-rail">
+
+  <!-- HEADER (no logo) -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search games, players, tournaments…" />
+    </div>
+    <div class="header-actions">
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot"></span>
+      </button>
+      <div class="avatar-pill"><span class="avatar">T</span><span>Theo_W · Host</span></div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR — logo at top -->
+  <aside class="nav-rail" aria-label="Primary">
+    <a href="../index.html" class="nav-rail__brand" aria-label="Boadman home">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+    </a>
+
+    <span class="nav-section">Play</span>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
+    <a class="nav-item is-active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>Tournaments<span class="nav-badge">12</span></a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5 3 3-3 3M17 8H6a3 3 0 0 0 0 6h1M10 19l-3-3 3-3M7 16h11a3 3 0 0 0 0-6h-1"/></svg>Challenges<span class="nav-badge">3</span></a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>Games</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6-6 6 6M12 3v15M5 21h14"/></svg>Leaderboard</a>
+
+    <span class="nav-section">Account</span>
+    <a class="nav-item" href="wallet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l3-3h12l3 3M16 13h3"/></svg>Wallet</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profile</a>
+
+    <div class="rail-balance">
+      <div class="rail-balance__label">Spendable</div>
+      <div class="rail-balance__amount">12,400<span class="unit">coins</span></div>
+      <div class="rail-balance__sub">£1,240.00</div>
+    </div>
+  </aside>
+
+  <main class="app-main" id="tournamentRoot" data-active-state="live">
+
+    <!-- ===== PROTOTYPE STATE SWITCHER (only in design demo, not in production) ===== -->
+    <div class="state-switcher" role="tablist" aria-label="Tournament state preview">
+      <button class="state-switcher__btn" data-set-state="open">Open</button>
+      <button class="state-switcher__btn is-active" data-set-state="live">Live</button>
+      <button class="state-switcher__btn" data-set-state="awaiting">Awaiting result</button>
+      <button class="state-switcher__btn" data-set-state="completed">Completed</button>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="row" style="margin-bottom: var(--s-3); font-size: var(--t-meta); color: var(--text-muted);">
+      <a href="#" style="color: var(--text-muted)">Tournaments</a>
+      <span>›</span>
+      <a href="#" style="color: var(--text-muted)">Apex Legends</a>
+      <span>›</span>
+      <span style="color: var(--text-secondary)">Apex Spring Showdown</span>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <section class="t-hero">
+      <div class="t-hero__bg"><img src="../_assets/games/ApexLegendsBanner.png" alt="" aria-hidden="true" /></div>
+
+      <div class="t-hero__content">
+        <div class="t-hero__meta-strip">
+          <span class="game-pill">
+            <span class="game-pill__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="12 2 22 22 2 22"/></svg></span>
+            Apex Legends · FFA
+          </span>
+
+          <!-- State-specific status -->
+          <span data-state="open" class="status-pill" style="background: rgba(11,12,16,0.5); backdrop-filter: blur(6px); color: var(--blue-500); border-color: rgba(77,135,255,0.4);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Registration open · closes 21:00 BST
+          </span>
+          <span data-state="live" class="live-pulse">Match live · started 21:18 BST</span>
+          <span data-state="awaiting" class="status-pill" style="background: rgba(255,170,34,0.18); color: var(--amber-500); border-color: rgba(255,170,34,0.4);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12 7.586 16.414A2 2 0 0 0 7 17.828V22M17 2v4.172a2 2 0 0 1-.586 1.414L12 12 7.586 7.586A2 2 0 0 1 7 6.172V2"/></svg>
+            Match concluded · awaiting host result
+          </span>
+          <span data-state="completed" class="status-pill" style="background: rgba(34,210,121,0.16); color: var(--green-500); border-color: rgba(34,210,121,0.45);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Winners recorded · prize in 48 h hold
+          </span>
+        </div>
+
+        <h1 class="t-hero__title">Apex Spring<br>Showdown</h1>
+
+        <p class="t-hero__sub">
+          Single-match free-for-all · 8-player lobby · top 3 take the prize pool.
+          Hosted by <strong style="color: var(--text-primary);">Theo_W</strong>.
+        </p>
+
+        <div class="t-hero__cta">
+          <!-- Open-state CTAs -->
+          <span data-state="open" class="is-flex" style="gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-lg btn-uppercase">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Join · 200 coins
+            </button>
+            <button class="btn btn-secondary btn-lg btn-uppercase">Sponsor pool</button>
+          </span>
+
+          <!-- Live-state CTAs (no in-platform streaming; Watch CTA appears only when host attached a stream link) -->
+          <span data-state="live" class="is-flex" style="gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-lg btn-uppercase">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14h4l4 4v-4h6l4-4V5H3z"/><line x1="10" y1="9" x2="10" y2="14"/><line x1="14" y1="9" x2="14" y2="14"/></svg>
+              Watch on Twitch
+            </button>
+            <button class="btn btn-secondary btn-lg btn-uppercase">Sponsor pool</button>
+          </span>
+
+          <!-- Awaiting-state CTAs (host = primary, others = secondary) -->
+          <span data-state="awaiting" class="is-flex" style="gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-lg btn-uppercase" onclick="document.getElementById('recorder').scrollIntoView({behavior:'smooth'})">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Record winners
+            </button>
+            <button class="btn btn-secondary btn-lg btn-uppercase">Submit evidence</button>
+          </span>
+
+          <!-- Completed-state CTAs -->
+          <span data-state="completed" class="is-flex" style="gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-lg btn-uppercase">View receipt</button>
+            <button class="btn btn-ghost btn-lg btn-uppercase">File complaint</button>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STATS STRIP ===== -->
+    <section class="stats-strip">
+      <div class="stats-strip__cell">
+        <span class="stats-strip__label">Prize pool</span>
+        <span class="stats-strip__value">3,500</span>
+        <span class="stats-strip__sub">coins · incl. 800 sponsored</span>
+      </div>
+      <div class="stats-strip__cell">
+        <span class="stats-strip__label">Players</span>
+        <span class="stats-strip__value">
+          <span data-state="open">6 / 8</span>
+          <span data-state="live">8 / 8</span>
+          <span data-state="awaiting">8 / 8</span>
+          <span data-state="completed">8 / 8</span>
+        </span>
+        <span class="stats-strip__sub">
+          <span data-state="open">closes 21:00 BST</span>
+          <span data-state="live">all in lobby</span>
+          <span data-state="awaiting">all played</span>
+          <span data-state="completed">final</span>
+        </span>
+      </div>
+      <div class="stats-strip__cell">
+        <span class="stats-strip__label">Entry fee</span>
+        <span class="stats-strip__value">200</span>
+        <span class="stats-strip__sub">coins · £20.00</span>
+      </div>
+      <div class="stats-strip__cell">
+        <span class="stats-strip__label">Format</span>
+        <span class="stats-strip__value" style="font-size: 18px;">Top 3</span>
+        <span class="stats-strip__sub">60 · 30 · 10 %</span>
+      </div>
+    </section>
+
+    <!-- ===== AWAITING BANNER (only in awaiting state) ===== -->
+    <div data-state="awaiting" class="awaiting-banner">
+      <div class="awaiting-banner__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div style="flex: 1;">
+        <div style="font-family: var(--font-display); font-weight: 600; font-size: var(--t-h3); margin-bottom: 4px;">
+          Match complete — you have <strong style="color: var(--amber-500);">6 days 23 h</strong> to record the result.
+        </div>
+        <div class="text-secondary" style="font-size: var(--t-meta); line-height: 1.5;">
+          Host abandonment kicks in after 7 days. Pick your 3 winners
+          below — the prize pool will be split 60/30/10 across the
+          podium and held for 48 hours so participants can complain.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MAIN GRID ===== -->
+    <div class="t-grid">
+
+      <!-- LEFT — state-specific main content -->
+      <div class="stack" style="gap: var(--s-5);">
+
+        <!-- STATE: OPEN — prizes preview + registration roster -->
+        <section data-state="open" class="card-flame" style="margin-bottom: var(--s-5); padding: var(--s-5);">
+          <div class="row row--between" style="margin-bottom: var(--s-3);">
+            <div class="card-title" style="font-size: 18px;">Prizes to be won</div>
+            <span class="badge badge--flame">Host configured · top 3</span>
+          </div>
+          <div class="grid grid--3" style="gap: 12px;">
+            <div style="padding: 14px; background: var(--bg-elevated); border-radius: var(--r-md); display: flex; align-items: center; gap: 12px;">
+              <span class="tier-emblem tier-emblem--gold">1</span>
+              <div>
+                <div class="stamp">1st · 60 %</div>
+                <div class="money money--inline" style="font-size: 18px; color: var(--tier-gold);">2,100 coins</div>
+              </div>
+            </div>
+            <div style="padding: 14px; background: var(--bg-elevated); border-radius: var(--r-md); display: flex; align-items: center; gap: 12px;">
+              <span class="tier-emblem tier-emblem--silver">2</span>
+              <div>
+                <div class="stamp">2nd · 30 %</div>
+                <div class="money money--inline" style="font-size: 18px; color: var(--tier-silver);">1,050 coins</div>
+              </div>
+            </div>
+            <div style="padding: 14px; background: var(--bg-elevated); border-radius: var(--r-md); display: flex; align-items: center; gap: 12px;">
+              <span class="tier-emblem tier-emblem--bronze">3</span>
+              <div>
+                <div class="stamp">3rd · 10 %</div>
+                <div class="money money--inline" style="font-size: 18px; color: var(--tier-bronze);">350 coins</div>
+              </div>
+            </div>
+          </div>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin: 12px 0 0; line-height: 1.5;">
+            Prize pool grows as more players join and sponsors back the
+            tournament. Final payouts calculated when the host records winners.
+          </p>
+        </section>
+
+        <section data-state="open" class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Registration · 6 of 8 players in</div>
+              <div class="text-secondary" style="font-size: var(--t-meta); margin-top: 2px;">Two slots remain. Registration auto-closes at 21:00 BST.</div>
+            </div>
+            <span class="badge badge--info">First come, first served</span>
+          </div>
+
+          <div class="roster-grid">
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar1.png" alt="" /></div>
+              <div><div class="roster-slot__name">Joel Henderson</div><div class="roster-slot__handle">@joel · UK</div></div>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar3.png" alt="" /></div>
+              <div><div class="roster-slot__name">Nia_PlaysFC</div><div class="roster-slot__handle">@nia · UK</div></div>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar5.png" alt="" /></div>
+              <div><div class="roster-slot__name">Theo_W <span class="badge badge--flame">Host</span></div><div class="roster-slot__handle">@theo · UK</div></div>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar7.png" alt="" /></div>
+              <div><div class="roster-slot__name">Amara_Strikes</div><div class="roster-slot__handle">@amara · NG</div></div>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar2.png" alt="" /></div>
+              <div><div class="roster-slot__name">Loner_Epic</div><div class="roster-slot__handle">@loner · NG</div></div>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar4.png" alt="" /></div>
+              <div><div class="roster-slot__name">Riya_Plays</div><div class="roster-slot__handle">@riya · UK</div></div>
+            </div>
+            <div class="roster-slot roster-slot--empty">
+              <span class="roster-slot__placeholder">Open · slot 7</span>
+            </div>
+            <div class="roster-slot roster-slot--empty">
+              <span class="roster-slot__placeholder">Open · slot 8</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- STATE: LIVE — match-in-progress readout + external-join panel + host-confirmed roster -->
+        <section data-state="live" class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Match in progress</div>
+              <div class="text-secondary" style="font-size: var(--t-meta); margin-top: 2px;">Match started at 21:18 BST · timer derived from start.</div>
+            </div>
+            <span class="badge badge--danger">LIVE</span>
+          </div>
+
+          <!-- Live readout -->
+          <div class="live-readout" style="margin-bottom: var(--s-5);">
+            <span class="live-readout__pulse"></span>
+            <div>
+              <div class="live-readout__label">Free-for-all · 8 in lobby</div>
+              <div class="live-readout__detail">Play happens on the game itself — Boadman records the result after.</div>
+            </div>
+            <div>
+              <div class="live-readout__timer">14:22</div>
+              <div class="stamp" style="text-align: right; color: var(--text-muted);">elapsed</div>
+            </div>
+          </div>
+
+          <!-- EXTERNAL GAME JOIN PANEL — backend gap -->
+          <div class="card-tactical" style="border: 1px solid rgba(255, 87, 51, 0.3); background: linear-gradient(180deg, var(--orange-tint), transparent 60%), var(--bg-panel); margin-bottom: var(--s-4); position: relative;">
+            <span class="badge badge--unwired" style="position: absolute; top: 12px; right: 12px;">Backend gap — join codes API needed</span>
+            <div class="row" style="gap: 14px; align-items: flex-start; margin-bottom: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: var(--r-md); background: var(--orange-tint); color: var(--orange-500); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="11" x2="15" y2="11.01"/><line x1="18" y1="13" x2="18" y2="13.01"/></svg>
+              </div>
+              <div>
+                <div class="card-title" style="font-size: 16px;">Join the match — Apex Legends lobby</div>
+                <div class="text-secondary" style="font-size: var(--t-meta); margin-top: 4px;">Boadman doesn't host the game itself. Use the host's invite details to join the lobby on Apex Legends. The host will mark you confirmed once they see you in the lobby.</div>
+              </div>
+            </div>
+            <div class="grid grid--2" style="gap: 12px; margin-bottom: 12px;">
+              <div style="padding: 12px 14px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--r-md);">
+                <div class="stamp">Lobby code</div>
+                <div style="font-family: var(--font-mono); font-weight: 600; font-size: 18px; margin-top: 4px; letter-spacing: 0.1em;">APX-SPR-8842</div>
+              </div>
+              <div style="padding: 12px 14px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--r-md);">
+                <div class="stamp">Host EA ID</div>
+                <div style="font-family: var(--font-mono); font-weight: 600; font-size: 16px; margin-top: 4px;">TheoW_UK · @theo.ea</div>
+              </div>
+            </div>
+            <div style="font-size: var(--t-meta); color: var(--text-secondary); line-height: 1.55;">
+              <strong style="color: var(--text-primary);">Host instructions:</strong> Friend me on EA first, then join my private match titled "Boadman · Spring Showdown". Drop at 21:18 BST sharp. Discord voice: <a href="#" style="color: var(--orange-500);">link</a>.
+            </div>
+          </div>
+
+          <!-- ROSTER — host-controlled status (no platform-side live tracking) -->
+          <div class="row row--between" style="margin-bottom: 12px;">
+            <div class="stamp">Lobby roster · host marks confirmation</div>
+            <span class="text-muted" style="font-size: var(--t-micro); font-family: var(--font-mono);">6 confirmed · 1 invited · 1 no-show</span>
+          </div>
+          <div class="roster-grid">
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar1.png" alt="" /></div>
+              <div><div class="roster-slot__name">Joel Henderson</div><div class="roster-slot__handle">@joel</div></div>
+              <span class="badge badge--success" style="position: absolute; top: 8px; right: 10px; font-size: 9px; padding: 3px 7px;">Confirmed</span>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar3.png" alt="" /></div>
+              <div><div class="roster-slot__name">Nia_PlaysFC</div><div class="roster-slot__handle">@nia</div></div>
+              <span class="badge badge--success" style="position: absolute; top: 8px; right: 10px; font-size: 9px; padding: 3px 7px;">Confirmed</span>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar5.png" alt="" /></div>
+              <div><div class="roster-slot__name">Theo_W</div><div class="roster-slot__handle">@theo</div></div>
+              <span class="badge badge--flame" style="position: absolute; top: 8px; right: 10px; font-size: 9px; padding: 3px 7px;">Host</span>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar7.png" alt="" /></div>
+              <div><div class="roster-slot__name">Amara_Strikes</div><div class="roster-slot__handle">@amara</div></div>
+              <span class="badge badge--success" style="position: absolute; top: 8px; right: 10px; font-size: 9px; padding: 3px 7px;">Confirmed</span>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar2.png" alt="" /></div>
+              <div><div class="roster-slot__name">Loner_Epic</div><div class="roster-slot__handle">@loner</div></div>
+              <span class="badge badge--success" style="position: absolute; top: 8px; right: 10px; font-size: 9px; padding: 3px 7px;">Confirmed</span>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar4.png" alt="" /></div>
+              <div><div class="roster-slot__name">Riya_Plays</div><div class="roster-slot__handle">@riya</div></div>
+              <span class="badge badge--warning" style="position: absolute; top: 8px; right: 10px; font-size: 9px; padding: 3px 7px;">Invited</span>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar6.png" alt="" /></div>
+              <div><div class="roster-slot__name">Quan_FC</div><div class="roster-slot__handle">@quan</div></div>
+              <span class="badge badge--success" style="position: absolute; top: 8px; right: 10px; font-size: 9px; padding: 3px 7px;">Confirmed</span>
+            </div>
+            <div class="roster-slot">
+              <div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar8.png" alt="" /></div>
+              <div><div class="roster-slot__name">DaveK_99</div><div class="roster-slot__handle">@davek</div></div>
+              <span class="badge badge--danger" style="position: absolute; top: 8px; right: 10px; font-size: 9px; padding: 3px 7px;">No-show</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- STATE: AWAITING — record-winners UI -->
+        <section data-state="awaiting" id="recorder" class="recorder">
+          <div class="recorder__head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            <div>
+              <div class="recorder__title">Record winners · top 3</div>
+              <div class="recorder__sub">Visible to host only · all 8 participants will be notified once submitted.</div>
+            </div>
+          </div>
+
+          <div class="recorder-slots">
+            <div class="recorder-slot recorder-slot--1">
+              <span class="recorder-slot__placeholder-emblem">1</span>
+              <div>
+                <div class="recorder-slot__label">1st place · 2,100 coins (60 %)</div>
+                <button class="recorder-slot__select is-filled">
+                  <div class="player-chip__avatar"><img src="../_assets/avatars/Avatar1.png" alt="" /></div>
+                  <span style="flex: 1;"><strong>Joel Henderson</strong> · @joel</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="recorder-slot recorder-slot--2">
+              <span class="recorder-slot__placeholder-emblem">2</span>
+              <div>
+                <div class="recorder-slot__label">2nd place · 1,050 coins (30 %)</div>
+                <button class="recorder-slot__select is-filled">
+                  <div class="player-chip__avatar"><img src="../_assets/avatars/Avatar3.png" alt="" /></div>
+                  <span style="flex: 1;"><strong>Nia_PlaysFC</strong> · @nia</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="recorder-slot recorder-slot--3">
+              <span class="recorder-slot__placeholder-emblem">3</span>
+              <div>
+                <div class="recorder-slot__label">3rd place · 350 coins (10 %)</div>
+                <button class="recorder-slot__select">
+                  <span class="placeholder-text" style="flex: 1;">Select a player from the roster…</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom: var(--s-4);">
+            <label class="label" for="evidence">Evidence link <span class="text-muted">(screenshot / VOD · optional but encouraged)</span></label>
+            <input id="evidence" class="input" type="text" placeholder="https://… (HTTPS only)" />
+          </div>
+
+          <div class="row" style="gap: 12px; justify-content: flex-end;">
+            <button class="btn btn-ghost">Save draft</button>
+            <button class="btn btn-primary btn-uppercase">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Submit result · lock in
+            </button>
+          </div>
+        </section>
+
+        <!-- STATE: AWAITING — non-host participants view (shown below host recorder for completeness) -->
+        <section data-state="awaiting" class="card">
+          <div class="card-header">
+            <div class="card-title">Final lobby</div>
+            <span class="text-secondary" style="font-size: var(--t-meta);">All 8 played to the end.</span>
+          </div>
+          <div class="roster-grid">
+            <div class="roster-slot"><div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar1.png" alt=""/></div><div><div class="roster-slot__name">Joel Henderson</div><div class="roster-slot__handle">@joel</div></div></div>
+            <div class="roster-slot"><div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar3.png" alt=""/></div><div><div class="roster-slot__name">Nia_PlaysFC</div><div class="roster-slot__handle">@nia</div></div></div>
+            <div class="roster-slot"><div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar5.png" alt=""/></div><div><div class="roster-slot__name">Theo_W</div><div class="roster-slot__handle">Host</div></div></div>
+            <div class="roster-slot"><div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar7.png" alt=""/></div><div><div class="roster-slot__name">Amara_Strikes</div><div class="roster-slot__handle">@amara</div></div></div>
+            <div class="roster-slot"><div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar2.png" alt=""/></div><div><div class="roster-slot__name">Loner_Epic</div><div class="roster-slot__handle">@loner</div></div></div>
+            <div class="roster-slot"><div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar4.png" alt=""/></div><div><div class="roster-slot__name">Riya_Plays</div><div class="roster-slot__handle">@riya</div></div></div>
+            <div class="roster-slot"><div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar6.png" alt=""/></div><div><div class="roster-slot__name">Quan_FC</div><div class="roster-slot__handle">@quan</div></div></div>
+            <div class="roster-slot"><div class="roster-slot__avatar"><img src="../_assets/avatars/Avatar8.png" alt=""/></div><div><div class="roster-slot__name">DaveK_99</div><div class="roster-slot__handle">@davek</div></div></div>
+          </div>
+        </section>
+
+        <!-- STATE: COMPLETED — top-3 podium -->
+        <section data-state="completed" class="card">
+          <div class="card-header" style="justify-content: center; text-align: center; flex-direction: column; gap: 6px;">
+            <span class="stamp" style="color: var(--orange-500);">Final result · 21 May · 22:14 BST</span>
+            <div class="card-title" style="font-size: 26px;">Winners recorded</div>
+            <div class="text-secondary" style="font-size: var(--t-meta);">Prizes credited to winners' pending balances · 48-hour hold begins now.</div>
+          </div>
+
+          <div class="podium-display" style="margin: var(--s-6) auto var(--s-5);">
+            <div class="podium-display__slot podium-display__slot--2">
+              <div class="podium-display__avatar"><img src="../_assets/avatars/Avatar3.png" alt="" /></div>
+              <div class="podium-display__name">Nia_PlaysFC</div>
+              <div class="podium-display__prize">1,050</div>
+              <div class="podium-display__step">2</div>
+            </div>
+            <div class="podium-display__slot podium-display__slot--1">
+              <div class="podium-display__avatar">
+                <span class="podium-display__crown">👑</span>
+                <img src="../_assets/avatars/Avatar1.png" alt="" />
+              </div>
+              <div class="podium-display__name">Joel Henderson</div>
+              <div class="podium-display__prize">2,100</div>
+              <div class="podium-display__step">1</div>
+            </div>
+            <div class="podium-display__slot podium-display__slot--3">
+              <div class="podium-display__avatar"><img src="../_assets/avatars/Avatar5.png" alt="" /></div>
+              <div class="podium-display__name">Theo_W</div>
+              <div class="podium-display__prize">350</div>
+              <div class="podium-display__step">3</div>
+            </div>
+          </div>
+
+          <div class="row row--between" style="margin-top: var(--s-6); padding: var(--s-4); background: var(--bg-elevated); border-radius: var(--r-md);">
+            <div>
+              <div class="stamp">Complaint window</div>
+              <div style="font-family: var(--font-display); font-weight: 600; font-size: var(--t-body); margin-top: 4px;">Open · matures 23 May · 22:14 BST</div>
+            </div>
+            <span class="status-pill" style="background: var(--amber-tint); color: var(--amber-500);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              47 h 51 m remaining
+            </span>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT — sponsorships, format, host actions, disclosure -->
+      <aside class="stack" style="gap: var(--s-5);">
+
+        <!-- Sponsorships -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Public sponsorships</div>
+            <span class="badge badge--info">3 backers · 800 coins</span>
+          </div>
+          <div class="sponsor-row">
+            <div class="sponsor-row__avatar" style="background: linear-gradient(135deg, #4D87FF, #9B6BFF);">NE</div>
+            <div>
+              <div class="sponsor-row__funder">Nova Esports <span class="badge badge--info">Brand</span></div>
+              <div class="sponsor-row__msg">"Backing the grassroots scene."</div>
+            </div>
+            <div class="sponsor-row__amount">+ 500</div>
+          </div>
+          <div class="sponsor-row">
+            <div class="sponsor-row__avatar"><img src="../_assets/avatars/Avatar9.png" alt="" /></div>
+            <div>
+              <div class="sponsor-row__funder">Amara_Strikes</div>
+              <div class="sponsor-row__msg">"GLHF all."</div>
+            </div>
+            <div class="sponsor-row__amount">+ 200</div>
+          </div>
+          <div class="sponsor-row">
+            <div class="sponsor-row__avatar"><img src="../_assets/avatars/Avatar10.png" alt="" /></div>
+            <div>
+              <div class="sponsor-row__funder">DaveK_99</div>
+            </div>
+            <div class="sponsor-row__amount">+ 100</div>
+          </div>
+          <p class="text-secondary" style="font-size: var(--t-micro); margin-top: 12px; line-height: 1.5;">
+            Sponsors cannot enter and entrants cannot sponsor — Boadman
+            enforces this two-sided rule to prevent self-funding wins.
+          </p>
+        </section>
+
+        <!-- Host actions card (visible only to host) -->
+        <section class="card card-flame">
+          <div class="card-header">
+            <div class="card-title">Host actions</div>
+            <span class="badge badge--flame">Theo_W only</span>
+          </div>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin-bottom: var(--s-4); line-height: 1.5;">
+            <span data-state="open">Registration open. You can cancel up until match start; entry fees refund automatically.</span>
+            <span data-state="live">Match is live. You'll be able to record winners as soon as it concludes.</span>
+            <span data-state="awaiting">Match concluded. You have <strong style="color: var(--orange-500);">6 d 23 h</strong> to record the top 3 before host-abandonment penalties.</span>
+            <span data-state="completed">Result recorded. Prize is in a 48-hour hold for complaints.</span>
+          </p>
+          <div class="stack" style="gap: 10px;">
+            <span data-state="open" class="stack" style="gap: 10px;">
+              <button class="btn btn-secondary btn-block">Edit details</button>
+              <button class="btn btn-ghost btn-block" style="color: var(--red-500);">Cancel tournament</button>
+            </span>
+            <span data-state="live" class="stack" style="gap: 10px;">
+              <button class="btn btn-secondary btn-block" disabled>Record winners · armed</button>
+              <button class="btn btn-secondary btn-block">Add stream link</button>
+            </span>
+            <span data-state="awaiting" class="stack" style="gap: 10px;">
+              <button class="btn btn-primary btn-block btn-uppercase">Record winners ↓</button>
+              <button class="btn btn-secondary btn-block">Submit evidence</button>
+            </span>
+            <span data-state="completed" class="stack" style="gap: 10px;">
+              <button class="btn btn-secondary btn-block">View result receipt</button>
+              <button class="btn btn-ghost btn-block">Host new tournament</button>
+            </span>
+          </div>
+        </section>
+
+        <!-- Format -->
+        <section class="card">
+          <div class="card-title" style="margin-bottom: 16px;">Format &amp; rules</div>
+          <div class="stack" style="gap: 14px;">
+            <div class="row row--between"><span class="text-secondary" style="font-size: var(--t-meta);">Format</span><strong>Single match · FFA</strong></div>
+            <div class="row row--between"><span class="text-secondary" style="font-size: var(--t-meta);">Players</span><strong>8-player lobby</strong></div>
+            <div class="row row--between"><span class="text-secondary" style="font-size: var(--t-meta);">Winners</span><strong>Top 3 (configured by host)</strong></div>
+            <div class="row row--between"><span class="text-secondary" style="font-size: var(--t-meta);">Distribution</span><strong>60 · 30 · 10 %</strong></div>
+            <div class="row row--between"><span class="text-secondary" style="font-size: var(--t-meta);">Result mode</span><strong>Host records winners</strong></div>
+            <div class="row row--between"><span class="text-secondary" style="font-size: var(--t-meta);">Prize hold</span><strong>48 hours</strong></div>
+            <div class="row row--between"><span class="text-secondary" style="font-size: var(--t-meta);">Evidence</span><strong>Optional but encouraged</strong></div>
+          </div>
+        </section>
+
+        <!-- Economics disclosure -->
+        <section class="muted-block">
+          <div class="stamp" style="margin-bottom: 6px;">Tournament economics</div>
+          <p style="font-size: var(--t-meta); line-height: 1.55; margin: 0 0 8px;">
+            Prize pool of 3,500 coins distributes 60 / 30 / 10 to the
+            top three. Platform commission and publisher royalty are
+            deducted before payout — exact splits visible in the host
+            release receipt.
+          </p>
+          <p class="footnote-rates" style="margin: 0; border: 0; padding: 0;">
+            Rates illustrative — pending SP8-ECON review.
+          </p>
+        </section>
+
+      </aside>
+    </div>
+
+  </main>
+</div>
+
+<nav class="tab-bar" aria-label="Primary mobile">
+  <button class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Home</button>
+  <button class="tab is-active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>Compete</button>
+  <button class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l3-3h12l3 3"/></svg>Wallet</button>
+  <button class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>Inbox</button>
+  <button class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
+</nav>
+
+<script>
+  // Minimal state-switcher for the design demo only
+  (function () {
+    const root = document.getElementById('tournamentRoot');
+    document.querySelectorAll('[data-set-state]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const state = btn.dataset.setState;
+        root.dataset.activeState = state;
+        document.querySelectorAll('[data-set-state]').forEach((b) => b.classList.toggle('is-active', b === btn));
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

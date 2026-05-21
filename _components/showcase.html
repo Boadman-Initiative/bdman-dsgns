@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Component Library</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  .doc { max-width: 1180px; margin: 0 auto; padding: 48px 24px 120px; }
+  .doc header { margin-bottom: 48px; }
+  .doc h1 { font-size: clamp(32px,4vw,52px); margin-bottom: 12px; }
+  .doc h2 { font-size: var(--t-h2); margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+  .doc h3 { font-size: var(--t-h3); margin: 32px 0 12px; color: var(--text-secondary); font-weight: 600; }
+  .swatch { display: flex; flex-direction: column; gap: 6px; }
+  .swatch .chip { height: 64px; border-radius: var(--r-md); border: 1px solid var(--border-subtle); }
+  .swatch .name { font-size: var(--t-meta); font-weight: 600; }
+  .swatch .hex { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+  .demo-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .demo-block { background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); padding: var(--s-5); }
+  .scale-row { display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); align-items: baseline; }
+  .scale-row .lbl { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+  .theme-toggle { position: fixed; top: 24px; right: 24px; z-index: 10; }
+</style>
+</head>
+<body>
+
+<button id="themeToggle" class="btn btn-secondary btn-sm theme-toggle">Switch theme</button>
+
+<div class="doc">
+  <header>
+    <span class="badge badge--compliance">Internal · Design System</span>
+    <h1>Component Library</h1>
+    <p class="page-subtitle" style="max-width: 620px;">
+      The production-ready vocabulary every Boadman screen leans on. Tokens
+      from <span class="kbd">_tokens/tokens.css</span>; classes from
+      <span class="kbd">_tokens/components.css</span>. Lift these into the
+      real app stylesheet alongside the tokens file — no transformation
+      required.
+    </p>
+  </header>
+
+  <!-- ===== COLOUR ===== -->
+  <section>
+    <h2>Colour</h2>
+
+    <h3>Brand</h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:var(--orange-500)"></div><span class="name">orange-500</span><span class="hex">#F4661F · primary CTA</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--orange-600)"></div><span class="name">orange-600</span><span class="hex">#DC5816 · CTA hover</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--orange-400)"></div><span class="name">orange-400</span><span class="hex">#FF834B · highlight</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--orange-tint)"></div><span class="name">orange-tint</span><span class="hex">12% wash</span></div>
+    </div>
+
+    <h3>Surface · dark (default)</h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:#0E0F13"></div><span class="name">bg-page</span><span class="hex">#0E0F13</span></div>
+      <div class="swatch"><div class="chip" style="background:#15171F"></div><span class="name">bg-panel</span><span class="hex">#15171F</span></div>
+      <div class="swatch"><div class="chip" style="background:#1C1F2A"></div><span class="name">bg-elevated</span><span class="hex">#1C1F2A</span></div>
+      <div class="swatch"><div class="chip" style="background:#0A0B0F"></div><span class="name">bg-input</span><span class="hex">#0A0B0F</span></div>
+    </div>
+
+    <h3>Surface · light (Admin tables, legal)</h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:#F7F7F9; border-color:#DDE0E6"></div><span class="name">bg-page</span><span class="hex">#F7F7F9</span></div>
+      <div class="swatch"><div class="chip" style="background:#FFFFFF; border-color:#DDE0E6"></div><span class="name">bg-panel</span><span class="hex">#FFFFFF</span></div>
+      <div class="swatch"><div class="chip" style="background:#ECEDF1"></div><span class="name">border-subtle</span><span class="hex">#ECEDF1</span></div>
+      <div class="swatch"><div class="chip" style="background:#14161F"></div><span class="name">text-primary</span><span class="hex">#14161F</span></div>
+    </div>
+
+    <h3>Semantic</h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:var(--green-500)"></div><span class="name">green-500</span><span class="hex">#2BC472 · active</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--red-500)"></div><span class="name">red-500</span><span class="hex">#EE4456 · blocked</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--amber-500)"></div><span class="name">amber-500</span><span class="hex">#F5A623 · pending</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--blue-500)"></div><span class="name">blue-500</span><span class="hex">#4D87FF · info</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--purple-500)"></div><span class="name">purple-500</span><span class="hex">#9B6BFF · MLRO</span></div>
+    </div>
+
+    <h3>Tier</h3>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip" style="background:var(--tier-gold)"></div><span class="name">tier-gold</span><span class="hex">#E5B454</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--tier-silver)"></div><span class="name">tier-silver</span><span class="hex">#B8BCC4</span></div>
+      <div class="swatch"><div class="chip" style="background:var(--tier-bronze)"></div><span class="name">tier-bronze</span><span class="hex">#CC7B43</span></div>
+    </div>
+  </section>
+
+  <!-- ===== TYPE ===== -->
+  <section>
+    <h2>Typography</h2>
+
+    <div class="demo-block">
+      <div class="scale-row"><span class="lbl">--t-display</span><div style="font-family:var(--font-display); font-size:var(--t-display); font-weight:700; letter-spacing:-0.02em;">Compete with discipline.</div></div>
+      <div class="scale-row"><span class="lbl">--t-h1</span><div style="font-family:var(--font-display); font-size:var(--t-h1); font-weight:700;">Your wallet</div></div>
+      <div class="scale-row"><span class="lbl">--t-h2</span><div style="font-family:var(--font-display); font-size:var(--t-h2); font-weight:600;">Open AML flags</div></div>
+      <div class="scale-row"><span class="lbl">--t-h3</span><div style="font-family:var(--font-display); font-size:var(--t-h3); font-weight:600;">Recent transactions</div></div>
+      <div class="scale-row"><span class="lbl">--t-body</span><div style="font-family:var(--font-sans); font-size:var(--t-body);">A 1v1 challenge wager is locked into escrow when the invite is sent.</div></div>
+      <div class="scale-row"><span class="lbl">--t-meta</span><div style="font-family:var(--font-sans); font-size:var(--t-meta); color:var(--text-secondary);">Verified by Stripe · 21 May 2026</div></div>
+      <div class="scale-row"><span class="lbl">--t-money-lg</span><div class="money" style="font-size:var(--t-money-lg);">12,400 coins</div></div>
+      <div class="scale-row"><span class="lbl">--t-money</span><div class="money money--inline">£1,240.00</div></div>
+      <div class="scale-row"><span class="lbl">--font-mono</span><div style="font-family:var(--font-mono); font-size:var(--t-meta);">RED_8c2f1e · wallet.redemption.requested</div></div>
+    </div>
+  </section>
+
+  <!-- ===== BUTTONS ===== -->
+  <section>
+    <h2>Buttons</h2>
+    <div class="demo-block">
+      <div class="demo-row">
+        <button class="btn btn-primary">Cash out 1,000 coins</button>
+        <button class="btn btn-secondary">View transactions</button>
+        <button class="btn btn-ghost">Cancel</button>
+        <button class="btn btn-danger">Suspend account</button>
+        <button class="btn-icon" aria-label="Notifications">🔔</button>
+      </div>
+      <div class="demo-row">
+        <button class="btn btn-primary btn-lg">Send invite</button>
+        <button class="btn btn-primary">Standard</button>
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-secondary" disabled>Disabled</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BADGES ===== -->
+  <section>
+    <h2>Badges &amp; Status</h2>
+    <div class="demo-block">
+      <div class="demo-row">
+        <span class="badge badge--success">Active</span>
+        <span class="badge badge--warning">Pending · 48 h hold</span>
+        <span class="badge badge--danger">Cash-out frozen</span>
+        <span class="badge badge--info">L1 verified</span>
+        <span class="badge badge--compliance">MLRO review</span>
+        <span class="badge badge--gold">1st place</span>
+        <span class="badge badge--silver">2nd place</span>
+        <span class="badge badge--bronze">3rd place</span>
+        <span class="badge badge--unwired">Coming soon — not yet wired</span>
+      </div>
+      <div class="demo-row" style="margin-top:24px">
+        <span class="status-pill"><span class="tier-emblem tier-emblem--gold">1</span> Champion</span>
+        <span class="status-pill"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green-500)"></span> Auto-confirm enabled</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BANNERS ===== -->
+  <section>
+    <h2>Banners (regulatory)</h2>
+
+    <div class="banner banner--danger">
+      <div class="banner__icon">🔒</div>
+      <div>
+        <div class="banner__title">Cash-out frozen — pending AML review</div>
+        <div class="banner__body">
+          You can still browse, compete and deposit, but withdrawals are
+          currently unavailable. Our compliance team will be in touch
+          within 72 hours.
+        </div>
+      </div>
+      <a class="banner__action" href="#">Contact support →</a>
+    </div>
+
+    <div class="banner banner--warning">
+      <div class="banner__icon">⏳</div>
+      <div>
+        <div class="banner__title">Identity verification required to deposit more</div>
+        <div class="banner__body">
+          You've deposited £200 in the last 30 days. Verify your identity
+          (KYC L1) to continue.
+        </div>
+      </div>
+      <a class="banner__action" href="#">Start verification →</a>
+    </div>
+
+    <div class="banner banner--compliance">
+      <div class="banner__icon">🛡</div>
+      <div>
+        <div class="banner__title">KYC L2 step-up required</div>
+        <div class="banner__body">
+          This redemption exceeds £2,000. Please complete enhanced
+          verification to release the cash-out.
+        </div>
+      </div>
+      <a class="banner__action" href="#">Verify identity →</a>
+    </div>
+
+    <div class="banner banner--info">
+      <div class="banner__icon">ℹ</div>
+      <div>
+        <div class="banner__title">We've updated our Privacy Policy</div>
+        <div class="banner__body">Please review and accept the new version to continue.</div>
+      </div>
+      <a class="banner__action" href="#">Review changes →</a>
+    </div>
+
+    <div class="banner banner--success">
+      <div class="banner__icon">✓</div>
+      <div>
+        <div class="banner__title">Prize matured · 2,400 coins now spendable</div>
+        <div class="banner__body">Your prize from <strong>Apex Spring Showdown</strong> cleared the 48-hour hold.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FORM ===== -->
+  <section>
+    <h2>Form fields</h2>
+    <div class="demo-block" style="max-width: 520px;">
+      <div class="field-row field-row--2" style="margin-bottom:16px">
+        <div class="field">
+          <label class="label" for="dn">Display name</label>
+          <input id="dn" class="input" type="text" value="Joel Henderson" />
+        </div>
+        <div class="field">
+          <label class="label" for="ctry">Country</label>
+          <select id="ctry" class="select"><option>United Kingdom</option><option>Nigeria</option></select>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:16px">
+        <label class="label" for="rsn">Reason (required for ban)</label>
+        <textarea id="rsn" class="textarea" placeholder="Minimum 3 characters…"></textarea>
+        <span class="field-helper">Recorded against the audit log and visible to MLRO.</span>
+      </div>
+      <label class="checkbox">
+        <input type="checkbox" checked />
+        <span>I accept the <a href="#">Terms of Service</a>, <a href="#">Privacy Policy</a>, and <a href="#">Cookie Policy</a> (v3.1, effective 1 July 2026).</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- ===== TABS / CHIPS ===== -->
+  <section>
+    <h2>Tabs &amp; filter chips</h2>
+    <div class="tabs">
+      <button class="tab is-active">Open registration</button>
+      <button class="tab">My tournaments</button>
+      <button class="tab">Completed</button>
+      <button class="tab">Cancelled</button>
+    </div>
+    <div class="chip-row">
+      <button class="chip-filter is-active">All games</button>
+      <button class="chip-filter">FC25</button>
+      <button class="chip-filter">Apex Legends</button>
+      <button class="chip-filter">Valorant</button>
+      <button class="chip-filter">Rocket League</button>
+      <button class="chip-filter">Counter-Strike 2</button>
+    </div>
+  </section>
+
+  <!-- ===== COIN BALANCE ===== -->
+  <section>
+    <h2>Coin balance</h2>
+    <div class="card card-elevated" style="max-width:480px">
+      <div class="coin-balance">
+        <span class="coin-balance__label">Spendable balance</span>
+        <span class="coin-balance__amount">12,400 coins</span>
+        <span class="coin-balance__sub">£1,240.00 · GBP at 10 p/coin</span>
+      </div>
+      <div class="row" style="margin-top:24px">
+        <button class="btn btn-primary">Buy coins</button>
+        <button class="btn btn-secondary">Cash out</button>
+      </div>
+      <p class="footnote-rates">Rates illustrative — pending SP8-ECON economics review.</p>
+    </div>
+  </section>
+
+  <!-- ===== KPIs ===== -->
+  <section>
+    <h2>KPI tiles</h2>
+    <div class="grid grid--4">
+      <div class="kpi">
+        <span class="kpi__label">Open AML flags</span>
+        <span class="kpi__value">17</span>
+        <span class="kpi__delta kpi__delta--up">3 over 72 h SLA</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi__label">KYC backlog</span>
+        <span class="kpi__value">42</span>
+        <span class="kpi__delta">Median 9 h</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi__label">Open disputes</span>
+        <span class="kpi__value">8</span>
+        <span class="kpi__delta kpi__delta--down">−2 vs. yday</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi__label">Pending redemptions</span>
+        <span class="kpi__value">£14,820</span>
+        <span class="kpi__delta">13 requests</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TRANSACTIONS ===== -->
+  <section>
+    <h2>Transaction row</h2>
+    <div class="card">
+      <div class="tx-row">
+        <div class="tx-row__icon">↓</div>
+        <div>
+          <div class="tx-row__title">Prize · Apex Spring Showdown</div>
+          <div class="tx-row__meta">Player-hosted · 21 May 2026 · 18:42</div>
+        </div>
+        <div class="tx-row__amount tx-row__amount--in">+ 2,400 coins</div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-row__icon">⏳</div>
+        <div>
+          <div class="tx-row__title">Prize hold · 48 h</div>
+          <div class="tx-row__meta">Matures 23 May 2026 · 18:42</div>
+        </div>
+        <div class="tx-row__amount tx-row__amount--pending">2,400 coins held</div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-row__icon">⚔</div>
+        <div>
+          <div class="tx-row__title">1v1 wager · vs Theo Williams</div>
+          <div class="tx-row__meta">FC25 · 20 May 2026 · 21:15</div>
+        </div>
+        <div class="tx-row__amount tx-row__amount--out">− 250 coins</div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-row__icon">✓</div>
+        <div>
+          <div class="tx-row__title">Coin purchase · Stripe</div>
+          <div class="tx-row__meta">£50.00 · Visa •• 4242 · 18 May 2026</div>
+        </div>
+        <div class="tx-row__amount tx-row__amount--in">+ 500 coins</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATE TRAIL ===== -->
+  <section>
+    <h2>State-machine trail</h2>
+    <p class="text-secondary" style="margin-bottom:16px">Used to surface a flow's progress on screens that involve longer-lived state (KYC, disputes, prize hold).</p>
+    <div class="card">
+      <div style="margin-bottom:12px; font-weight:600;">Brand application: <strong>Pending</strong></div>
+      <div class="state-trail">
+        <span class="state-trail__node is-past">Submitted</span>
+        <span class="state-trail__arrow">→</span>
+        <span class="state-trail__node is-current">Companies House check</span>
+        <span class="state-trail__arrow">→</span>
+        <span class="state-trail__node">Admin review</span>
+        <span class="state-trail__arrow">→</span>
+        <span class="state-trail__node">Approved / rejected</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TABLE ===== -->
+  <section>
+    <h2>Admin table (compliance theme)</h2>
+    <div data-theme="light" data-context="compliance" class="demo-block" style="background:#F7F7F9; border:0; padding:24px;">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Flag ID</th>
+              <th>Actor</th>
+              <th>Rule</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Age</th>
+              <th>Assignee</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">AML_2026_0481</td>
+              <td>Joel Henderson · L1</td>
+              <td>Deposit velocity &gt; £2,000 / 24 h</td>
+              <td><span class="badge badge--danger">High</span></td>
+              <td><span class="badge badge--warning">Investigating</span></td>
+              <td>11 h 22 m</td>
+              <td>K. Owusu (MLRO)</td>
+            </tr>
+            <tr>
+              <td class="mono">AML_2026_0480</td>
+              <td>Loner_Epic · L0</td>
+              <td>Rapid deposit → redemption pattern</td>
+              <td><span class="badge badge--warning">Medium</span></td>
+              <td><span class="badge badge--info">Assigned</span></td>
+              <td>4 h 02 m</td>
+              <td>K. Owusu</td>
+            </tr>
+            <tr>
+              <td class="mono">AML_2026_0479</td>
+              <td>Brand · Nova Esports</td>
+              <td>Sponsorship velocity &gt; cap</td>
+              <td><span class="badge badge--danger">High</span></td>
+              <td><span class="badge badge--danger">SLA breach · 78 h</span></td>
+              <td>78 h 14 m</td>
+              <td>Unassigned</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== AUDIT ROW ===== -->
+  <section>
+    <h2>Audit log row</h2>
+    <div class="card" style="padding:0">
+      <div class="audit-row">
+        <span class="audit-row__time">18:42:11</span>
+        <span class="audit-row__action">wallet.redemption.requested · 5,000 coins</span>
+        <span class="audit-row__actor">Joel Henderson</span>
+      </div>
+      <div class="audit-row">
+        <span class="audit-row__time">18:42:09</span>
+        <span class="audit-row__action">aml.flag.opened · velocity_24h</span>
+        <span class="audit-row__actor">System</span>
+      </div>
+      <div class="audit-row">
+        <span class="audit-row__time">18:42:09</span>
+        <span class="audit-row__action">account.cashout_frozen · reason="velocity"</span>
+        <span class="audit-row__actor">K. Owusu (MLRO)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SPONSORSHIP ===== -->
+  <section>
+    <h2>Sponsorship attribution</h2>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Public sponsorships · 3,800 coins added</div></div>
+      <div class="sponsorship-line">
+        <div class="sponsorship-line__avatar">N</div>
+        <div>
+          <div class="sponsorship-line__funder">Nova Esports <span class="badge badge--info" style="margin-left:6px">Brand</span></div>
+          <div class="sponsorship-line__msg">"Backing the grassroots."</div>
+        </div>
+        <div class="sponsorship-line__amount">+ 2,500 coins</div>
+      </div>
+      <div class="sponsorship-line">
+        <div class="sponsorship-line__avatar" style="background:linear-gradient(135deg,#F4661F,#FFC18C)">A</div>
+        <div>
+          <div class="sponsorship-line__funder">Amara_Strikes</div>
+          <div class="sponsorship-line__msg">"GLHF everyone."</div>
+        </div>
+        <div class="sponsorship-line__amount">+ 800 coins</div>
+      </div>
+      <div class="sponsorship-line">
+        <div class="sponsorship-line__avatar" style="background:linear-gradient(135deg,#9B6BFF,#4D87FF)">T</div>
+        <div>
+          <div class="sponsorship-line__funder">Theo_W</div>
+        </div>
+        <div class="sponsorship-line__amount">+ 500 coins</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BRACKET ===== -->
+  <section>
+    <h2>Tournament bracket</h2>
+    <div class="card" style="padding:16px">
+      <div class="bracket">
+        <div class="bracket__round">
+          <div class="bracket__round-title">Quarter-finals</div>
+          <div class="bracket-node">
+            <div class="bracket-node__row is-winner"><span class="name"><span class="badge badge--gold badge--plain" style="width:18px;height:18px;padding:0;justify-content:center">1</span> Joel Henderson</span><span class="score">3</span></div>
+            <div class="bracket-node__row"><span class="name">Amara_Strikes</span><span class="score">1</span></div>
+          </div>
+          <div class="bracket-node">
+            <div class="bracket-node__row is-winner"><span class="name">Theo_W</span><span class="score">2</span></div>
+            <div class="bracket-node__row"><span class="name">Loner_Epic</span><span class="score">0</span></div>
+          </div>
+        </div>
+        <div class="bracket__round">
+          <div class="bracket__round-title">Semi-final</div>
+          <div class="bracket-node">
+            <div class="bracket-node__row is-winner"><span class="name">Joel Henderson</span><span class="score">3</span></div>
+            <div class="bracket-node__row"><span class="name">Theo_W</span><span class="score">2</span></div>
+          </div>
+        </div>
+        <div class="bracket__round">
+          <div class="bracket__round-title">Final · 21 May 21:00 BST</div>
+          <div class="bracket-node">
+            <div class="bracket-node__row"><span class="name">Joel Henderson</span><span class="score">—</span></div>
+            <div class="bracket-node__row"><span class="name">Nia_PlaysFC</span><span class="score">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== T-HERO ===== -->
+  <section>
+    <h2>Tournament hero card</h2>
+    <div class="grid grid--3">
+      <div class="t-hero">
+        <div class="t-hero__banner"><div class="t-hero__game">FC25</div></div>
+        <div class="t-hero__body">
+          <div class="t-hero__title">Apex Spring Showdown</div>
+          <div class="t-hero__meta">
+            <div><strong>3,500 coins</strong>Prize pool</div>
+            <div><strong>16 / 32</strong>Players</div>
+            <div><strong>50 coins</strong>Entry</div>
+          </div>
+        </div>
+      </div>
+      <div class="t-hero">
+        <div class="t-hero__banner" style="background:radial-gradient(at 70% 30%, #4D87FF40, transparent 60%), linear-gradient(135deg,#0E1A2B,#0E0F13 70%);"><div class="t-hero__game" style="color:#7AA8FF">Valorant</div></div>
+        <div class="t-hero__body">
+          <div class="t-hero__title">Rebirth Resurgence Express</div>
+          <div class="t-hero__meta">
+            <div><strong>5,000 coins</strong>Prize pool</div>
+            <div><strong>22 / 32</strong>Players</div>
+            <div><strong>100 coins</strong>Entry</div>
+          </div>
+        </div>
+      </div>
+      <div class="t-hero">
+        <div class="t-hero__banner" style="background:radial-gradient(at 50% 30%, #2BC47233, transparent 60%), linear-gradient(135deg,#0E1F18,#0E0F13 70%);"><div class="t-hero__game" style="color:#56D898">Rocket League</div></div>
+        <div class="t-hero__body">
+          <div class="t-hero__title">Sunday Series · Week 21</div>
+          <div class="t-hero__meta">
+            <div><strong>1,200 coins</strong>Prize pool</div>
+            <div><strong>8 / 16</strong>Players</div>
+            <div><strong>20 coins</strong>Entry</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="footnote-rates">Rates illustrative — pending SP8-ECON economics review.</p>
+  </section>
+
+  <!-- ===== ICONS ===== -->
+  <section>
+    <h2>Iconography (Lucide-weight inline SVG)</h2>
+    <p class="text-secondary" style="margin-bottom:16px">Reserved meanings — see <span class="kbd">brand-spec.md §6</span>.</p>
+    <div class="demo-block" style="display:flex; gap:32px; flex-wrap:wrap;">
+      <div style="text-align:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--purple-500)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><div class="kpi__label">compliance</div></div>
+      <div style="text-align:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--red-500)"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><div class="kpi__label">aml urgent</div></div>
+      <div style="text-align:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--amber-500)"><path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M17 2v4.172a2 2 0 0 1-.586 1.414L12 12 7.586 7.586A2 2 0 0 1 7 6.172V2"/></svg><div class="kpi__label">prize hold</div></div>
+      <div style="text-align:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div class="kpi__label">frozen</div></div>
+      <div style="text-align:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--orange-500)"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg><div class="kpi__label">tournament</div></div>
+      <div style="text-align:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--orange-400)"><path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M14.5 6.5 18 3l3 3-3.5 3.5"/></svg><div class="kpi__label">challenge</div></div>
+      <div style="text-align:center"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue-500)"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg><div class="kpi__label">audit / sign-in</div></div>
+    </div>
+  </section>
+
+  <!-- ===== UNWIRED ===== -->
+  <section>
+    <h2>"Coming soon — not yet wired" treatment</h2>
+    <p class="text-secondary" style="margin-bottom:16px">Used on screens for <span class="kbd">future-implementation.md</span> items so stakeholders see the full vision without being misled about ship state.</p>
+    <div class="card unwired-host" style="max-width:320px">
+      <div class="unwired-ribbon">Not yet wired</div>
+      <h3 class="card-title">Two-factor authentication</h3>
+      <p class="text-secondary" style="font-size:var(--t-meta); margin:8px 0 16px">
+        Scan a QR code with your authenticator app to enrol. Once enabled, you'll be
+        prompted for a 6-digit code on sign-in and on cash-out.
+      </p>
+      <button class="btn btn-secondary btn-block" disabled>Enrol — coming soon</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Theme toggle for previewing dark vs light surfaces
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  btn.addEventListener('click', () => {
+    const cur = root.getAttribute('data-theme');
+    root.setAttribute('data-theme', cur === 'light' ? '' : 'light');
+  });
+</script>
+
+</body>
+</html>

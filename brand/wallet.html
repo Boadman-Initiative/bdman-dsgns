@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Brand wallet</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" /><link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  .wallet-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-5); margin-bottom: var(--s-6); }
+  @media (min-width: 1100px) { .wallet-grid { grid-template-columns: 1.4fr 1fr; } }
+  .hud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+</style></head>
+<body>
+
+<div class="shell shell--with-rail">
+  <header class="app-header">
+    <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search…" /></div>
+    <div class="header-actions"><button class="icon-bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button><div class="avatar-pill"><span class="avatar">J</span><span>Joel · Nova Owner</span></div></div>
+  </header>
+  <aside class="nav-rail">
+    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+    <span class="nav-section">Brand</span>
+    <a class="nav-item" href="register.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V7l8-4 8 4v14"/></svg>My brands</a>
+    <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/></svg>Dashboard</a>
+    <a class="nav-item is-active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12"/></svg>Brand wallet</a>
+  </aside>
+
+  <main class="app-main">
+    <div class="row" style="margin-bottom: var(--s-3); font-size: var(--t-meta); color: var(--text-muted);">
+      <a href="dashboard.html" style="color: var(--text-muted)">← Nova Esports Ltd</a><span>›</span><span style="color: var(--text-secondary)">Brand wallet</span>
+    </div>
+
+    <div class="row row--between" style="margin-bottom: var(--s-5);">
+      <div><h1 class="page-title">Brand wallet</h1><p class="page-subtitle">Nova Esports Ltd · separate from your Player wallet · funds host tournaments and sponsorships.</p></div>
+    </div>
+
+    <section class="wallet-grid">
+      <div class="vault-card">
+        <div class="vault-card__head">
+          <span class="vault-card__id">VAULT · NOVA-ESPORTS · BRAND</span>
+          <span class="vault-card__seal"><img src="../_assets/svgs/BoadmanLogo.svg" alt="" /></span>
+        </div>
+        <div class="vault-card__body">
+          <span class="vault-card__label">Brand balance · live</span>
+          <div class="vault-card__slot">
+            <span class="vault-card__slot-corner vault-card__slot-corner--tl"></span><span class="vault-card__slot-corner vault-card__slot-corner--tr"></span><span class="vault-card__slot-corner vault-card__slot-corner--bl"></span><span class="vault-card__slot-corner vault-card__slot-corner--br"></span>
+            <div class="vault-card__amount">48,200<span class="unit">coins</span></div>
+            <div class="vault-card__sub"><strong>£4,820.00</strong> GBP · rate 1 = 10 p · last top-up 3 d ago</div>
+          </div>
+          <div class="vault-card__statuses"><span class="badge badge--success">Approved · Low risk</span><span class="badge badge--neutral">EDD threshold £15k</span></div>
+          <div class="vault-card__cta">
+            <button class="btn btn-primary btn-uppercase">+ Top up brand wallet</button>
+            <a href="../player/tournament-create.html" class="btn btn-secondary btn-uppercase">Host tournament</a>
+          </div>
+        </div>
+        <div class="vault-card__foot"><span>SN-BRAND-NOVA-9912</span><span class="vault-card__foot-dot">Last sync 21:42:11 BST</span></div>
+      </div>
+
+      <div class="hud-grid">
+        <div class="hud-stat"><span class="hud-stat__label">In escrow (active)</span><span class="hud-stat__value">12,000</span><span class="hud-stat__delta">2 tournaments running</span></div>
+        <div class="hud-stat"><span class="hud-stat__label">Sponsorship cap remaining</span><span class="hud-stat__value">3,200</span><span class="hud-stat__delta">of 5,000 / 30 d</span></div>
+        <div class="hud-stat" style="grid-column: 1 / -1;"><span class="hud-stat__label">EDD threshold runway</span><span class="hud-stat__value">£10,180 / £15,000</span><span class="hud-stat__delta">68 % toward enhanced due diligence trigger</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Brand activity</h2>
+      <div class="card" style="padding: 8px 20px;">
+        <div class="tx-row"><div class="tx-row__icon" style="color: var(--green-500); background: var(--green-tint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="tx-row__title">Brand top-up · Stripe Checkout</div><div class="tx-row__meta">£2,000 · 18 May · initiated by Joel Henderson</div></div><div><div class="tx-row__amount tx-row__amount--in">+ 20,000 coins</div></div></div>
+        <div class="tx-row"><div class="tx-row__icon" style="color: var(--orange-500); background: var(--orange-tint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5"/></svg></div><div><div class="tx-row__title">Hosted tournament · Apex Nova Invitational</div><div class="tx-row__meta">prize pool funded · 19 May · MID TRN_a832</div></div><div><div class="tx-row__amount tx-row__amount--out">− 12,000 coins</div><div class="tx-row__amount-sub">escrowed</div></div></div>
+        <div class="tx-row"><div class="tx-row__icon" style="color: var(--orange-500); background: var(--orange-tint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 22 22 2 22" /></svg></div><div><div class="tx-row__title">Sponsorship · Apex Spring Showdown</div><div class="tx-row__meta">"Backing the grassroots scene." · 21 May</div></div><div><div class="tx-row__amount tx-row__amount--out">− 500 coins</div></div></div>
+      </div>
+      <p class="footnote-rates">Rates illustrative — pending SP8-ECON review.</p>
+    </section>
+
+  </main>
+</div>
+</body></html>

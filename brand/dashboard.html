@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Nova Esports Brand</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" /><link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  .brand-hero { display: grid; grid-template-columns: 80px 1fr auto; gap: 20px; align-items: center; padding: var(--s-5) var(--s-6); background: linear-gradient(135deg, rgba(77, 135, 255, 0.10), transparent 70%), var(--bg-panel); border: 1px solid var(--border-default); border-radius: var(--r-lg); margin-bottom: var(--s-5); position: relative; overflow: hidden; }
+  .brand-hero::after { content: ""; position: absolute; inset: 0; background-image: var(--tex-grain); opacity: 0.3; mix-blend-mode: overlay; pointer-events: none; }
+  .brand-hero__logo { width: 80px; height: 80px; border-radius: var(--r-md); background: linear-gradient(135deg, #4D87FF, #9B6BFF); display: flex; align-items: center; justify-content: center; color: white; font-family: var(--font-display); font-weight: 700; font-size: 28px; position: relative; z-index: 1; }
+  .brand-hero h1 { font-family: var(--font-display); font-size: 28px; font-weight: 700; }
+  .brand-hero .meta { color: var(--text-secondary); font-size: var(--t-meta); font-family: var(--font-mono); margin-top: 4px; }
+  .kpi-grid { display: grid; gap: var(--s-3); grid-template-columns: 1fr 1fr; margin-bottom: var(--s-5); }
+  @media (min-width: 960px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
+  .activity-grid { display: grid; gap: var(--s-5); }
+  @media (min-width: 1100px) { .activity-grid { grid-template-columns: 1.4fr 1fr; } }
+  [data-pane] { display: none; }
+  [data-active-pane="approved"] [data-pane="approved"], [data-active-pane="edd"] [data-pane="edd"], [data-active-pane="suspended"] [data-pane="suspended"], [data-active-pane="frozen"] [data-pane="frozen"] { display: block; }
+</style></head>
+<body data-active-pane="approved">
+
+<div class="shell shell--with-rail">
+  <header class="app-header">
+    <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search…" /></div>
+    <div class="header-actions"><button class="icon-bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button><div class="avatar-pill"><span class="avatar">J</span><span>Joel · Nova Owner</span></div></div>
+  </header>
+  <aside class="nav-rail">
+    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+    <span class="nav-section">Brand</span>
+    <a class="nav-item" href="register.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V7l8-4 8 4v14"/></svg>My brands</a>
+    <a class="nav-item is-active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/></svg>Dashboard</a>
+    <a class="nav-item" href="wallet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12"/></svg>Brand wallet</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9H4"/></svg>Tournaments hosted</a>
+    <span class="nav-section">Account</span>
+    <a class="nav-item" href="../player/wallet-default.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/></svg>Switch to Player</a>
+  </aside>
+
+  <main class="app-main">
+    <div class="state-switcher"><button class="state-switcher__btn is-active" onclick="document.body.dataset.activePane='approved';">Approved</button><button class="state-switcher__btn" onclick="document.body.dataset.activePane='edd';">EDD-paused</button><button class="state-switcher__btn" onclick="document.body.dataset.activePane='suspended';">Suspended</button><button class="state-switcher__btn" onclick="document.body.dataset.activePane='frozen';">Cash-out frozen</button></div>
+
+    <div data-pane="edd"><div class="banner banner--warning"><div class="banner__icon">⚠</div><div><div class="banner__title">Enhanced Due Diligence (EDD) review in progress</div><div class="banner__body">Brand wallet activity crossed £15,000 inflow / outflow. Spending from the brand wallet (sponsorships, tournament hosting) is blocked until admin completes the EDD review. Allow 5 business days.</div></div></div></div>
+    <div data-pane="suspended"><div class="banner banner--danger"><div class="banner__icon">🔒</div><div><div class="banner__title">Brand suspended until 4 June 2026</div><div class="banner__body">Reason: "Sponsorship velocity exceeded weekly cap multiple times." All brand activity (hosting, sponsoring, top-up) is blocked.</div></div><a class="banner__action btn btn-secondary btn-sm" href="#">Appeal →</a></div></div>
+    <div data-pane="frozen"><div class="banner banner--danger"><div class="banner__icon">🔒</div><div><div class="banner__title">Brand cash-out frozen — pending AML review</div><div class="banner__body">Brand wallet can still receive top-ups and run competitions, but cannot redeem to fiat. Reference AML_2026_0493.</div></div></div></div>
+
+    <!-- HERO -->
+    <section class="brand-hero">
+      <div class="brand-hero__logo">NE</div>
+      <div style="position: relative; z-index: 1;"><h1>Nova Esports Ltd</h1><div class="meta">UK · 12345678 · approved 4 Mar 2026 · 1 owner</div></div>
+      <div class="row" style="gap: 8px; position: relative; z-index: 1;">
+        <span data-pane="approved" class="badge badge--success">Approved · Low risk</span>
+        <span data-pane="edd" class="badge badge--warning">EDD-paused</span>
+        <span data-pane="suspended" class="badge badge--danger">Suspended</span>
+        <span data-pane="frozen" class="badge badge--danger">Frozen</span>
+      </div>
+    </section>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="hud-stat"><span class="hud-stat__label">Brand wallet</span><span class="hud-stat__value">48,200</span><span class="hud-stat__delta">£4,820 GBP</span></div>
+      <div class="hud-stat"><span class="hud-stat__label">Sponsorship cap remaining</span><span class="hud-stat__value">3,200 / 5,000</span><span class="hud-stat__delta">rolling 30 d</span></div>
+      <div class="hud-stat"><span class="hud-stat__label">Hosted tournaments · live</span><span class="hud-stat__value">2</span><span class="hud-stat__delta">8 completed this month</span></div>
+      <div class="hud-stat"><span class="hud-stat__label">Engagement · 30 d</span><span class="hud-stat__value">1,240</span><span class="hud-stat__delta hud-stat__delta--up">▲ 18 % unique players</span></div>
+    </div>
+
+    <div class="activity-grid">
+      <section class="card">
+        <div class="card-header"><div class="card-title">Active tournaments hosted</div><a href="../player/tournaments.html" class="text-flame" style="font-size: var(--t-meta); font-weight: 600;">View all →</a></div>
+        <div class="tx-row"><div class="tx-row__icon" style="color: var(--orange-500); background: var(--orange-tint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5"/></svg></div><div><div class="tx-row__title">Cyberpunk Rebirth Resurgence</div><div class="tx-row__meta">14 / 32 registered · starts in 2 d</div></div><div><div class="tx-row__amount tx-row__amount--in">5,000 coins pool</div></div></div>
+        <div class="tx-row"><div class="tx-row__icon" style="color: var(--red-500); background: var(--red-tint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/></svg></div><div><div class="tx-row__title">Apex Nova Invitational</div><div class="tx-row__meta">match live · 8 / 8 in lobby</div></div><div><div class="tx-row__amount tx-row__amount--pending">12,000 coins pool</div></div></div>
+      </section>
+
+      <aside class="card-flame">
+        <div class="card-title" style="margin-bottom: 12px;">Brand actions</div>
+        <div class="stack" style="gap: 10px;">
+          <a href="../player/tournament-create.html" class="btn btn-primary btn-block btn-uppercase">Host new tournament</a>
+          <button class="btn btn-secondary btn-block">Sponsor a competition</button>
+          <a href="wallet.html" class="btn btn-secondary btn-block">Top up brand wallet</a>
+        </div>
+        <p class="text-secondary" style="font-size: var(--t-micro); margin-top: 12px; line-height: 1.5;">Brand-hosted tournaments use the 15 % platform commission (no host cut). Sponsorship cap resets daily on a 30-day rolling window.</p>
+        <p class="footnote-rates" style="margin-top: 12px;">Rates illustrative — pending SP8-ECON review.</p>
+      </aside>
+    </div>
+
+    <section class="card" style="margin-top: var(--s-5);">
+      <div class="card-header"><div class="card-title">Team</div><span class="badge badge--unwired">Invite managers — backend gap F.2</span></div>
+      <div class="tx-row"><div class="tx-row__icon" style="background: linear-gradient(135deg, #FF5733, #FFC18C);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: white;"><circle cx="12" cy="8" r="4"/></svg></div><div><div class="tx-row__title">Joel Henderson</div><div class="tx-row__meta">Owner · added 4 Mar 2026 · root permissions</div></div><span class="badge badge--flame">Owner</span></div>
+    </section>
+
+  </main>
+</div>
+<script>document.querySelectorAll('.state-switcher__btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.state-switcher__btn').forEach(o=>o.classList.remove('is-active'));b.classList.add('is-active');}));</script>
+</body></html>
