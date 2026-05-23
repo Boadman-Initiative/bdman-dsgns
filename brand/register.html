@@ -283,10 +283,10 @@
 
               <div class="field-row" style="grid-template-columns: 1fr 1fr;">
                 <div class="field">
-                  <label class="label" for="company-country">Country of registration</label>
-                  <select class="select" id="company-country">
-                    <option>United Kingdom</option>
-                    <option>Nigeria</option>
+                  <label class="label" for="registration-country">Country of registration</label>
+                  <select class="select" id="registration-country" name="registration_country">
+                    <option value="GB">United Kingdom</option>
+                    <option value="NG">Nigeria</option>
                   </select>
                   <span class="field-helper">May differ from your residence.</span>
                 </div>
@@ -297,11 +297,19 @@
                 </div>
               </div>
 
-              <div class="field">
-                <label class="label" for="address">Registered address</label>
-                <textarea class="textarea" id="address" placeholder="71-75 Shelton Street&#10;Covent Garden&#10;London&#10;WC2H 9JQ"></textarea>
-                <span class="field-helper">Match the address on your Companies House filing.</span>
-              </div>
+              <!-- Registered address (structured JSONB per backend schema — line1/line2?/city/postal_code/country) -->
+              <fieldset class="field" style="border: 0; padding: 0; margin: 0;">
+                <legend class="label" style="padding: 0; margin-bottom: 8px;">Registered address</legend>
+                <div class="field-row" style="grid-template-columns: 1fr; gap: 12px;">
+                  <input class="input" name="address_line1" placeholder="71-75 Shelton Street" aria-label="Address line 1" />
+                  <input class="input" name="address_line2" placeholder="Covent Garden (optional)" aria-label="Address line 2" />
+                  <div class="field-row" style="grid-template-columns: 1.4fr 1fr; gap: 12px;">
+                    <input class="input" name="address_city" placeholder="London" aria-label="City" />
+                    <input class="input" name="address_postal_code" placeholder="WC2H 9JQ" aria-label="Postal code" />
+                  </div>
+                </div>
+                <span class="field-helper">Match the address on your Companies House filing. Backend stores this as JSONB.</span>
+              </fieldset>
             </div>
           </section>
 
