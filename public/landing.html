@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Compete with discipline.</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  body {
+    background:
+      radial-gradient(at 85% -20%, rgba(255, 87, 51, 0.16), transparent 50%),
+      radial-gradient(at 5% 100%, rgba(255, 167, 0, 0.08), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  /* ====== TOP BAR ====== */
+  .top-bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: var(--s-6);
+    padding: 16px clamp(20px, 4vw, 56px);
+    background: rgba(11, 12, 16, 0.78);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .top-bar__brand { height: 38px; }
+  .top-nav { display: none; gap: var(--s-5); margin-left: var(--s-6); }
+  @media (min-width: 900px) { .top-nav { display: flex; } }
+  .top-nav a {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+  .top-nav a:hover { color: var(--text-primary); }
+  .top-bar__cta { margin-left: auto; display: flex; gap: 10px; }
+
+  /* ====== HERO ====== */
+  .hero {
+    position: relative;
+    padding: clamp(48px, 7vw, 96px) clamp(20px, 4vw, 56px) clamp(72px, 9vw, 120px);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero::before {
+    /* Faint helmet glyph behind */
+    content: "";
+    position: absolute;
+    right: -8%; top: 50%;
+    transform: translateY(-50%);
+    width: clamp(420px, 60vw, 760px);
+    aspect-ratio: 1;
+    background: url("../_assets/svgs/BoadmanLogo.svg") center/contain no-repeat;
+    opacity: 0.05;
+    filter: grayscale(0.4);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-8);
+    max-width: 1280px;
+    margin: 0 auto;
+    align-items: center;
+  }
+  @media (min-width: 1100px) {
+    .hero__grid { grid-template-columns: 1.4fr 1fr; gap: var(--s-10); }
+  }
+
+  .hero__stamp {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    background: rgba(255, 87, 51, 0.12);
+    border: 1px solid rgba(255, 87, 51, 0.32);
+    color: var(--orange-400);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    margin-bottom: var(--s-5);
+  }
+  .hero__stamp::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--orange-500);
+    box-shadow: 0 0 8px var(--orange-500);
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+  .hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    margin-bottom: var(--s-5);
+  }
+  .hero__title .flame {
+    color: var(--orange-500);
+    text-shadow: 0 0 40px rgba(255, 87, 51, 0.4);
+  }
+  .hero__sub {
+    color: var(--text-secondary);
+    font-size: clamp(17px, 1.5vw, 20px);
+    line-height: 1.55;
+    max-width: 58ch;
+    margin-bottom: var(--s-6);
+  }
+  .hero__cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero__legal {
+    margin-top: var(--s-6);
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+  .hero__legal span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero__legal svg { width: 14px; height: 14px; color: var(--success-500, var(--green-500)); }
+
+  /* Hero card — featured tournament preview, with grain + flame ring */
+  .hero-card {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, transparent 0%, var(--bg-page) 100%),
+      url("../_assets/games/ApexLegendsBanner.png") center/cover;
+    border: 1px solid var(--border-flame);
+    box-shadow: var(--shadow-flame);
+    aspect-ratio: 4 / 5;
+    max-width: 460px;
+    margin: 0 auto;
+    isolation: isolate;
+  }
+  .hero-card::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4; mix-blend-mode: overlay; pointer-events: none;
+  }
+  .hero-card__head {
+    position: absolute; top: 16px; left: 16px; right: 16px;
+    display: flex; justify-content: space-between; gap: 10px;
+    z-index: 2;
+  }
+  .hero-card__body {
+    position: absolute; bottom: 24px; left: 24px; right: 24px;
+    z-index: 2;
+  }
+  .hero-card__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .hero-card__stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    padding: 14px 0 0;
+    margin-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  .hero-card__stats > div { font-family: var(--font-hud); }
+  .hero-card__stats .lbl {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .hero-card__stats .val {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+
+  /* ====== STATS BAR ====== */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    margin: 0 clamp(20px, 4vw, 56px);
+    background: var(--border-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  @media (min-width: 720px) { .stats-bar { grid-template-columns: repeat(4, 1fr); } }
+  .stats-bar > div { background: var(--bg-panel); padding: 24px 20px; }
+  .stats-bar__label {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .stats-bar__value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .stats-bar__sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    margin-top: 4px;
+  }
+
+  /* ====== SECTIONS ====== */
+  section.block {
+    padding: clamp(64px, 8vw, 120px) clamp(20px, 4vw, 56px);
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .block__header {
+    display: grid; gap: 12px;
+    margin-bottom: var(--s-8);
+    max-width: 720px;
+  }
+  .block__eyebrow {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--orange-500);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .block__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(32px, 4vw, 52px);
+    line-height: 1;
+    letter-spacing: -0.025em;
+  }
+  .block__lede { color: var(--text-secondary); font-size: 16px; line-height: 1.65; }
+
+  /* ====== HOW IT WORKS ====== */
+  .steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
+  @media (min-width: 900px) { .steps { grid-template-columns: 1fr 1fr 1fr; } }
+  .step {
+    position: relative;
+    padding: var(--s-6);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    isolation: isolate;
+  }
+  .step::before {
+    content: ""; position: absolute; top: 0; left: var(--s-6); right: var(--s-6); height: 2px;
+    background: linear-gradient(90deg, transparent, var(--orange-500), transparent);
+    opacity: 0.6;
+  }
+  .step__num {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--orange-500);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: var(--s-2);
+  }
+  .step__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: var(--s-3);
+    line-height: 1.15;
+  }
+  .step__body { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+  /* ====== FEATURED COMPETITIONS ====== */
+  .feat-grid {
+    display: grid; gap: var(--s-4);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 760px) { .feat-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { .feat-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+  .feat-card {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    transition: all var(--dur-fast) var(--ease-out-quart);
+  }
+  .feat-card:hover { border-color: var(--border-flame); transform: translateY(-2px); }
+  .feat-card__art { height: 160px; position: relative; overflow: hidden; }
+  .feat-card__art img { width: 100%; height: 100%; object-fit: cover; }
+  .feat-card__art::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, var(--bg-panel));
+  }
+  .feat-card__live {
+    position: absolute; top: 12px; right: 12px;
+    z-index: 2;
+  }
+  .feat-card__body { padding: var(--s-4); }
+  .feat-card__game {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--orange-400);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .feat-card__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .feat-card__host { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+  .feat-card__stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .feat-card__stats .lbl { font-family: var(--font-hud); font-size: 9px; color: var(--text-muted); letter-spacing: var(--tr-stamp); text-transform: uppercase; font-weight: 700; }
+  .feat-card__stats .val { font-family: var(--font-display); font-weight: 700; font-size: 14px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+
+  /* ====== TRUST / WHY BOADMAN ====== */
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
+  @media (min-width: 700px) { .why-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { .why-grid { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+  .why-tile {
+    padding: var(--s-5);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    position: relative;
+  }
+  .why-tile__icon {
+    width: 44px; height: 44px;
+    border-radius: var(--r-md);
+    background: var(--orange-tint);
+    color: var(--orange-500);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: var(--s-4);
+  }
+  .why-tile__title { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin-bottom: 8px; line-height: 1.2; }
+  .why-tile__body { color: var(--text-secondary); font-size: 13px; line-height: 1.55; }
+
+  /* ====== PARTNERS ====== */
+  .partner-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-5);
+    align-items: center;
+    padding: var(--s-6) 0;
+  }
+  @media (min-width: 600px) { .partner-strip { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 1000px) { .partner-strip { grid-template-columns: repeat(7, 1fr); } }
+  .partner-strip img {
+    height: 32px; width: auto;
+    margin: 0 auto;
+    opacity: 0.55;
+    filter: grayscale(1) brightness(1.4);
+    transition: opacity var(--dur-fast) var(--ease-out-quart);
+  }
+  .partner-strip img:hover { opacity: 1; filter: grayscale(0); }
+
+  /* ====== FAQ ====== */
+  .faq { max-width: 880px; margin: 0 auto; display: grid; gap: 10px; }
+  .faq details {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .faq summary {
+    padding: var(--s-4) var(--s-5);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    list-style: none;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "+";
+    font-family: var(--font-hud);
+    font-size: 20px;
+    color: var(--orange-500);
+    transition: transform var(--dur-fast) var(--ease-out-quart);
+  }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p {
+    padding: 0 var(--s-5) var(--s-5);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  /* ====== FINAL CTA ====== */
+  .final-cta {
+    position: relative;
+    margin: 0 clamp(20px, 4vw, 56px);
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: clamp(56px, 7vw, 96px) clamp(28px, 5vw, 64px);
+    border-radius: var(--r-xl);
+    background:
+      radial-gradient(at 50% 100%, rgba(255, 87, 51, 0.18), transparent 60%),
+      linear-gradient(180deg, #1A0E04 0%, #0B0C10 100%);
+    border: 1px solid var(--border-flame);
+    overflow: hidden;
+    isolation: isolate;
+    text-align: center;
+  }
+  .final-cta::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4; mix-blend-mode: overlay; pointer-events: none;
+  }
+  .final-cta h2 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    margin-bottom: var(--s-4);
+  }
+  .final-cta p {
+    color: var(--text-secondary);
+    font-size: 17px;
+    max-width: 56ch;
+    margin: 0 auto var(--s-6);
+    line-height: 1.55;
+  }
+
+  /* ====== FOOTER ====== */
+  footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: var(--s-8) clamp(20px, 4vw, 56px) var(--s-6);
+    margin-top: var(--s-10);
+  }
+  .footer__top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  @media (min-width: 800px) { .footer__top { grid-template-columns: 1.5fr repeat(3, 1fr); } }
+  .footer__brand-block img { height: 38px; margin-bottom: 12px; }
+  .footer__brand-block p { color: var(--text-muted); font-size: 13px; line-height: 1.55; max-width: 32ch; }
+  .footer__col-title {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+    margin-bottom: var(--s-3);
+  }
+  .footer__col ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .footer__col a { color: var(--text-secondary); font-size: 13px; }
+  .footer__col a:hover { color: var(--text-primary); }
+  .footer__bottom {
+    display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;
+    margin-top: var(--s-8);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    max-width: 1280px;
+    margin-left: auto; margin-right: auto;
+  }
+  .footer__bottom .badges { display: flex; gap: 16px; align-items: center; }
+
+  .footer__responsible {
+    margin-top: var(--s-5);
+    padding: var(--s-4) var(--s-5);
+    background: var(--bg-elevated);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    max-width: 1280px;
+    margin-left: auto; margin-right: auto;
+    display: grid; gap: 6px;
+  }
+  .footer__responsible strong { font-family: var(--font-hud); font-size: 11px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--amber-500); }
+  .footer__responsible p { font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+  .footer__responsible a { color: var(--orange-400); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ====== TOP BAR ====== -->
+<header class="top-bar">
+  <img class="top-bar__brand" src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+  <nav class="top-nav">
+    <a href="#how">How it works</a>
+    <a href="#tournaments">Live tournaments</a>
+    <a href="#trust">Why Boadman</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="top-bar__cta">
+    <a href="../player/auth.html" class="btn btn-ghost btn-sm btn-uppercase">Sign in</a>
+    <a href="../player/auth.html" class="btn btn-primary btn-sm btn-uppercase">Sign up</a>
+  </div>
+</header>
+
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <div class="hero__grid">
+    <div>
+      <span class="hero__stamp">UK Esports · Compliance-first · 18+</span>
+      <h1 class="hero__title">
+        Compete<br>
+        with <span class="flame">discipline.</span>
+      </h1>
+      <p class="hero__sub">
+        Coin-based 1v1 challenges, single-match free-for-all tournaments,
+        and brand-sponsored competitions on a single wallet.
+        Stripe-verified payouts, UK MLR 2017 compliant, no shenanigans.
+      </p>
+      <div class="hero__cta">
+        <a href="../player/auth.html" class="btn btn-primary btn-lg btn-uppercase">Sign up · 100 coins on first deposit</a>
+        <a href="../player/tournaments.html" class="btn btn-secondary btn-lg btn-uppercase">Browse tournaments</a>
+      </div>
+      <div class="hero__legal">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>18+ verified</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>UK MLR 2017</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Closed-loop redemption</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>48 h prize hold</span>
+      </div>
+    </div>
+
+    <!-- Hero card — featured competition -->
+    <a href="../player/tournament-detail.html" class="hero-card" style="text-decoration: none; color: inherit;">
+      <div class="hero-card__head">
+        <span class="badge badge--flame" style="background: rgba(11,12,16,0.7); backdrop-filter: blur(6px); border-color: var(--border-flame);">Apex Legends · FFA</span>
+        <span class="badge badge--danger" style="background: rgba(238,68,86,0.18); border-color: rgba(238,68,86,0.4);"><span style="background:var(--danger-500, var(--red-500)); animation: pulse-soft 1.6s infinite;"></span>Live now</span>
+      </div>
+      <div class="hero-card__body">
+        <div class="stamp" style="color: var(--orange-400); margin-bottom: 6px;">Top live pool · player-hosted</div>
+        <h3 class="hero-card__title">Apex Spring Showdown</h3>
+        <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.55; margin: 0;">8-player free-for-all. Top 3 take the pool. Hosted by Theo_W. Final round in 6 min.</p>
+        <div class="hero-card__stats">
+          <div><div class="lbl">Pool</div><div class="val">3,500 <span style="color: var(--text-muted); font-size: 11px;">coins</span></div></div>
+          <div><div class="lbl">Entry</div><div class="val">200 <span style="color: var(--text-muted); font-size: 11px;">coins</span></div></div>
+          <div><div class="lbl">Players</div><div class="val">8 / 8</div></div>
+        </div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ====== STATS BAR ====== -->
+<div class="stats-bar">
+  <div>
+    <div class="stats-bar__label">Tournaments live</div>
+    <div class="stats-bar__value">22</div>
+    <div class="stats-bar__sub">across 7 games · right now</div>
+  </div>
+  <div>
+    <div class="stats-bar__label">Prizes paid out · 30 d</div>
+    <div class="stats-bar__value">£148,200</div>
+    <div class="stats-bar__sub">in 1,482,000 coins</div>
+  </div>
+  <div>
+    <div class="stats-bar__label">Active players</div>
+    <div class="stats-bar__value">3,840</div>
+    <div class="stats-bar__sub">UK · NG · growing</div>
+  </div>
+  <div>
+    <div class="stats-bar__label">Supported games</div>
+    <div class="stats-bar__value">7</div>
+    <div class="stats-bar__sub">Apex · CoD · FC25 · Valorant · ...</div>
+  </div>
+</div>
+
+<!-- ====== HOW IT WORKS ====== -->
+<section class="block" id="how">
+  <div class="block__header">
+    <span class="block__eyebrow">How it works · 3 steps</span>
+    <h2 class="block__title">From sign-up to cash-out.</h2>
+    <p class="block__lede">No fluff. Verify your identity once, buy coins, compete, withdraw winnings. The platform handles escrow, disputes, and prize holds.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step__num">01 · 5 minutes</div>
+      <div class="step__title">Sign up &amp; verify</div>
+      <div class="step__body">Create your account, set a display name, accept the policies. Verify your identity (KYC L1 via Didit) when you're ready to deposit more than £200 in 30 days or cash out. UK-resident, 18+.</div>
+    </div>
+    <div class="step">
+      <div class="step__num">02 · instant</div>
+      <div class="step__title">Buy coins &amp; play</div>
+      <div class="step__body">Top up via Stripe. 1 coin = 10 p. Challenge a friend 1v1, join a single-match tournament, or sponsor a competition. Coins go into escrow for the duration of the match.</div>
+    </div>
+    <div class="step">
+      <div class="step__num">03 · within 48 h</div>
+      <div class="step__title">Win &amp; cash out</div>
+      <div class="step__body">Prizes sit in a 48-hour hold so other participants can complain about cheating. After it matures, your coins are spendable. Cash out to your Stripe-verified bank — closed-loop only, in your legal name.</div>
+    </div>
+  </div>
+  <p class="footnote-rates">Rates illustrative — pending SP8-ECON economics review.</p>
+</section>
+
+<!-- ====== FEATURED COMPETITIONS ====== -->
+<section class="block" id="tournaments">
+  <div class="block__header">
+    <span class="block__eyebrow">Live right now · top 3 by prize pool</span>
+    <h2 class="block__title">Find your next match.</h2>
+    <p class="block__lede">Surfaced from the three biggest active pools right now. Join an open tournament or sponsor one to back the grassroots scene. New competitions launch every hour.</p>
+  </div>
+  <div class="feat-grid">
+    <a href="../player/tournament-detail.html" class="feat-card" style="text-decoration: none; color: inherit;">
+      <div class="feat-card__art">
+        <img src="../_assets/games/ApexLegendsBanner.png" alt="" />
+        <span class="feat-card__live">
+          <span class="live-pulse" style="font-size: 10px; padding: 4px 10px;">Live</span>
+        </span>
+      </div>
+      <div class="feat-card__body">
+        <div class="feat-card__game">Apex Legends · FFA</div>
+        <div class="feat-card__title">Apex Spring Showdown</div>
+        <div class="feat-card__host">Hosted by Theo_W · 8 / 8 in lobby</div>
+        <div class="feat-card__stats">
+          <div><div class="lbl">Pool</div><div class="val">3,500</div></div>
+          <div><div class="lbl">Entry</div><div class="val">200</div></div>
+          <div><div class="lbl">Winners</div><div class="val">Top 3</div></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="../player/tournament-detail.html" class="feat-card" style="text-decoration: none; color: inherit;">
+      <div class="feat-card__art">
+        <img src="../_assets/games/CyberPunk.png" alt="" />
+      </div>
+      <div class="feat-card__body">
+        <div class="feat-card__game">Cyberpunk 2077</div>
+        <div class="feat-card__title">Rebirth Resurgence</div>
+        <div class="feat-card__host">Brand-hosted · Nova Esports · 14 / 32</div>
+        <div class="feat-card__stats">
+          <div><div class="lbl">Pool</div><div class="val">5,000</div></div>
+          <div><div class="lbl">Entry</div><div class="val">100</div></div>
+          <div><div class="lbl">Starts</div><div class="val">2 h</div></div>
+        </div>
+      </div>
+    </a>
+
+    <a href="../player/tournament-detail.html" class="feat-card" style="text-decoration: none; color: inherit;">
+      <div class="feat-card__art">
+        <img src="../_assets/games/CallOfDutyFull.png" alt="" />
+      </div>
+      <div class="feat-card__body">
+        <div class="feat-card__game">Call of Duty · BR</div>
+        <div class="feat-card__title">Sunday Series · Week 21</div>
+        <div class="feat-card__host">Player-hosted · 8 / 16</div>
+        <div class="feat-card__stats">
+          <div><div class="lbl">Pool</div><div class="val">1,200</div></div>
+          <div><div class="lbl">Entry</div><div class="val">50</div></div>
+          <div><div class="lbl">Starts</div><div class="val">19:00</div></div>
+        </div>
+      </div>
+    </a>
+  </div>
+  <div style="text-align: center; margin-top: var(--s-6);">
+    <a href="../player/tournaments.html" class="btn btn-secondary btn-uppercase">See all 22 tournaments</a>
+  </div>
+</section>
+
+<!-- ====== WHY BOADMAN ====== -->
+<section class="block" id="trust">
+  <div class="block__header">
+    <span class="block__eyebrow">Why Boadman is different</span>
+    <h2 class="block__title">Built like a bank.<br>Plays like an arena.</h2>
+    <p class="block__lede">Esports money platforms have a trust problem. We don't. We're the only UK-MLR-2017-compliant operator with closed-loop redemption, third-party KYC, and 48-hour complaint windows on every prize.</p>
+  </div>
+  <div class="why-grid">
+    <div class="why-tile">
+      <div class="why-tile__icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="why-tile__title">KYC L1 / L2 via Didit</div>
+      <div class="why-tile__body">Government-ID + selfie + sanctions screening on every account. L2 step-up for redemptions over £2,000.</div>
+    </div>
+    <div class="why-tile">
+      <div class="why-tile__icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <div class="why-tile__title">Closed-loop redemption</div>
+      <div class="why-tile__body">Coins only redeem to a Stripe-verified bank in your legal name. The platform isn't a money-mover for anyone else.</div>
+    </div>
+    <div class="why-tile">
+      <div class="why-tile__icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="why-tile__title">48-hour prize hold</div>
+      <div class="why-tile__body">Every prize sits in a hold so other participants can complain about cheating. If you really won, you really get paid.</div>
+    </div>
+    <div class="why-tile">
+      <div class="why-tile__icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <div class="why-tile__title">MLRO-supervised AML</div>
+      <div class="why-tile__body">Money-laundering reporting officer reviews every flagged transaction within 72 hours. Audit log retained 5 years per MLR 2017 §40.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PARTNERS ====== -->
+<section class="block" style="padding-top: var(--s-8); padding-bottom: var(--s-8);">
+  <div style="text-align: center; margin-bottom: var(--s-6);">
+    <span class="block__eyebrow">Trusted by</span>
+  </div>
+  <div class="partner-strip">
+    <img src="../_assets/partners/PartnerLogo1.png" alt="Partner 1" />
+    <img src="../_assets/partners/PartnerLogo2.png" alt="Partner 2" />
+    <img src="../_assets/partners/PartnerLogo3.png" alt="Partner 3" />
+    <img src="../_assets/partners/PartnerLogo4.png" alt="Partner 4" />
+    <img src="../_assets/partners/PartnerLogo5.png" alt="Partner 5" />
+    <img src="../_assets/partners/PartnerLogo6.png" alt="Partner 6" />
+    <img src="../_assets/partners/PartnerLogo7.png" alt="Partner 7" />
+  </div>
+</section>
+
+<!-- ====== FAQ ====== -->
+<section class="block" id="faq">
+  <div class="block__header">
+    <span class="block__eyebrow">FAQ</span>
+    <h2 class="block__title">Common questions.</h2>
+  </div>
+  <div class="faq">
+    <details>
+      <summary>How does Boadman make money?</summary>
+      <p>Platform commission on every settled competition (12 % on 1v1 challenges, 12 % player-hosted / 15 % brand-hosted tournament commission), a redemption fee, and game-publisher royalty splits. We don't take a cut from your wallet sitting idle. <em>Rates illustrative — pending SP8-ECON economics review.</em></p>
+    </details>
+    <details>
+      <summary>Can I cash out at any time?</summary>
+      <p>Yes — assuming your wallet isn't subject to a cash-out freeze (AML review), and you've completed KYC L1. Redemptions over £2,000 single or £5,000 in 12 months trigger KYC L2 step-up. Funds go to your Stripe-verified bank in your legal name only.</p>
+    </details>
+    <details>
+      <summary>What happens if my opponent cheats?</summary>
+      <p>File a dispute within 48 hours of result submission. Admin reviews both submissions and any evidence you attach (screenshot, stream link). Outcome is one of: A wins / B wins / cancelled / replay / frivolous (5 % fee). Three frivolous-dispute strikes in 12 months → 30-day host-suspension.</p>
+    </details>
+    <details>
+      <summary>What's the 48-hour prize hold for?</summary>
+      <p>Any participant in the same competition can file a complaint against a held prize within 48 hours of release. Filing freezes the prize for admin review. After the window, the prize matures automatically and becomes spendable. Admin-hosted tournaments skip the hold.</p>
+    </details>
+    <details>
+      <summary>Is this gambling?</summary>
+      <p>No. Boadman is a skill-based competition platform. Outcomes depend on player skill, not chance. We operate under the UK Money Laundering Regulations 2017 framework as a financial services platform, not a gambling licensee. Responsible play resources are linked in the footer.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ====== FINAL CTA ====== -->
+<section style="padding: 0 clamp(20px, 4vw, 56px) clamp(56px, 7vw, 96px);">
+  <div class="final-cta">
+    <span class="hero__stamp" style="margin-bottom: var(--s-5);">Sign up · 100 bonus coins on first deposit</span>
+    <h2>Ready to compete?</h2>
+    <p>The next match starts in less than an hour. Sign up takes 90 seconds; KYC waits until you're ready to deposit more or cash out.</p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="../player/auth.html" class="btn btn-primary btn-lg btn-uppercase">Create your account</a>
+      <a href="../player/tournaments.html" class="btn btn-secondary btn-lg btn-uppercase">Browse first</a>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="footer__top">
+    <div class="footer__brand-block">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <p>UK esports competition platform. Coin-based 1v1s, single-match tournaments, brand-sponsored events. UK MLR 2017 compliant.</p>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Platform</div>
+      <ul>
+        <li><a href="../player/games.html">Games</a></li>
+        <li><a href="../player/tournaments.html">Tournaments</a></li>
+        <li><a href="../player/challenges.html">Challenges</a></li>
+        <li><a href="../brand/register.html">For brands</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Legal</div>
+      <ul>
+        <li><a href="/legal/terms">Terms of Service</a></li>
+        <li><a href="/legal/privacy">Privacy Policy</a></li>
+        <li><a href="/legal/cookies">Cookie Policy</a></li>
+        <li><a href="/legal/responsible-play">Responsible play</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Support</div>
+      <ul>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="mailto:support@boadman.com">Contact support</a></li>
+        <li><a href="/status">System status</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__responsible">
+    <strong>⚠ Play responsibly</strong>
+    <p>Competitions involve coins of real-world value. Only stake what you can afford to lose. If gaming is affecting your wellbeing: <a href="https://www.gamcare.org.uk/">GamCare</a> · <a href="https://www.begambleaware.org/">BeGambleAware</a> · National Gambling Helpline: 0808 8020 133 (free, confidential, 24/7).</p>
+  </div>
+
+  <div class="footer__bottom">
+    <span>© 2026 Boadman Ltd · UK · 18+ only</span>
+    <div class="badges">
+      <span>FCA AML registered</span>
+      <span>UK MLR 2017 § 40</span>
+      <span>v1.0 · 2026-07</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
