@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Terms of Service</title>
+<link rel="stylesheet" href="../../_tokens/tokens.css" />
+<link rel="stylesheet" href="../../_tokens/components.css" />
+<style>
+  /* Legal page template — used for Terms / Privacy / Cookies / Responsible Play.
+     Content body is fetched from GET /policy-versions → content_url per thread 0008.
+     This file is the design proof; the real page lives in boadman-web/src/app/legal/. */
+
+  body {
+    background:
+      radial-gradient(at 95% -10%, rgba(255, 87, 51, 0.06), transparent 50%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  /* ===== TOP BAR (same as landing) ===== */
+  .top-bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: var(--s-6);
+    padding: 16px clamp(20px, 4vw, 56px);
+    background: rgba(11, 12, 16, 0.78);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .top-bar img { height: 38px; }
+  .top-bar__cta { margin-left: auto; display: flex; gap: 10px; }
+
+  /* ===== PAGE HEADER ===== */
+  .legal-hero {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: clamp(48px, 6vw, 88px) clamp(20px, 4vw, 56px) clamp(28px, 4vw, 48px);
+  }
+  .legal-hero__breadcrumb {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+    margin-bottom: var(--s-5);
+  }
+  .legal-hero__breadcrumb a { color: var(--text-muted); }
+  .legal-hero__breadcrumb a:hover { color: var(--text-primary); }
+  .legal-hero__doctype {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    background: rgba(255, 87, 51, 0.10);
+    border: 1px solid rgba(255, 87, 51, 0.28);
+    color: var(--orange-400);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    margin-bottom: var(--s-5);
+  }
+  .legal-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(36px, 5vw, 60px);
+    letter-spacing: var(--tr-display);
+    line-height: 1;
+    margin-bottom: var(--s-4);
+  }
+  .legal-hero__version-row {
+    display: flex; align-items: center; gap: var(--s-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--s-4);
+  }
+  .version-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--r-md);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+  }
+  .version-pill strong { color: var(--text-primary); font-weight: 500; }
+
+  .legal-hero__lede {
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.65;
+    max-width: 64ch;
+  }
+
+  /* "DRAFT" badge when content is unprovisioned */
+  .draft-banner {
+    margin-bottom: var(--s-5);
+    padding: var(--s-4) var(--s-5);
+    background:
+      linear-gradient(180deg, var(--amber-tint), transparent 100%),
+      var(--bg-panel);
+    border: 1px solid rgba(255, 170, 34, 0.4);
+    border-radius: var(--r-md);
+    display: flex; align-items: flex-start; gap: var(--s-3);
+  }
+  .draft-banner svg { width: 22px; height: 22px; color: var(--amber-500); flex-shrink: 0; margin-top: 2px; }
+  .draft-banner__title {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--amber-500);
+    margin-bottom: 4px;
+  }
+  .draft-banner__body { color: var(--text-secondary); font-size: var(--t-meta); line-height: 1.55; }
+
+  /* ===== BODY LAYOUT ===== */
+  .legal-body {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 56px) clamp(48px, 6vw, 96px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-8);
+  }
+  @media (min-width: 980px) {
+    .legal-body { grid-template-columns: 220px 1fr; gap: var(--s-10); }
+  }
+
+  /* Table-of-contents sidebar (sticky on lg+) */
+  .legal-toc {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    padding: var(--s-4);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+  }
+  .legal-toc__title {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: var(--s-3);
+  }
+  .legal-toc ol {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; gap: 6px;
+    counter-reset: section;
+  }
+  .legal-toc li { counter-increment: section; }
+  .legal-toc a {
+    display: flex; gap: 8px;
+    padding: 6px 8px;
+    border-radius: var(--r-sm);
+    color: var(--text-secondary);
+    font-size: var(--t-meta);
+    line-height: 1.4;
+  }
+  .legal-toc a::before {
+    content: counter(section, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .legal-toc a:hover { color: var(--text-primary); background: var(--bg-elevated); }
+  .legal-toc a.is-current { color: var(--text-primary); background: rgba(255, 87, 51, 0.08); }
+  .legal-toc a.is-current::before { color: var(--orange-500); }
+
+  /* Rendered markdown content */
+  .legal-content {
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 70ch;
+  }
+  .legal-content h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(22px, 2.4vw, 28px);
+    line-height: 1.2;
+    letter-spacing: var(--tr-display);
+    margin: var(--s-10) 0 var(--s-4);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--border-subtle);
+    position: relative;
+  }
+  .legal-content h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .legal-content h2::before {
+    content: attr(data-num);
+    display: block;
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--orange-500);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .legal-content h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(17px, 1.8vw, 20px);
+    margin: var(--s-6) 0 var(--s-3);
+  }
+  .legal-content p { margin: 0 0 var(--s-4); color: var(--text-secondary); }
+  .legal-content p strong { color: var(--text-primary); }
+  .legal-content ul, .legal-content ol { padding-left: 1.4em; margin: 0 0 var(--s-4); color: var(--text-secondary); }
+  .legal-content ul li, .legal-content ol li { margin-bottom: 8px; }
+  .legal-content a { color: var(--orange-500); border-bottom: 1px solid rgba(255, 87, 51, 0.25); }
+  .legal-content a:hover { color: var(--orange-400); border-bottom-color: var(--orange-400); }
+  .legal-content blockquote {
+    margin: var(--s-5) 0;
+    padding: var(--s-3) var(--s-5);
+    border-left: 3px solid var(--orange-500);
+    background: var(--bg-panel);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+  .legal-content code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: var(--bg-elevated);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--text-primary);
+  }
+
+  /* Section call-out (compliance-flavoured highlight) */
+  .legal-content .callout {
+    margin: var(--s-5) 0;
+    padding: var(--s-4) var(--s-5);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    border-left: 3px solid var(--orange-500);
+    display: flex; gap: var(--s-3);
+  }
+  .legal-content .callout svg { color: var(--orange-500); flex-shrink: 0; width: 20px; height: 20px; margin-top: 4px; }
+  .legal-content .callout strong { color: var(--orange-500); display: block; margin-bottom: 4px; font-family: var(--font-hud); font-size: 11px; text-transform: uppercase; letter-spacing: var(--tr-stamp); }
+
+  /* Footer pointer */
+  .legal-foot {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: var(--s-6) clamp(20px, 4vw, 56px) var(--s-10);
+    border-top: 1px dashed var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .legal-foot a { color: var(--orange-500); }
+</style>
+</head>
+<body>
+
+<!-- ====== TOP BAR ====== -->
+<header class="top-bar">
+  <a href="../landing.html"><img src="../../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+  <div class="top-bar__cta">
+    <a href="../../player/auth.html" class="btn btn-ghost btn-sm btn-uppercase">Sign in</a>
+    <a href="../../player/auth.html" class="btn btn-primary btn-sm btn-uppercase">Sign up</a>
+  </div>
+</header>
+
+<!-- ====== HERO ====== -->
+<section class="legal-hero">
+  <div class="legal-hero__breadcrumb">
+    <a href="../landing.html">Boadman</a>
+    <span>›</span>
+    <span>Legal</span>
+    <span>›</span>
+    <span style="color: var(--text-secondary);">Terms of Service</span>
+  </div>
+
+  <span class="legal-hero__doctype">Policy · Legal &amp; Compliance</span>
+
+  <h1 class="legal-hero__title">Terms of Service</h1>
+
+  <div class="legal-hero__version-row">
+    <span class="version-pill">Last updated <strong>1 July 2026</strong></span>
+  </div>
+
+  <p class="legal-hero__lede">
+    These are the binding terms between you and Boadman Ltd
+    governing your use of the platform. Read them in full before
+    signing up.
+  </p>
+
+  <!-- Draft banner — visible when backend hasn't provisioned final content yet -->
+  <div class="draft-banner" data-state="draft">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>
+      <div class="draft-banner__title">Draft · Legal review required</div>
+      <div class="draft-banner__body">
+        This document is a structurally-correct draft awaiting legal review.
+        The shape, headings and obligations represent the intended scope;
+        precise wording will change before the policy takes effect on
+        1 July 2026. Sourced live from <code style="background: var(--bg-elevated); padding: 1px 4px; border-radius: 3px;">GET /policy-versions</code> per
+        agents-comms/threads/0008.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== BODY ====== -->
+<div class="legal-body">
+
+  <!-- Table of contents (sticky on desktop) -->
+  <nav class="legal-toc" aria-label="Sections">
+    <div class="legal-toc__title">On this page</div>
+    <ol>
+      <li><a href="#scope" class="is-current">Scope &amp; acceptance</a></li>
+      <li><a href="#eligibility">Eligibility &amp; identity verification</a></li>
+      <li><a href="#wallet">Your Boadman wallet</a></li>
+      <li><a href="#competitions">Competitions &amp; prizes</a></li>
+      <li><a href="#disputes">Disputes &amp; complaints</a></li>
+      <li><a href="#aml">AML, sanctions &amp; suspensions</a></li>
+      <li><a href="#data">Data &amp; privacy</a></li>
+      <li><a href="#fees">Fees &amp; commissions</a></li>
+      <li><a href="#liability">Liability &amp; warranties</a></li>
+      <li><a href="#changes">Changes to these terms</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </nav>
+
+  <!-- Rendered markdown body (sample structure — real content comes from API) -->
+  <article class="legal-content">
+
+    <h2 id="scope" data-num="§ 01">Scope &amp; acceptance</h2>
+    <p>These terms ("<strong>Terms</strong>") govern your use of Boadman, an
+    online esports competition platform operated by Boadman Ltd
+    ("<strong>we</strong>", "<strong>us</strong>", "<strong>our</strong>"), a company registered in England
+    and Wales (company number TBC, registered office 71-75 Shelton
+    Street, Covent Garden, London, WC2H 9JQ).</p>
+    <p>By creating an account, depositing coins, joining competitions
+    or otherwise using the platform you agree to these Terms, to our
+    <a href="/legal/privacy">Privacy Policy</a> and to our
+    <a href="/legal/cookies">Cookie Policy</a>. If you don't accept,
+    you must not use the platform.</p>
+
+    <div class="callout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div>
+        <strong>Important · UK MLR 2017</strong>
+        Boadman operates under the UK Money Laundering Regulations 2017
+        as a financial-services platform. Identity verification,
+        record-keeping and reporting obligations may affect how you
+        deposit and cash out.
+      </div>
+    </div>
+
+    <h2 id="eligibility" data-num="§ 02">Eligibility &amp; identity verification</h2>
+    <p>You must be 18 years or older and resident in a country we support
+    (currently the United Kingdom and Nigeria) to register and use the
+    platform. Persons resident in countries on our geographic
+    blacklist (currently North Korea, Iran and Myanmar) may not sign
+    up or sign in.</p>
+    <p>Identity verification (KYC) is mandatory for any redemption and
+    is also triggered automatically when cumulative deposits in any
+    rolling 30-day window exceed <strong>£200</strong>. Enhanced
+    verification (L2) is required for any single redemption above
+    <strong>£2,000</strong> or rolling 12-month redemption total above
+    <strong>£5,000</strong>.</p>
+
+    <h2 id="wallet" data-num="§ 03">Your Boadman wallet</h2>
+    <p>Boadman uses a native virtual unit called the <strong>coin</strong>.
+    The coin is not a re-brand of pence. The conversion rate is set in
+    platform configuration; at the date these Terms take effect the rate
+    is <code>1 coin = 10 pence (£0.10)</code>. Rates are subject to change
+    on notice.</p>
+    <p>Funds deposited via Stripe (UK / EU) or Paystack (Nigeria) credit
+    your wallet as coins. Redemptions return coins to fiat and are paid
+    only to a destination verified to belong to you in your declared
+    legal name (<strong>closed-loop redemption</strong>).</p>
+
+    <h2 id="competitions" data-num="§ 04">Competitions &amp; prizes</h2>
+    <p>Boadman supports 1v1 challenges, single-match free-for-all
+    tournaments and brand-sponsored competitions. Prizes are paid in
+    coins. After release, every prize sits in a <strong>48-hour
+    hold</strong> during which any participant in the same competition
+    may file a complaint; the hold then matures automatically.</p>
+
+    <h2 id="disputes" data-num="§ 05">Disputes &amp; complaints</h2>
+    <p>You may dispute a match within 48 hours of result submission.
+    Our admin team reviews submissions, evidence and history. Outcomes
+    include: participant A wins, participant B wins, cancelled (both
+    refunded), replay (results wiped, match re-activated) or
+    frivolous-dispute (5% fee deducted from the disputing player).</p>
+
+    <h2 id="aml" data-num="§ 06">AML, sanctions &amp; suspensions</h2>
+    <p>Activity that triggers our anti-money-laundering rules may
+    result in a <strong>cash-out freeze</strong>, an account
+    <strong>suspension</strong>, or, in extremis, a permanent
+    <strong>ban</strong>. Suspensions and bans are recorded in our
+    audit log and may be reported to the National Crime Agency under
+    our Suspicious Activity Report obligations.</p>
+
+    <h2 id="data" data-num="§ 07">Data &amp; privacy</h2>
+    <p>Our handling of personal data is governed by the
+    <a href="/legal/privacy">Privacy Policy</a>. Notable retention:
+    financial, KYC and AML records are kept for <strong>5 years</strong>
+    after closure, as required by UK MLR 2017 § 40, even where a profile
+    has been anonymised.</p>
+
+    <h2 id="fees" data-num="§ 08">Fees &amp; commissions</h2>
+    <p>Provisional rates (interim, subject to economics review):</p>
+    <ul>
+      <li>Challenge commission: <strong>12%</strong> of pot</li>
+      <li>Tournament commission: <strong>12%</strong> (player-hosted) /
+        <strong>15%</strong> (brand-hosted)</li>
+      <li>Publisher royalty: <strong>15%</strong> of platform commission</li>
+      <li>Redemption fee: greater of (a) 20-coin minimum, or
+        (b) 10 coins + 3% of redemption amount</li>
+      <li>Player-hosted tournament host fee: <strong>2 coins</strong></li>
+      <li>Cancellation fee on a post-accept 1v1: <strong>2%</strong> of stake</li>
+      <li>Frivolous-dispute fee: <strong>5%</strong> of stake</li>
+      <li>Abandoned-match fee: <strong>5%</strong> of stake (each player)</li>
+    </ul>
+
+    <h2 id="liability" data-num="§ 09">Liability &amp; warranties</h2>
+    <p>The platform is provided on an "as-is" basis. Subject to
+    applicable consumer law, our liability is limited to the lesser of
+    the coins lost as a direct consequence of our breach and £500. We do
+    not warrant that the platform will be uninterrupted, error-free or
+    free from third-party interference.</p>
+
+    <h2 id="changes" data-num="§ 10">Changes to these terms</h2>
+    <p>We may publish a new version of these Terms at any time. Material
+    changes are announced in-app via a re-consent interrupt: you must
+    accept the new version before continuing to use the platform.
+    Material changes include any change to fees, eligibility, AML
+    obligations or your data rights.</p>
+
+    <h2 id="contact" data-num="§ 11">Contact</h2>
+    <p>Questions about these Terms can be sent to
+    <a href="mailto:legal@boadman.com">legal@boadman.com</a>. For
+    everyday support, write to
+    <a href="mailto:support@boadman.com">support@boadman.com</a>.</p>
+
+  </article>
+</div>
+
+<!-- ====== FOOT ====== -->
+<div class="legal-foot">
+  <span>© 2026 Boadman Ltd · Companies House TBC · UK · FCA AML registered</span>
+  <span>
+    <a href="/legal/privacy">Privacy</a> ·
+    <a href="/legal/cookies">Cookies</a> ·
+    <a href="/legal/responsible-play">Responsible play</a>
+  </span>
+</div>
+
+</body>
+</html>
