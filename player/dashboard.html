@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Dashboard · Joel Henderson</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ---- Page-scoped: greeting hero ---- */
+  .greet-hero {
+    position: relative;
+    margin-bottom: var(--s-6);
+    padding: var(--s-6) var(--s-7);
+    border-radius: var(--r-xl);
+    background:
+      radial-gradient(at 92% -20%, rgba(255, 87, 51, 0.16), transparent 50%),
+      linear-gradient(135deg, #14151D 0%, #0B0C10 70%);
+    border: 1px solid var(--border-flame);
+    box-shadow: var(--shadow-flame);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .greet-hero::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .greet-hero__top {
+    display: flex; align-items: center; gap: var(--s-3);
+    margin-bottom: var(--s-4);
+    flex-wrap: wrap;
+  }
+  .greet-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 3vw, 40px);
+    letter-spacing: var(--tr-display);
+    line-height: 1.05;
+    margin-bottom: var(--s-2);
+  }
+  .greet-hero__sub {
+    color: var(--text-secondary);
+    font-size: var(--t-body);
+    line-height: 1.5;
+    max-width: 60ch;
+  }
+  .greet-hero__balance {
+    display: flex; align-items: baseline; gap: 10px;
+    margin-top: var(--s-5);
+    flex-wrap: wrap;
+  }
+  .greet-hero__balance .stamp { color: var(--text-muted); }
+  .greet-hero__balance .num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(34px, 4vw, 48px);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: var(--tr-display);
+  }
+  .greet-hero__balance .unit {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--orange-500);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+  }
+  .greet-hero__balance .sub {
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+  }
+
+  /* ---- Action queue (urgent items) ---- */
+  .action-card {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: var(--s-3);
+    align-items: center;
+    padding: var(--s-4) var(--s-5);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--color, var(--orange-500));
+    border-radius: var(--r-md);
+  }
+  .action-card__icon {
+    width: 44px; height: 44px;
+    border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color, var(--orange-500));
+    background: color-mix(in srgb, var(--color, var(--orange-500)) 14%, transparent);
+  }
+  .action-card__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+  .action-card__body {
+    color: var(--text-secondary);
+    font-size: var(--t-meta);
+    line-height: 1.5;
+  }
+
+  /* ---- Grid: live competitions + recent activity ---- */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+  @media (min-width: 1100px) {
+    .dash-grid { grid-template-columns: 1.6fr 1fr; align-items: flex-start; }
+  }
+
+  /* ---- Quick play card row ---- */
+  .qp-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-3);
+  }
+  @media (min-width: 720px) { .qp-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { .qp-grid { grid-template-columns: 1fr 1fr 1fr; } }
+  .qp-card {
+    position: relative;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    text-decoration: none; color: inherit;
+    transition: all var(--dur-fast) var(--ease-out-quart);
+  }
+  .qp-card:hover { transform: translateY(-2px); border-color: var(--border-flame); }
+  .qp-card__art { height: 110px; position: relative; overflow: hidden; }
+  .qp-card__art img { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
+  .qp-card__art::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, var(--bg-panel));
+  }
+  .qp-card__live {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+  }
+  .qp-card__body { padding: var(--s-4); }
+  .qp-card__game {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--orange-400);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .qp-card__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .qp-card__sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-bottom: 12px;
+  }
+  .qp-card__stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .qp-card__stats .lbl {
+    font-family: var(--font-hud);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .qp-card__stats .val {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+
+  /* ---- Active competition strip ---- */
+  .active-comp {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: var(--s-3);
+    padding: var(--s-4);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    margin-bottom: var(--s-3);
+    align-items: center;
+  }
+  .active-comp__art {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: var(--bg-elevated);
+  }
+  .active-comp__art img { width: 100%; height: 100%; object-fit: cover; }
+  .active-comp__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  .active-comp__sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .active-comp__status {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="shell shell--with-rail">
+
+  <!-- ===== HEADER ===== -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search games, players, tournaments…" />
+      <kbd class="kbd">⌘K</kbd>
+    </div>
+    <div class="header-actions">
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot"></span>
+      </button>
+      <div class="avatar-pill"><span class="avatar">J</span><span>Joel</span></div>
+    </div>
+  </header>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="nav-rail">
+    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+
+    <span class="nav-section">Play</span>
+    <a class="nav-item is-active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
+    <a class="nav-item" href="tournaments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>Tournaments<span class="nav-badge">12</span></a>
+    <a class="nav-item" href="challenges.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m14 5 3 3-3 3M17 8H6"/></svg>Challenges<span class="nav-badge">2</span></a>
+    <a class="nav-item" href="games.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Games</a>
+
+    <span class="nav-section">Account</span>
+    <a class="nav-item" href="wallet-default.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l3-3h12l3 3M16 13h3"/></svg>Wallet</a>
+    <a class="nav-item" href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profile</a>
+
+    <div class="rail-balance">
+      <div class="rail-balance__label">Spendable</div>
+      <div class="rail-balance__amount">12,400<span class="unit">coins</span></div>
+      <div class="rail-balance__sub">£1,240.00</div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="app-main">
+
+    <!-- Greeting hero -->
+    <section class="greet-hero">
+      <div class="greet-hero__top">
+        <span class="stamp" style="color: var(--orange-500);">19:42 · UK · Saturday 23 May 2026</span>
+        <span class="badge badge--success">L1 verified</span>
+        <span class="badge badge--neutral">3 active competitions</span>
+      </div>
+      <h1 class="greet-hero__title">Welcome back, Joel.</h1>
+      <p class="greet-hero__sub">You have <strong style="color: var(--text-primary)">3 things needing your attention</strong> — a challenge to accept, a match result to submit, and a prize maturing in 14 hours.</p>
+
+      <div class="greet-hero__balance">
+        <div>
+          <div class="stamp">Spendable balance</div>
+          <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px;">
+            <span class="num">12,400</span>
+            <span class="unit">coins</span>
+          </div>
+          <div class="sub">£1,240.00 · in 48h hold: 2,400 · in escrow: 350</div>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 10px;">
+          <a href="buy-coins.html" class="btn btn-primary btn-uppercase">Buy coins</a>
+          <a href="tournaments.html" class="btn btn-secondary btn-uppercase">Find a match</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Action queue -->
+    <section style="margin-bottom: var(--s-6);">
+      <div class="row row--between" style="margin-bottom: var(--s-4);">
+        <div>
+          <h2 class="section-title" style="margin: 0;">Needs your attention</h2>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin-top: 6px;">Time-sensitive — these expire if you don't act.</p>
+        </div>
+        <span class="status-pill">3 items</span>
+      </div>
+
+      <div class="stack" style="gap: 10px;">
+        <div class="action-card" style="--color: var(--orange-500);">
+          <div class="action-card__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5 3 3-3 3M17 8H6a3 3 0 0 0 0 6h1"/></svg>
+          </div>
+          <div>
+            <div class="action-card__title">Theo_W challenged you · 500 coins · Cyberpunk best-of-3</div>
+            <div class="action-card__body">Expires in <strong style="color: var(--orange-400)">6 h 22 m</strong>. If you accept, both stakes lock in escrow; loser pays the 12% platform commission on the pot.</div>
+          </div>
+          <div class="row" style="gap: 8px;">
+            <button class="btn btn-secondary btn-sm">Decline</button>
+            <button class="btn btn-primary btn-sm btn-uppercase">Accept</button>
+          </div>
+        </div>
+
+        <div class="action-card" style="--color: var(--amber-500);">
+          <div class="action-card__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="action-card__title">Submit your result · Cyberpunk · vs Loner_Epic</div>
+            <div class="action-card__body">Match ended <strong>3 h ago</strong>. Submit within <strong style="color: var(--amber-500)">45 h</strong> or 5% abandoned-match fee deducted from your stake.</div>
+          </div>
+          <a href="match.html" class="btn btn-primary btn-sm btn-uppercase">Submit result →</a>
+        </div>
+
+        <div class="action-card" style="--color: var(--success-500, var(--green-500));">
+          <div class="action-card__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          </div>
+          <div>
+            <div class="action-card__title">Prize maturing · Apex Spring Showdown · 1st place · +2,400 coins</div>
+            <div class="action-card__body">48 h hold matures in <strong style="color: var(--green-500)">14 h 03 m</strong>. After that, coins move to spendable.</div>
+          </div>
+          <a href="wallet-default.html" class="btn btn-ghost btn-sm">View hold</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Two-column: active competitions + recent activity -->
+    <div class="dash-grid">
+
+      <!-- LEFT — your active competitions -->
+      <section>
+        <div class="row row--between" style="margin-bottom: var(--s-4);">
+          <h2 class="section-title" style="margin: 0;">In flight</h2>
+          <a href="tournaments.html" class="btn btn-ghost btn-sm" style="color: var(--orange-500);">View all →</a>
+        </div>
+
+        <div class="active-comp">
+          <div class="active-comp__art"><img src="../_assets/games/ApexLegendsBanner.png" alt="" /></div>
+          <div>
+            <div class="active-comp__name">Apex Spring Showdown</div>
+            <div class="active-comp__sub">Player-hosted by Theo_W · 1st place locked in · prize in 48 h hold</div>
+          </div>
+          <div class="active-comp__status">
+            <span class="badge badge--warning">Hold · 14 h 03 m</span>
+            <a href="tournament-detail.html" class="text-muted" style="font-size: 11px; font-family: var(--font-mono);">Open →</a>
+          </div>
+        </div>
+
+        <div class="active-comp">
+          <div class="active-comp__art"><img src="../_assets/games/CyberPunk.png" alt="" /></div>
+          <div>
+            <div class="active-comp__name">Cyberpunk · 1v1 vs Loner_Epic</div>
+            <div class="active-comp__sub">250-coin wager · match ended 3 h ago · awaiting your result submission</div>
+          </div>
+          <div class="active-comp__status">
+            <span class="badge badge--danger">Result due</span>
+            <a href="match.html" class="text-muted" style="font-size: 11px; font-family: var(--font-mono);">Submit →</a>
+          </div>
+        </div>
+
+        <div class="active-comp">
+          <div class="active-comp__art"><img src="../_assets/games/CyberPunk.png" alt="" /></div>
+          <div>
+            <div class="active-comp__name">Cyberpunk · 1v1 vs Theo_W (incoming)</div>
+            <div class="active-comp__sub">500-coin wager · expires in 6 h 22 m · awaiting your decision</div>
+          </div>
+          <div class="active-comp__status">
+            <span class="badge badge--info">Invite</span>
+            <a href="challenges.html" class="text-muted" style="font-size: 11px; font-family: var(--font-mono);">Decide →</a>
+          </div>
+        </div>
+
+        <div class="muted-block" style="margin-top: var(--s-3); font-size: var(--t-meta);">
+          <strong style="color: var(--text-primary)">Nothing more in flight.</strong> Your last sponsorship cleared 18 May. Browse tournaments to find your next match.
+        </div>
+      </section>
+
+      <!-- RIGHT — recent activity + quick links -->
+      <aside class="stack" style="gap: var(--s-5);">
+        <section class="card">
+          <div class="card-header"><div class="card-title">Recent activity</div></div>
+
+          <div class="tx-row">
+            <div class="tx-row__icon" style="color: var(--green-500); background: var(--green-tint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="6 9 12 15 18 9"/></svg></div>
+            <div>
+              <div class="tx-row__title">1st place · Apex Spring Showdown</div>
+              <div class="tx-row__meta">+ 2,400 coins · 48 h hold · 1 h ago</div>
+            </div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-row__icon" style="color: var(--orange-500); background: var(--orange-tint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m14 5 3 3-3 3M17 8H6"/></svg></div>
+            <div>
+              <div class="tx-row__title">1v1 challenge incoming · Theo_W</div>
+              <div class="tx-row__meta">500 coins · Cyberpunk · 2 h ago</div>
+            </div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-row__icon" style="background: var(--bg-elevated); color: var(--text-secondary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div>
+              <div class="tx-row__title">Coin purchase · Stripe</div>
+              <div class="tx-row__meta">+ 500 coins · £50.00 · 18 May</div>
+            </div>
+          </div>
+          <div class="tx-row">
+            <div class="tx-row__icon" style="background: var(--bg-elevated); color: var(--text-secondary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div>
+              <div class="tx-row__title">Cash-out completed · Lloyds •• 7842</div>
+              <div class="tx-row__meta">− 2,000 coins → £193.00 · 16 May</div>
+            </div>
+          </div>
+
+          <div style="text-align: center; padding-top: 10px;">
+            <a href="wallet-default.html" class="text-muted" style="font-size: var(--t-meta); font-family: var(--font-hud); letter-spacing: var(--tr-stamp); text-transform: uppercase; font-weight: 700;">View full ledger →</a>
+          </div>
+        </section>
+
+        <section class="card-flame">
+          <div class="card-title" style="margin-bottom: var(--s-3);">Quick play</div>
+          <div class="stack" style="gap: 10px;">
+            <a href="challenges.html" class="btn btn-primary btn-block btn-uppercase">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 5 3 3-3 3M17 8H6"/></svg>
+              Challenge a friend
+            </a>
+            <a href="tournament-create.html" class="btn btn-secondary btn-block btn-uppercase">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+              Host a tournament · 2 coins
+            </a>
+            <a href="tournaments.html" class="btn btn-ghost btn-block btn-uppercase">Browse 22 live →</a>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <!-- Discover -->
+    <section style="margin-top: var(--s-8);">
+      <div class="row row--between" style="margin-bottom: var(--s-4);">
+        <div>
+          <h2 class="section-title" style="margin: 0;">Top live pools · pick your next match</h2>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin-top: 6px;">Three biggest active pools right now. New competitions launch every hour.</p>
+        </div>
+        <a href="tournaments.html" class="btn btn-ghost btn-sm" style="color: var(--orange-500);">View all 22 →</a>
+      </div>
+
+      <div class="qp-grid">
+        <a href="tournament-detail.html" class="qp-card">
+          <div class="qp-card__art">
+            <img src="../_assets/games/CyberPunk.png" alt="" />
+            <span class="qp-card__live"><span class="badge badge--info" style="font-size: 9px; padding: 3px 8px;">Opens 19:00</span></span>
+          </div>
+          <div class="qp-card__body">
+            <div class="qp-card__game">Cyberpunk · FFA</div>
+            <div class="qp-card__title">Rebirth Resurgence</div>
+            <div class="qp-card__sub">Brand-hosted · Nova Esports · 14 / 32</div>
+            <div class="qp-card__stats">
+              <div><div class="lbl">Pool</div><div class="val">5,000</div></div>
+              <div><div class="lbl">Entry</div><div class="val">100</div></div>
+              <div><div class="lbl">Starts</div><div class="val">2 h</div></div>
+            </div>
+          </div>
+        </a>
+
+        <a href="tournament-detail.html" class="qp-card">
+          <div class="qp-card__art">
+            <img src="../_assets/games/ApexLegendsBanner.png" alt="" />
+            <span class="qp-card__live"><span class="live-pulse" style="font-size: 9px; padding: 3px 8px;">Live</span></span>
+          </div>
+          <div class="qp-card__body">
+            <div class="qp-card__game">Apex Legends · FFA</div>
+            <div class="qp-card__title">Predator Lobby · Invitational</div>
+            <div class="qp-card__sub">Player-hosted · Riya_Plays · 6 / 8</div>
+            <div class="qp-card__stats">
+              <div><div class="lbl">Pool</div><div class="val">10,000</div></div>
+              <div><div class="lbl">Entry</div><div class="val">500</div></div>
+              <div><div class="lbl">Winners</div><div class="val">Top 3</div></div>
+            </div>
+          </div>
+        </a>
+
+        <a href="tournament-detail.html" class="qp-card">
+          <div class="qp-card__art">
+            <img src="../_assets/games/CallOfDutyFull.png" alt="" />
+          </div>
+          <div class="qp-card__body">
+            <div class="qp-card__game">Call of Duty · BR</div>
+            <div class="qp-card__title">Sunday Series · Week 21</div>
+            <div class="qp-card__sub">Player-hosted · Theo_W · 8 / 16</div>
+            <div class="qp-card__stats">
+              <div><div class="lbl">Pool</div><div class="val">1,200</div></div>
+              <div><div class="lbl">Entry</div><div class="val">50</div></div>
+              <div><div class="lbl">Starts</div><div class="val">19:00</div></div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <p class="footnote-rates">Rates illustrative — pending SP8-ECON economics review.</p>
+
+  </main>
+</div>
+
+</body>
+</html>
