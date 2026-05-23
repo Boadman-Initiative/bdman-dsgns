@@ -1,72 +1,526 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Boadman · Register a brand</title>
-<link rel="stylesheet" href="../_tokens/tokens.css" /><link rel="stylesheet" href="../_tokens/components.css" />
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
 <style>
-  .reg-grid { display: grid; gap: var(--s-5); max-width: 880px; margin: 0 auto; }
-  .brand-card { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; padding: 18px; background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--r-md); margin-bottom: 8px; }
-  .brand-logo { width: 56px; height: 56px; border-radius: var(--r-md); background: linear-gradient(135deg, #4D87FF, #9B6BFF); display: flex; align-items: center; justify-content: center; color: white; font-family: var(--font-display); font-weight: 700; font-size: 20px; }
-</style></head>
-<body>
+  /* Brand-first signup (Model B) — single atomic POST /auth/signup/brand
+     creates Player + Brand + Brand-wallet in one transaction. */
 
-<div class="shell shell--with-rail">
-  <header class="app-header">
-    <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" placeholder="Search…" /></div>
-    <div class="header-actions"><button class="icon-bell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button><div class="avatar-pill"><span class="avatar">J</span><span>Joel</span></div></div>
-  </header>
-  <aside class="nav-rail">
-    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
-    <span class="nav-section">Brand</span>
-    <a class="nav-item is-active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V7l8-4 8 4v14"/></svg>My brands</a>
-    <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/></svg>Dashboard</a>
-    <a class="nav-item" href="wallet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12"/></svg>Brand wallet</a>
-    <span class="nav-section">Account (Player)</span>
-    <a class="nav-item" href="../player/wallet-default.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/></svg>My profile</a>
+  body { background: radial-gradient(at 75% 15%, rgba(255, 87, 51, 0.18), transparent 50%), radial-gradient(at 15% 85%, rgba(255, 167, 0, 0.10), transparent 60%), var(--bg-page); min-height: 100vh; overflow-x: hidden; }
+
+  .auth-shell { min-height: 100vh; display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 1080px) { .auth-shell { grid-template-columns: 1fr 1.05fr; } }
+
+  /* Left — brand panel */
+  .auth-brand { display: none; position: relative; padding: 56px; background: radial-gradient(at 50% 60%, rgba(255, 87, 51, 0.20), transparent 60%), linear-gradient(135deg, #1A0E04 0%, #0B0C10 65%); border-right: 1px solid var(--border-flame); overflow: hidden; isolation: isolate; }
+  @media (min-width: 1080px) { .auth-brand { display: flex; flex-direction: column; justify-content: space-between; } }
+  .auth-brand::after { content: ""; position: absolute; inset: 0; background-image: var(--tex-grain); opacity: 0.4; mix-blend-mode: overlay; pointer-events: none; }
+  .auth-brand__head { display: flex; align-items: center; gap: 14px; }
+  .auth-brand__mark { height: 56px; width: auto; filter: drop-shadow(0 0 24px rgba(255, 87, 51, 0.4)); }
+  .auth-brand__wordmark { font-family: var(--font-hud); font-size: 12px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-secondary); }
+  .auth-brand__wordmark strong { display: block; color: var(--orange-500); font-size: 18px; letter-spacing: 0.06em; font-weight: 800; }
+
+  .auth-brand__quote { font-family: var(--font-display); font-size: clamp(36px, 4vw, 56px); font-weight: 700; letter-spacing: -0.025em; line-height: 0.95; margin-bottom: 18px; }
+  .auth-brand__quote .flame { color: var(--orange-500); }
+  .auth-brand__lede { color: var(--text-secondary); font-size: var(--t-body); line-height: 1.6; max-width: 42ch; margin-bottom: 28px; }
+
+  .auth-brand__cta-list { display: grid; gap: 14px; padding: 0; margin: 0; }
+  .auth-brand__cta-list li { display: flex; align-items: flex-start; gap: 12px; list-style: none; color: var(--text-secondary); font-size: var(--t-body-sm); line-height: 1.5; }
+  .auth-brand__cta-list li strong { color: var(--text-primary); font-weight: 600; }
+  .auth-brand__cta-list svg { color: var(--orange-500); flex-shrink: 0; margin-top: 2px; }
+
+  .auth-brand__foot { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; gap: var(--s-4); }
+  .auth-brand__foot a { color: var(--text-secondary); }
+
+  .partners-strip { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding-top: 18px; margin-top: 28px; border-top: 1px dashed var(--border-subtle); }
+  .partners-strip__label { font-family: var(--font-hud); font-size: 10px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-muted); }
+  .partners-strip__chip { font-family: var(--font-hud); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); padding: 4px 10px; border-radius: var(--r-pill); border: 1px solid var(--border-subtle); background: rgba(255, 255, 255, 0.02); }
+
+  /* Right — form panel */
+  .auth-form { padding: 40px 28px 56px; display: flex; justify-content: center; position: relative; }
+  @media (min-width: 1080px) { .auth-form { padding: 56px 56px 72px; } }
+  .auth-form__inner { width: 100%; max-width: 560px; }
+
+  .role-toggle { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--r-md); margin-bottom: var(--s-6); gap: var(--s-3); }
+  .role-toggle__label { font-family: var(--font-hud); font-size: 10px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-muted); }
+  .role-toggle__current { color: var(--orange-500); }
+  .role-toggle a { font-family: var(--font-hud); font-size: 11px; letter-spacing: var(--tr-stamp); text-transform: uppercase; font-weight: 800; color: var(--text-primary); background: var(--bg-elevated); padding: 8px 12px; border-radius: var(--r-sm); border: 1px solid var(--border-default); white-space: nowrap; }
+  .role-toggle a:hover { border-color: var(--border-flame); color: var(--orange-500); }
+
+  .auth-form__heading { font-family: var(--font-display); font-size: clamp(28px, 3.4vw, 36px); font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; line-height: 1.05; }
+  .auth-form__sub { color: var(--text-secondary); font-size: var(--t-body); margin-bottom: var(--s-5); line-height: 1.55; max-width: 56ch; }
+
+  /* Vault-card-style sectioned form blocks */
+  .form-section { border: 1px solid var(--border-subtle); border-radius: var(--r-md); background: var(--bg-panel); padding: 22px; position: relative; }
+  .form-section + .form-section { margin-top: var(--s-4); }
+  .form-section__head { display: flex; align-items: center; gap: 12px; margin-bottom: var(--s-4); padding-bottom: var(--s-3); border-bottom: 1px dashed var(--border-subtle); }
+  .form-section__index { width: 28px; height: 28px; border-radius: var(--r-sm); background: var(--orange-tint); color: var(--orange-500); display: flex; align-items: center; justify-content: center; font-family: var(--font-hud); font-size: 13px; font-weight: 800; letter-spacing: 0.04em; border: 1px solid var(--border-flame); }
+  .form-section__title { font-family: var(--font-hud); font-size: 13px; font-weight: 800; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-primary); line-height: 1; }
+  .form-section__hint { font-size: var(--t-meta); color: var(--text-secondary); margin-left: auto; text-align: right; }
+
+  .auth-form__divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; font-family: var(--font-hud); font-size: 10px; color: var(--text-muted); letter-spacing: var(--tr-stamp); text-transform: uppercase; }
+  .auth-form__divider::before, .auth-form__divider::after { content: ""; flex: 1; height: 1px; background: var(--border-subtle); }
+
+  .disclosure { display: grid; grid-template-columns: 32px 1fr; gap: 12px; padding: 14px 16px; background: rgba(255, 87, 51, 0.06); border: 1px solid var(--border-flame); border-radius: var(--r-md); margin-top: var(--s-5); }
+  .disclosure__icon { color: var(--orange-500); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--orange-tint); border-radius: var(--r-sm); }
+  .disclosure__body { font-size: var(--t-meta); color: var(--text-secondary); line-height: 1.55; }
+  .disclosure__body strong { color: var(--text-primary); }
+
+  .submit-row { margin-top: var(--s-5); display: grid; gap: var(--s-3); }
+  .submit-row .btn-primary { padding: 18px var(--s-5); height: auto; }
+  .submit-row .btn-primary small { display: block; font-family: var(--font-hud); font-size: 10px; font-weight: 600; letter-spacing: var(--tr-stamp); margin-top: 4px; opacity: 0.85; }
+
+  /* Prototype-only state switcher */
+  .switcher-bar { display: flex; gap: 4px; padding: 4px; background: var(--bg-elevated); border-radius: var(--r-md); margin-bottom: var(--s-5); }
+  .switcher-bar button { flex: 1; padding: 9px 8px; border-radius: var(--r-sm); font-family: var(--font-hud); font-size: 10px; font-weight: 700; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-secondary); cursor: pointer; background: transparent; border: none; }
+  .switcher-bar button.is-active { background: var(--orange-500); color: var(--text-inverse); }
+
+  [data-pane] { display: none; }
+  [data-active-pane="signup"] [data-pane="signup"],
+  [data-active-pane="submitting"] [data-pane="submitting"],
+  [data-active-pane="success"] [data-pane="success"],
+  [data-active-pane="error"] [data-pane="error"] { display: block; }
+
+  /* Post-submit smart state */
+  .success-card { text-align: center; padding: 12px 0 24px; }
+  .success-card__icon { width: 84px; height: 84px; margin: 8px auto 22px; border-radius: 50%; background: var(--orange-tint); color: var(--orange-500); display: flex; align-items: center; justify-content: center; box-shadow: var(--orange-glow); }
+  .post-state-grid { display: grid; gap: 12px; margin: 22px 0; text-align: left; }
+  .post-state-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 14px 16px; background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--r-md); }
+  .post-state-row__icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--orange-tint); color: var(--orange-500); }
+  .post-state-row__icon--pending { background: var(--amber-tint, rgba(255, 167, 0, 0.16)); color: var(--amber-500, #FFA700); }
+  .post-state-row__body { font-size: var(--t-body-sm); line-height: 1.4; }
+  .post-state-row__body strong { display: block; color: var(--text-primary); margin-bottom: 2px; }
+  .post-state-row__body span { color: var(--text-secondary); font-size: var(--t-meta); }
+
+  .password-meter { display: flex; gap: 4px; margin-top: 6px; }
+  .password-meter span { flex: 1; height: 4px; background: var(--bg-elevated); border-radius: 2px; }
+  .password-meter span.is-on { background: var(--orange-500); }
+
+  .age-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--r-md); margin-top: var(--s-3); }
+  .age-row__stamp { width: 42px; height: 42px; flex-shrink: 0; border-radius: var(--r-sm); background: var(--orange-tint); color: var(--orange-500); border: 1px solid var(--border-flame); display: flex; align-items: center; justify-content: center; font-family: var(--font-hud); font-size: 14px; font-weight: 800; letter-spacing: 0.04em; }
+  .age-row__copy { font-size: var(--t-meta); color: var(--text-secondary); line-height: 1.5; }
+  .age-row__copy strong { color: var(--text-primary); }
+
+  .policy-stack { display: grid; gap: 10px; margin-top: var(--s-3); }
+  .policy-stack .checkbox { padding: 12px 14px; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--r-md); align-items: flex-start; }
+  .policy-stack .checkbox span { line-height: 1.5; }
+
+  @keyframes pulse { from { transform: scale(0.95); opacity: 0.7;} to { transform: scale(1.05); opacity: 1;} }
+</style>
+</head>
+<body data-active-pane="signup">
+
+<div class="auth-shell">
+
+  <!-- ============ LEFT — brand panel (brand-manager voice) ============ -->
+  <aside class="auth-brand">
+    <div class="auth-brand__head">
+      <img src="../_assets/svgs/BoadmanLogo.svg" class="auth-brand__mark" alt="Boadman" />
+      <div class="auth-brand__wordmark">
+        For brand managers
+        <strong>BOADMAN &middot; PARTNERS</strong>
+      </div>
+    </div>
+
+    <div>
+      <p class="stamp" style="color: var(--orange-500); margin-bottom: 24px;">SPONSORED COMPETITION &middot; UK ESPORTS</p>
+      <h1 class="auth-brand__quote">Power your brand<br>on <span class="flame">Boadman.</span></h1>
+      <p class="auth-brand__lede">
+        Host sponsored tournaments, fund prize pools, and put your name on
+        the podium of the UK's compliance-first esports platform. One
+        application, one brand wallet, zero spreadsheets.
+      </p>
+
+      <ul class="auth-brand__cta-list">
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Brand-hosted tournaments.</strong> Set the prize pool, pick the game, run the bracket &mdash; Boadman handles entry, payouts, and the 48 h prize hold.</span>
+        </li>
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Separate brand wallet.</strong> Brand funds ring-fenced from your personal Player wallet. Settlement, statements, and FX all auditable.</span>
+        </li>
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Compliance taken care of.</strong> UK MLR 2017 KYC on owners, Companies House lookup, sanctions screening. We do the paperwork, you run the campaign.</span>
+        </li>
+        <li>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>2 business-day review.</strong> Honest SLA &mdash; we email you the outcome. No chasing, no silent queues.</span>
+        </li>
+      </ul>
+
+      <div class="partners-strip">
+        <span class="partners-strip__label">Trusted by</span>
+        <span class="partners-strip__chip">Nova Esports</span>
+        <span class="partners-strip__chip">Crown Gaming</span>
+        <span class="partners-strip__chip">Frontline FC</span>
+        <span class="partners-strip__chip">Astra Energy</span>
+      </div>
+    </div>
+
+    <div class="auth-brand__foot">
+      <span>&copy; 2026 Boadman &middot; UK &middot; FCA AML registered</span>
+      <a href="../public/legal-terms.html">Brand terms</a>
+    </div>
   </aside>
 
-  <main class="app-main">
-    <div class="row row--between" style="margin-bottom: var(--s-5);">
-      <div><h1 class="page-title">My brands</h1><p class="page-subtitle">Brands you manage on Boadman. Each has its own wallet, separate from your Player wallet.</p></div>
-      <button class="btn btn-primary btn-uppercase">+ Register a new brand</button>
-    </div>
+  <!-- ============ RIGHT — form panel ============ -->
+  <main class="auth-form">
+    <div class="auth-form__inner">
 
-    <div class="reg-grid">
-      <section>
-        <h2 class="section-title">Active</h2>
-        <a href="dashboard.html" class="brand-card" style="text-decoration: none; color: inherit;">
-          <div class="brand-logo">NE</div>
-          <div><div style="font-weight: 600;">Nova Esports Ltd</div><div class="text-muted" style="font-size: var(--t-meta); font-family: var(--font-mono); margin-top: 4px;">Owner · Companies House 12345678 · approved 4 Mar 2026</div></div>
-          <span class="badge badge--success">Approved</span>
-        </a>
-        <a class="brand-card" style="text-decoration: none; color: inherit; opacity: 0.7;">
-          <div class="brand-logo" style="background: linear-gradient(135deg, #F4661F, #FFC18C);">CG</div>
-          <div><div style="font-weight: 600;">Crown Gaming UK Ltd</div><div class="text-muted" style="font-size: var(--t-meta); font-family: var(--font-mono); margin-top: 4px;">Owner · Companies House 87654321 · pending review</div></div>
-          <span class="badge badge--warning">Pending</span>
-        </a>
-      </section>
+      <!-- Prototype-only state switcher (strip in production) -->
+      <div class="switcher-bar" aria-label="Prototype-only state switcher">
+        <button class="is-active" data-set-pane="signup">Form</button>
+        <button data-set-pane="submitting">Submitting</button>
+        <button data-set-pane="success">Success</button>
+        <button data-set-pane="error">Errors</button>
+      </div>
 
-      <section class="card">
-        <div class="card-header"><div class="card-title">Register a brand · application</div></div>
-        <p class="text-secondary" style="font-size: var(--t-meta); margin-bottom: var(--s-4); line-height: 1.55;">Submit your company details. We run a Companies House lookup automatically and route to admin review. Outcome by email within 2 business days.</p>
+      <!-- ====== SIGNUP FORM ====== -->
+      <div data-pane="signup">
 
-        <div class="stack" style="gap: var(--s-4);">
-          <div class="field-row field-row--2">
-            <div class="field"><label class="label">Company name</label><input class="input" placeholder="Nova Esports Ltd" /></div>
-            <div class="field"><label class="label">Registration number</label><input class="input" placeholder="12345678" /></div>
+        <div class="role-toggle">
+          <div class="role-toggle__label">
+            Registering as a <span class="role-toggle__current">brand</span>.
           </div>
-          <div class="field-row field-row--2">
-            <div class="field"><label class="label">Country of registration</label><select class="select"><option>United Kingdom</option><option>Nigeria</option></select></div>
-            <div class="field"><label class="label">Business email</label><input class="input" type="email" placeholder="ops@novaesports.gg" /></div>
-          </div>
-          <div class="field"><label class="label">Registered address</label><textarea class="textarea" placeholder="71-75 Shelton Street, Covent Garden, London, WC2H 9JQ"></textarea></div>
+          <a href="../player/auth.html">Signing up for personal play instead? &rarr; /signup</a>
         </div>
 
-        <div class="row row--end" style="margin-top: var(--s-5);"><button class="btn btn-primary btn-uppercase">Submit application</button></div>
-      </section>
-    </div>
+        <h2 class="auth-form__heading">Bring your brand onto Boadman</h2>
+        <p class="auth-form__sub">
+          One form creates your personal Boadman account and lodges your brand
+          application for review. You can sign in straight away &mdash; the
+          brand goes through a 2 business-day approval before it can run
+          sponsored competitions.
+        </p>
 
+        <form class="stack" style="gap: var(--s-4);" onsubmit="event.preventDefault(); setPane('submitting'); setTimeout(() => setPane('success'), 1600);">
+
+          <!-- § About you (Player half) -->
+          <section class="form-section">
+            <div class="form-section__head">
+              <span class="form-section__index">01</span>
+              <span class="form-section__title">About you</span>
+              <span class="form-section__hint">The human signing up</span>
+            </div>
+
+            <div class="stack" style="gap: var(--s-4);">
+              <div class="field-row" style="grid-template-columns: 1fr 1fr;">
+                <div class="field">
+                  <label class="label" for="email">Personal email</label>
+                  <input class="input" id="email" type="email" placeholder="joel@gmail.com" autocomplete="email" />
+                  <span class="field-helper">We send your verification link here.</span>
+                </div>
+                <div class="field">
+                  <label class="label" for="username">Username</label>
+                  <input class="input" id="username" type="text" placeholder="@joel_b" autocomplete="username" />
+                  <span class="field-helper">3-30 chars &middot; a-z, 0-9, underscore.</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label" for="pw">Password</label>
+                <input class="input" id="pw" type="password" placeholder="Min 12 chars, 1 number, 1 symbol" autocomplete="new-password" />
+                <div class="password-meter" aria-hidden="true">
+                  <span class="is-on"></span><span class="is-on"></span><span class="is-on"></span><span></span>
+                </div>
+                <span class="field-helper">Strong &mdash; one symbol short of excellent.</span>
+              </div>
+
+              <div class="field-row" style="grid-template-columns: 1fr 1fr;">
+                <div class="field">
+                  <label class="label" for="country">Country of residence</label>
+                  <select class="select" id="country">
+                    <option>United Kingdom</option>
+                    <option>Nigeria</option>
+                  </select>
+                  <span class="field-helper">Currently UK &amp; NG only.</span>
+                </div>
+                <div class="field">
+                  <label class="label" for="dob">Date of birth</label>
+                  <input class="input" id="dob" type="text" placeholder="DD / MM / YYYY" inputmode="numeric" />
+                  <span class="field-helper">Must be 18+ to register.</span>
+                </div>
+              </div>
+
+              <div class="age-row">
+                <div class="age-row__stamp">18+</div>
+                <div class="age-row__copy">
+                  <strong>UK gambling-adjacent platform.</strong>
+                  We verify age, identity, and source-of-funds on owners under
+                  UK MLR 2017. Under-18 signups are auto-rejected.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- § About your brand (Brand half) -->
+          <section class="form-section">
+            <div class="form-section__head">
+              <span class="form-section__index">02</span>
+              <span class="form-section__title">About your brand</span>
+              <span class="form-section__hint">Companies House lookup runs on submit</span>
+            </div>
+
+            <div class="stack" style="gap: var(--s-4);">
+              <div class="field-row" style="grid-template-columns: 1.4fr 1fr;">
+                <div class="field">
+                  <label class="label" for="company-name">Company name</label>
+                  <input class="input" id="company-name" type="text" placeholder="Nova Esports Ltd" />
+                  <span class="field-helper">As registered with Companies House.</span>
+                </div>
+                <div class="field">
+                  <label class="label" for="company-no">Registration number</label>
+                  <input class="input" id="company-no" type="text" placeholder="12345678" inputmode="numeric" />
+                  <span class="field-helper">8-digit Companies House number.</span>
+                </div>
+              </div>
+
+              <div class="field-row" style="grid-template-columns: 1fr 1fr;">
+                <div class="field">
+                  <label class="label" for="company-country">Country of registration</label>
+                  <select class="select" id="company-country">
+                    <option>United Kingdom</option>
+                    <option>Nigeria</option>
+                  </select>
+                  <span class="field-helper">May differ from your residence.</span>
+                </div>
+                <div class="field">
+                  <label class="label" for="business-email">Business contact email</label>
+                  <input class="input" id="business-email" type="email" placeholder="ops@novaesports.com" />
+                  <span class="field-helper">Reachable for compliance &amp; payouts.</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label" for="address">Registered address</label>
+                <textarea class="textarea" id="address" placeholder="71-75 Shelton Street&#10;Covent Garden&#10;London&#10;WC2H 9JQ"></textarea>
+                <span class="field-helper">Match the address on your Companies House filing.</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- § Policies (acceptance gate) -->
+          <section class="form-section">
+            <div class="form-section__head">
+              <span class="form-section__index">03</span>
+              <span class="form-section__title">Policies</span>
+              <span class="form-section__hint">Required &mdash; v3.1 / v3.0</span>
+            </div>
+
+            <div class="policy-stack">
+              <label class="checkbox">
+                <input type="checkbox" />
+                <span>
+                  I'm <strong>18 or older</strong> and I accept the
+                  <a href="../public/legal-terms.html">Terms of Service (v3.1)</a>,
+                  <a href="../public/legal-privacy.html">Privacy Policy (v3.0)</a>,
+                  and <a href="#">Cookie Policy</a>. Effective 1 July 2026.
+                </span>
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" />
+                <span>
+                  I confirm I'm an <strong>authorised signatory or owner</strong>
+                  of the company above, and the registered address &amp; number
+                  are accurate. Boadman will run a Companies House lookup and
+                  sanctions check.
+                </span>
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" />
+                <span>
+                  I understand the brand application enters a
+                  <strong>2 business-day review</strong> and that brand
+                  features only unlock once Boadman approves it.
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <!-- Honest disclosure block -->
+          <div class="disclosure">
+            <div class="disclosure__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="disclosure__body">
+              Your <strong>brand application enters a 2 business-day review</strong>
+              while your personal account is created immediately. You'll be
+              able to sign in and verify your email straight away &mdash; brand
+              features (wallet top-up, hosting tournaments, sponsoring prize
+              pools) unlock once your application is approved.
+            </div>
+          </div>
+
+          <div class="submit-row">
+            <button class="btn btn-primary btn-block btn-uppercase" type="submit">
+              Create brand account
+              <small>2 business days for approval &middot; personal account active immediately</small>
+            </button>
+            <p style="font-size: var(--t-micro); color: var(--text-muted); text-align: center; line-height: 1.5;">
+              Already on Boadman? <a href="../player/auth.html" style="color: var(--orange-500); font-weight: 600;">Sign in</a> &mdash; you can lodge a brand application from inside your account too.
+            </p>
+          </div>
+        </form>
+
+        <p class="auth-form__divider">Provisional</p>
+        <p style="font-size: var(--t-micro); color: var(--text-muted); text-align: center; line-height: 1.5;">
+          Brand commission &amp; sponsorship economics illustrative &mdash; pending SP8-ECON economics review.
+        </p>
+      </div>
+
+      <!-- ====== SUBMITTING ====== -->
+      <div data-pane="submitting">
+        <div class="success-card">
+          <div class="success-card__icon" style="animation: pulse 1.2s ease-in-out infinite alternate;">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          </div>
+          <h2 class="auth-form__heading">Creating your brand account</h2>
+          <p class="auth-form__sub" style="text-align: center; margin: 0 auto;">
+            Running Companies House lookup &middot; provisioning brand wallet &middot;
+            sending verification email. This usually takes 3-4 seconds.
+          </p>
+        </div>
+      </div>
+
+      <!-- ====== SUCCESS (verify email + brand under review, combined) ====== -->
+      <div data-pane="success">
+        <div class="success-card">
+          <div class="success-card__icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 class="auth-form__heading">You're in, Joel.</h2>
+          <p class="auth-form__sub" style="text-align: center; margin: 0 auto;">
+            Your personal Boadman account is live. Your brand application is
+            on the compliance team's desk &mdash; we'll email you within 2
+            business days.
+          </p>
+
+          <div class="post-state-grid">
+            <div class="post-state-row">
+              <div class="post-state-row__icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 6 12 13 2 6"/></svg>
+              </div>
+              <div class="post-state-row__body">
+                <strong>Verify your email</strong>
+                <span>Link sent to <em style="color: var(--text-primary); font-style: normal;">joel@gmail.com</em>. Resend in 47 s.</span>
+              </div>
+              <span class="badge badge--flame">Action</span>
+            </div>
+
+            <div class="post-state-row">
+              <div class="post-state-row__icon post-state-row__icon--pending">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="post-state-row__body">
+                <strong>Nova Esports Ltd &middot; under review</strong>
+                <span>Companies House 12345678 &middot; lodged 23 May 2026 &middot; ref #BR-04812</span>
+              </div>
+              <span class="badge badge--warning">Pending</span>
+            </div>
+
+            <div class="post-state-row">
+              <div class="post-state-row__icon" style="background: var(--bg-elevated); color: var(--text-muted);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+              </div>
+              <div class="post-state-row__body">
+                <strong>Brand wallet provisioned</strong>
+                <span>Empty until your brand is approved &mdash; then you can top up via Stripe.</span>
+              </div>
+              <span class="badge badge--neutral">Locked</span>
+            </div>
+          </div>
+
+          <div class="row" style="justify-content: center; gap: 12px; margin-top: var(--s-4);">
+            <a class="btn btn-primary btn-uppercase" href="../player/wallet-default.html">Go to my Boadman</a>
+            <button class="btn btn-secondary">Resend email</button>
+          </div>
+
+          <p style="font-size: var(--t-micro); color: var(--text-muted); margin-top: var(--s-5); line-height: 1.5;">
+            Need to change anything on the application? Email
+            <a href="mailto:brands@boadman.com" style="color: var(--orange-500);">brands@boadman.com</a>
+            with ref <strong style="color: var(--text-primary);">#BR-04812</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- ====== ERROR STATE ====== -->
+      <div data-pane="error">
+        <h2 class="auth-form__heading">We couldn't create your brand account</h2>
+        <p class="auth-form__sub">
+          Nothing was created &mdash; neither your personal account nor the
+          brand application. Fix the issues below and re-submit.
+        </p>
+
+        <div class="stack" style="gap: var(--s-3);">
+          <div class="banner banner--danger">
+            <div class="banner__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <div class="banner__title">Email already registered</div>
+              <div class="banner__body">
+                <strong>joel@gmail.com</strong> is already in use.
+                <a href="../player/auth.html">Sign in</a> instead, then lodge your brand application from your account.
+              </div>
+            </div>
+          </div>
+
+          <div class="banner banner--warning">
+            <div class="banner__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <div class="banner__title">Companies House &mdash; no match for 12345678</div>
+              <div class="banner__body">
+                We couldn't find an active UK company with this registration
+                number. Double-check the number, or switch the country if
+                your company is registered elsewhere.
+              </div>
+            </div>
+          </div>
+
+          <div class="banner banner--info">
+            <div class="banner__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            </div>
+            <div>
+              <div class="banner__title">Atomic rollback</div>
+              <div class="banner__body">
+                When any field fails, we discard the whole submission. You
+                won't get half an account &mdash; you'll either get both
+                halves or neither.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="submit-row">
+          <button class="btn btn-primary btn-block btn-uppercase" onclick="setPane('signup')">Back to the form</button>
+        </div>
+      </div>
+
+    </div>
   </main>
 </div>
-</body></html>
+
+<script>
+  function setPane(p) {
+    document.body.dataset.activePane = p;
+    document.querySelectorAll('[data-set-pane]').forEach(b => {
+      b.classList.toggle('is-active', b.dataset.setPane === p);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('[data-set-pane]').forEach(b => {
+    b.addEventListener('click', () => setPane(b.dataset.setPane));
+  });
+</script>
+
+</body>
+</html>
