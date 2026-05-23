@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Service terminals</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ----- Page shell ----- */
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(255, 87, 51, 0.06), transparent 60%),
+      var(--bg-page);
+  }
+
+  .brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .brand-header img { height: 38px; width: auto; opacity: 0.92; }
+  .brand-header .brand-mark {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .brand-header .brand-mark__helmet {
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    color: var(--orange-500);
+  }
+
+  main.terminal-shell {
+    flex: 1;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+    position: relative;
+  }
+
+  /* keep prototype state-switcher visible at the top, not full-bleed */
+  main.terminal-shell .state-switcher {
+    margin: 0 0 32px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--orange-tint);
+    border-bottom: 1px solid var(--orange-tint);
+  }
+
+  /* ----- Terminal card (mirrors player/account-states.html idiom) ----- */
+  .terminal-card {
+    padding: 56px 48px 40px;
+    background: linear-gradient(180deg, var(--bg-panel), var(--bg-elevated));
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-xl);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    max-width: 640px;
+    margin: 0 auto;
+    box-shadow: var(--shadow-lg);
+  }
+  .terminal-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.32;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .terminal-card > * { position: relative; z-index: 1; }
+
+  .label-strip {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    display: inline-block;
+    margin-bottom: 24px;
+  }
+  .label-strip--warning { background: var(--amber-tint); color: var(--amber-500); }
+  .label-strip--maintenance { background: var(--purple-tint); color: var(--purple-500); }
+  .label-strip--error { background: var(--red-tint); color: var(--red-500); }
+
+  .terminal-card__icon {
+    width: 96px; height: 96px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .terminal-card__icon--warning {
+    background: var(--amber-tint);
+    color: var(--amber-500);
+    border: 2px solid rgba(255, 170, 34, 0.4);
+  }
+  .terminal-card__icon--maintenance {
+    background: var(--purple-tint);
+    color: var(--purple-500);
+    border: 2px solid rgba(155, 107, 255, 0.4);
+  }
+  .terminal-card__icon--error {
+    background: var(--red-tint);
+    color: var(--red-500);
+    border: 2px solid rgba(255, 63, 78, 0.4);
+  }
+
+  .terminal-card h1 {
+    font-family: var(--font-display);
+    font-size: clamp(26px, 3.4vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    line-height: 1.15;
+  }
+  .terminal-card p.lede {
+    color: var(--text-secondary);
+    font-size: var(--t-body);
+    line-height: 1.65;
+    max-width: 54ch;
+    margin: 0 auto 28px;
+  }
+  .terminal-card p.lede strong { color: var(--text-primary); }
+
+  /* ----- Inline info card (IP/ETA/Error ref) ----- */
+  .info-card {
+    text-align: left;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    padding: 18px 20px;
+    margin: 0 auto 24px;
+    max-width: 520px;
+  }
+  .info-card__title {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .info-card__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 6px 0;
+    font-size: var(--t-body-sm);
+    border-bottom: 1px dashed var(--border-subtle);
+  }
+  .info-card__row:last-child { border-bottom: none; }
+  .info-card__row dt {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+  }
+  .info-card__row dd {
+    margin: 0;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .info-card__row dd .pill-mini {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: var(--r-sm);
+    background: var(--amber-tint);
+    color: var(--amber-500);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    margin-left: 4px;
+  }
+
+  /* ----- ETA hero card (maintenance) ----- */
+  .eta-card {
+    background: linear-gradient(180deg, rgba(155, 107, 255, 0.08), rgba(155, 107, 255, 0.02));
+    border: 1px solid rgba(155, 107, 255, 0.28);
+    border-radius: var(--r-md);
+    padding: 20px;
+    margin: 0 auto 24px;
+    max-width: 520px;
+    text-align: left;
+  }
+  .eta-card__stamp {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--purple-400);
+    margin-bottom: 6px;
+  }
+  .eta-card__time {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .eta-card__rel {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .eta-card__links {
+    display: flex;
+    gap: 18px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    flex-wrap: wrap;
+  }
+  .eta-card__links a { color: var(--purple-400); }
+  .eta-card__links span { color: var(--text-muted); }
+
+  /* ----- Email notify card (geo) ----- */
+  .notify-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    padding: 18px 20px;
+    margin: 0 auto 24px;
+    max-width: 520px;
+    text-align: left;
+  }
+  .notify-card__title {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .notify-card__sub {
+    font-size: var(--t-body-sm);
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+  .notify-card__row {
+    display: flex;
+    gap: 8px;
+  }
+  .notify-card__row input {
+    flex: 1;
+    height: 44px;
+    background: var(--bg-page);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    padding: 0 14px;
+    color: var(--text-primary);
+    font: inherit;
+    outline: none;
+  }
+  .notify-card__row input:focus { border-color: var(--accent); box-shadow: var(--shadow-focus); }
+
+  /* ----- Action row ----- */
+  .action-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  /* ----- Footer mono ref ----- */
+  .ref-line {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-subtle);
+    line-height: 1.5;
+  }
+  .ref-line strong {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .sub-note {
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+    margin-top: 16px;
+    max-width: 52ch;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.55;
+  }
+  .sub-note a { color: var(--text-secondary); text-decoration: underline; text-decoration-color: var(--border-strong); }
+
+  .page-footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--text-muted);
+    font-size: var(--t-micro);
+    font-family: var(--font-hud);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    border-top: 1px solid var(--border-subtle);
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Minimal brand header (logo only — anon, no nav, no CTAs) ===== -->
+<header class="brand-header">
+  <div class="brand-mark">
+    <span class="brand-mark__helmet" aria-hidden="true">
+      <!-- inline helmet glyph (simplified — production uses BoadmanLogo.svg) -->
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 14c0-5 4-9 10-9s10 4 10 9v3l-2 2v6h-4l-2-2h-4l-2 2H8v-6l-2-2v-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M11 14h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M16 5v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </span>
+    Boadman
+  </div>
+</header>
+
+<main class="terminal-shell" data-active-state="geo">
+
+  <!-- ===== State-switcher (prototype-only) ===== -->
+  <div class="state-switcher">
+    <button class="state-switcher__btn is-active" data-set-state="geo">Geo-blocked</button>
+    <button class="state-switcher__btn" data-set-state="maintenance">Maintenance</button>
+    <button class="state-switcher__btn" data-set-state="error">Generic error</button>
+  </div>
+
+  <!-- =================================================================== -->
+  <!-- STATE 1 · GEO-BLOCKED                                                -->
+  <!-- =================================================================== -->
+  <section data-state="geo">
+    <div class="terminal-card">
+      <span class="label-strip label-strip--warning">Service unavailable in your region</span>
+
+      <div class="terminal-card__icon terminal-card__icon--warning" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20"/>
+          <path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/>
+        </svg>
+      </div>
+
+      <h1>Boadman isn't available in your region yet</h1>
+      <p class="lede">
+        We detected your connection from <strong>Germany (DE)</strong>. Boadman currently only
+        operates in the United Kingdom and Nigeria under FCA AML registration. Using a VPN
+        to bypass this restriction violates our Terms of Service and may forfeit any winnings.
+      </p>
+
+      <dl class="info-card">
+        <div class="info-card__title">Detected connection</div>
+        <div class="info-card__row"><dt>IP address</dt><dd>87.252.18.214</dd></div>
+        <div class="info-card__row"><dt>ISP</dt><dd>Deutsche Telekom AG</dd></div>
+        <div class="info-card__row"><dt>Country</dt><dd>Germany · DE</dd></div>
+        <div class="info-card__row"><dt>VPN / proxy score</dt><dd>0.12 / 1.00 <span class="pill-mini">Low risk</span></dd></div>
+      </dl>
+
+      <div class="notify-card">
+        <div class="notify-card__title">Notify me when Boadman launches in my region</div>
+        <div class="notify-card__sub">We'll email you once we're licensed in DE — no marketing, just the launch note.</div>
+        <div class="notify-card__row">
+          <input type="email" placeholder="you@example.com" aria-label="Email address" />
+          <button class="btn btn-primary btn-uppercase btn-sm">Notify me</button>
+        </div>
+      </div>
+
+      <p class="sub-note">
+        Live in the UK or Nigeria and seeing this in error? It may be a VPN or a misclassified
+        IP — <a href="mailto:support@boadman.com">contact support</a> with the reference below.
+      </p>
+
+      <div class="ref-line">
+        <strong>GEO_BLOCK_ID</strong> · GBL-2026-7K42 · 24 May 2026 14:08 BST
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================================== -->
+  <!-- STATE 2 · MAINTENANCE                                                -->
+  <!-- =================================================================== -->
+  <section data-state="maintenance">
+    <div class="terminal-card">
+      <span class="label-strip label-strip--maintenance">Scheduled maintenance</span>
+
+      <div class="terminal-card__icon terminal-card__icon--maintenance" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L3 18l3 3 6.1-6.1a4 4 0 0 0 5.6-5.6l-2.6 2.6-2.4-.6-.6-2.4 2.6-2.6z"/>
+        </svg>
+      </div>
+
+      <h1>Boadman is briefly down for maintenance</h1>
+      <p class="lede">
+        We're rolling out improvements to the wallet ledger system. Sign-in, deposits, and
+        cash-outs are paused — <strong>any tournament you're already entered into is still
+        running on the backend; no progress is lost.</strong>
+      </p>
+
+      <div class="eta-card">
+        <div class="eta-card__stamp">Estimated return</div>
+        <div class="eta-card__time">24 May 2026 · 02:30 BST</div>
+        <div class="eta-card__rel">~ 12 minutes from now</div>
+        <div class="eta-card__links">
+          <a href="https://status.boadman.com" target="_blank" rel="noopener noreferrer">status.boadman.com →</a>
+          <span>Updates: <a href="https://x.com/boadman_status" target="_blank" rel="noopener noreferrer">@boadman_status</a> on X</span>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-primary btn-uppercase" onclick="window.location.reload()">Refresh page</button>
+        <a class="btn btn-ghost btn-uppercase" href="https://status.boadman.com" target="_blank" rel="noopener noreferrer">View status →</a>
+      </div>
+
+      <p class="sub-note">
+        If you're seeing this outside the announced window, something went wrong on our end —
+        please contact <a href="mailto:support@boadman.com">support@boadman.com</a>.
+      </p>
+
+      <div class="ref-line">
+        <strong>MAINT_WINDOW</strong> · MNT-2026-05-24-WALLET · started 02:18 BST · ETA 02:30 BST
+      </div>
+    </div>
+  </section>
+
+  <!-- =================================================================== -->
+  <!-- STATE 3 · GENERIC ERROR                                              -->
+  <!-- =================================================================== -->
+  <section data-state="error">
+    <div class="terminal-card">
+      <span class="label-strip label-strip--error">Something went wrong</span>
+
+      <div class="terminal-card__icon terminal-card__icon--error" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+
+      <h1>We hit an unexpected error</h1>
+      <p class="lede">
+        Boadman couldn't complete your request. <strong>This is on our end — no data was
+        changed.</strong> We've logged the error and our team has been notified.
+      </p>
+
+      <dl class="info-card">
+        <div class="info-card__title">Error reference</div>
+        <div class="info-card__row"><dt>Error ref</dt><dd>ERR_2026_8K42_X91A</dd></div>
+        <div class="info-card__row"><dt>Timestamp</dt><dd>24 May 2026 · 14:08:33 BST</dd></div>
+        <div class="info-card__row"><dt>Trace ID</dt><dd>0a3f8b21...c9d2</dd></div>
+      </dl>
+
+      <div class="action-row">
+        <a class="btn btn-primary btn-uppercase" href="/">Try again</a>
+        <a class="btn btn-ghost btn-uppercase"
+           href="mailto:support@boadman.com?subject=Error%20ERR_2026_8K42_X91A">Contact support →</a>
+      </div>
+
+      <div class="ref-line">
+        If this keeps happening, include the error ref above when you reach out.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page-footer">
+  Boadman · Sparta Networks Ltd · FCA AML #934211
+</footer>
+
+<script>
+  // State-switcher (prototype-only — strip when lifting to production)
+  document.querySelectorAll('[data-set-state]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelector('main.terminal-shell').dataset.activeState = btn.dataset.setState;
+      document.querySelectorAll('[data-set-state]').forEach(b =>
+        b.classList.toggle('is-active', b === btn)
+      );
+    });
+  });
+</script>
+
+<!-- Local override for [data-state] visibility (the shared components.css block only
+     enumerates tournament states open/live/awaiting/completed). Scoped to this page. -->
+<style>
+  main.terminal-shell [data-state] { display: none; }
+  main.terminal-shell[data-active-state="geo"] [data-state="geo"],
+  main.terminal-shell[data-active-state="maintenance"] [data-state="maintenance"],
+  main.terminal-shell[data-active-state="error"] [data-state="error"] { display: block; }
+</style>
+
+</body>
+</html>

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="compliance">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman MLRO · Compliance overview</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* Compliance theme — command-center aesthetic (parallels aml-flag-detail.html) */
+  body {
+    background:
+      radial-gradient(at 10% 0%, rgba(155, 107, 255, 0.06), transparent 50%),
+      radial-gradient(at 100% 100%, rgba(155, 107, 255, 0.04), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  .compliance-strip {
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple-500) 0%, var(--blue-500) 50%, var(--purple-500) 100%);
+    position: relative;
+  }
+  .compliance-strip::after {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(11,12,16,0.4) 60px, rgba(11,12,16,0.4) 62px);
+  }
+
+  .mlro-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(155, 107, 255, 0.5);
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.08);
+  }
+
+  /* Hero — institutional bulletin */
+  .overview-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid rgba(155, 107, 255, 0.3);
+    margin-bottom: var(--s-5);
+    isolation: isolate;
+    background:
+      radial-gradient(at 90% 20%, rgba(155, 107, 255, 0.14), transparent 55%),
+      radial-gradient(at 0% 80%, rgba(74, 144, 226, 0.08), transparent 50%),
+      var(--bg-panel);
+  }
+  .overview-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.45;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .overview-hero__content {
+    position: relative; z-index: 1;
+    padding: var(--s-6);
+  }
+  @media (min-width: 900px) {
+    .overview-hero__content { padding: var(--s-7) var(--s-8); }
+  }
+  .overview-hero__strip {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: var(--s-3);
+  }
+  .overview-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 3.4vw, 42px);
+    line-height: 1.05;
+    letter-spacing: var(--tr-display);
+    margin-bottom: var(--s-3);
+  }
+  .overview-hero__lede {
+    font-size: var(--t-body-sm);
+    color: var(--text-secondary);
+    max-width: 64ch;
+    margin-bottom: var(--s-5);
+    line-height: 1.6;
+  }
+  .overview-hero__kpis {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-3);
+  }
+  @media (min-width: 720px) {
+    .overview-hero__kpis { grid-template-columns: repeat(4, 1fr); }
+  }
+  .kpi-tile {
+    padding: var(--s-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.025);
+  }
+  .kpi-tile__label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .kpi-tile__value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 30px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .kpi-tile__delta {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+  }
+  .kpi-tile--danger { border-color: rgba(238, 68, 86, 0.32); background: var(--red-tint); }
+  .kpi-tile--danger .kpi-tile__value { color: var(--red-500); }
+  .kpi-tile--warning { border-color: rgba(255, 170, 34, 0.32); }
+  .kpi-tile--warning .kpi-tile__value { color: var(--amber-500); }
+  .kpi-tile--accent { border-color: rgba(155, 107, 255, 0.4); }
+  .kpi-tile--accent .kpi-tile__value { color: var(--purple-500); }
+
+  /* On-call strip */
+  .oncall-strip {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) var(--s-4);
+    margin-top: var(--s-4);
+    background: rgba(155, 107, 255, 0.06);
+    border: 1px solid rgba(155, 107, 255, 0.25);
+    border-radius: var(--r-md);
+    font-size: var(--t-body-sm);
+    color: var(--text-secondary);
+  }
+  .oncall-strip strong { color: var(--text-primary); }
+  .oncall-pulse {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--purple-500);
+    box-shadow: 0 0 8px var(--purple-500);
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+  @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* Body grid */
+  .overview-grid {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 1100px) {
+    .overview-grid {
+      grid-template-columns: 1.5fr 1fr;
+      align-items: flex-start;
+    }
+  }
+
+  /* Queue grid */
+  .queue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--s-3);
+  }
+  .queue-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: var(--s-4);
+    background: var(--bg-panel);
+    text-decoration: none;
+    color: inherit;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--s-3);
+    min-height: 140px;
+    transition: all var(--dur-fast) var(--ease-out);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .queue-card::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.2;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .queue-card:hover {
+    border-color: var(--purple-500);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(155, 107, 255, 0.12);
+  }
+  .queue-card__head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: var(--s-3);
+  }
+  .queue-card__icon {
+    width: 36px; height: 36px;
+    border-radius: var(--r-sm);
+    background: var(--purple-tint);
+    color: var(--purple-500);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .queue-card__icon svg { width: 20px; height: 20px; }
+  .queue-card__name {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .queue-card__count {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 36px;
+    line-height: 1;
+  }
+  .queue-card__sla {
+    display: flex; gap: 12px;
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+  }
+  .queue-card__sla strong { color: var(--text-primary); font-weight: 600; }
+  .queue-card__sla .breach { color: var(--red-500); }
+  .queue-card__sla .near { color: var(--amber-500); }
+  .queue-card--hot { border-color: rgba(238, 68, 86, 0.4); }
+  .queue-card--hot .queue-card__icon { background: var(--red-tint); color: var(--red-500); }
+  .queue-card--warm { border-color: rgba(255, 170, 34, 0.32); }
+  .queue-card--warm .queue-card__icon { background: var(--amber-tint); color: var(--amber-500); }
+
+  /* SLA breach panel */
+  .sla-panel {
+    border: 1px solid rgba(238, 68, 86, 0.32);
+    border-radius: var(--r-lg);
+    background: linear-gradient(180deg, rgba(238, 68, 86, 0.04), transparent 60%), var(--bg-panel);
+    padding: var(--s-5);
+  }
+  .sla-panel__head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: var(--s-4);
+  }
+  .sla-panel__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    display: flex; align-items: center; gap: var(--s-2);
+  }
+  .sla-panel__title-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--red-500);
+    box-shadow: 0 0 12px var(--red-500);
+  }
+  .sla-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--s-3);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: center;
+  }
+  .sla-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .sla-row__tag {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--r-sm);
+    background: var(--red-tint);
+    color: var(--red-500);
+  }
+  .sla-row__body { display: grid; gap: 4px; min-width: 0; }
+  .sla-row__id { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); }
+  .sla-row__title {
+    font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sla-row__overdue {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--red-500);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    font-size: var(--t-body-sm);
+  }
+  .sla-row__overdue-sub {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  /* Activity feed */
+  .feed-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    background: var(--bg-panel);
+    padding: var(--s-5);
+  }
+  .feed-row {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: var(--s-3);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: start;
+  }
+  .feed-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .feed-row__dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    margin: 7px 12px 0;
+  }
+  .feed-row--accent .feed-row__dot { background: var(--purple-500); box-shadow: 0 0 8px var(--purple-500); }
+  .feed-row--danger .feed-row__dot { background: var(--red-500); }
+  .feed-row--success .feed-row__dot { background: var(--green-500); }
+  .feed-row__title {
+    font-size: var(--t-body-sm); color: var(--text-primary); margin-bottom: 2px;
+  }
+  .feed-row__title strong { font-weight: 600; }
+  .feed-row__meta {
+    font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted);
+  }
+  .feed-row__time {
+    font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted);
+    text-align: right; white-space: nowrap;
+  }
+
+  /* Section title */
+  .section-title {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: var(--s-4);
+  }
+  .section-title h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .section-title__link {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--purple-500);
+    text-decoration: none;
+  }
+  .section-title__link:hover { color: var(--purple-300); }
+</style>
+</head>
+<body>
+
+<div class="compliance-strip"></div>
+
+<div class="shell shell--with-rail">
+
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search users, flags, brands, audit IDs…" />
+      <kbd class="kbd">⌘K</kbd>
+    </div>
+    <div class="header-actions">
+      <span class="mlro-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        MLRO · K. Owusu
+      </span>
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot" style="background: var(--purple-500); box-shadow: 0 0 8px var(--purple-500);"></span>
+      </button>
+    </div>
+  </header>
+
+  <aside class="nav-rail" aria-label="Compliance navigation">
+    <a href="../index.html" class="nav-rail__brand" aria-label="Boadman MLRO">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <span class="mlro-label" style="margin-left: auto; padding: 3px 8px; font-size: 9px;">MLRO</span>
+    </a>
+    <span class="nav-section">Compliance</span>
+    <a class="nav-item is-active" href="home.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a class="nav-item" href="queue-template.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      AML flags<span class="nav-badge">17</span>
+    </a>
+    <a class="nav-item" href="kyc-submission-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      KYC queue<span class="nav-badge">42</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      Sanctions<span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item" href="dispute-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+      Disputes<span class="nav-badge">8</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16M4 2h16M16 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-3.414 3.414A2 2 0 0 0 8 16.828V22"/></svg>
+      Complaints<span class="nav-badge">5</span>
+    </a>
+
+    <span class="nav-section">Operations</span>
+    <a class="nav-item" href="user-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      Users
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
+      Brands<span class="nav-badge">4</span>
+    </a>
+    <a class="nav-item" href="redemption-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/></svg>
+      Redemptions<span class="nav-badge">11</span>
+    </a>
+    <a class="nav-item" href="competition-controls.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 0 12 0a6 6 0 0 0-12 0z"/><path d="M8 13v8l4-3 4 3v-8"/></svg>
+      Tournaments
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Rectification<span class="nav-badge">6</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Audit log
+    </a>
+  </aside>
+
+  <main class="app-main">
+    <!-- HERO ─────────────────────────────────────────────────────────── -->
+    <section class="overview-hero">
+      <div class="overview-hero__content">
+        <div class="overview-hero__strip">
+          <span class="mlro-label">Compliance bulletin · 24 May 2026</span>
+          <span class="badge badge--neutral" style="font-family: var(--font-mono); font-size: 11px;">Operating window 09:00 — 18:00 BST</span>
+        </div>
+        <h1 class="overview-hero__title">Compliance overview</h1>
+        <p class="overview-hero__lede">
+          17 AML flags open with 3 inside the 72-hour SLA window. 42 KYC submissions pending — 8 of those at risk of breach. The on-call MLRO is K. Owusu; deputy is on standby. Sanctions screening cleared the overnight batch with 3 matches kicked to manual review.
+        </p>
+
+        <div class="overview-hero__kpis">
+          <div class="kpi-tile kpi-tile--danger">
+            <div class="kpi-tile__label">SLA breaches</div>
+            <div class="kpi-tile__value">2</div>
+            <div class="kpi-tile__delta">+1 since 09:00</div>
+          </div>
+          <div class="kpi-tile kpi-tile--warning">
+            <div class="kpi-tile__label">Near breach</div>
+            <div class="kpi-tile__value">9</div>
+            <div class="kpi-tile__delta">&lt; 6 h remaining</div>
+          </div>
+          <div class="kpi-tile kpi-tile--accent">
+            <div class="kpi-tile__label">Open today</div>
+            <div class="kpi-tile__value">86</div>
+            <div class="kpi-tile__delta">across 8 queues</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-tile__label">Closed · last 24 h</div>
+            <div class="kpi-tile__value">114</div>
+            <div class="kpi-tile__delta">avg time to close · 5 h 12 m</div>
+          </div>
+        </div>
+
+        <div class="oncall-strip">
+          <span class="oncall-pulse" aria-hidden="true"></span>
+          <span>On-call MLRO: <strong>K. Owusu</strong> · deputy <strong>A. Ferreira</strong> · pager <strong>+44 20 4422 ··81</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUEUES + SLA PANEL + ACTIVITY ──────────────────────────────────── -->
+    <div class="overview-grid">
+
+      <!-- LEFT: Queues ─────────────────────────────────────────────── -->
+      <section>
+        <div class="section-title">
+          <h2>Open queues</h2>
+          <a class="section-title__link" href="#">All queues →</a>
+        </div>
+        <div class="queue-grid">
+
+          <a class="queue-card queue-card--hot" href="queue-template.html">
+            <div class="queue-card__head">
+              <div class="queue-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <span class="queue-card__name">AML flags</span>
+            </div>
+            <div class="queue-card__count">17</div>
+            <div class="queue-card__sla">
+              <span class="breach">2 breached</span>
+              <span class="near">5 near</span>
+              <span><strong>10</strong> in SLA</span>
+            </div>
+          </a>
+
+          <a class="queue-card queue-card--warm" href="kyc-submission-detail.html">
+            <div class="queue-card__head">
+              <div class="queue-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <span class="queue-card__name">KYC submissions</span>
+            </div>
+            <div class="queue-card__count">42</div>
+            <div class="queue-card__sla">
+              <span class="near">8 near</span>
+              <span><strong>34</strong> in SLA</span>
+            </div>
+          </a>
+
+          <a class="queue-card" href="#">
+            <div class="queue-card__head">
+              <div class="queue-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </div>
+              <span class="queue-card__name">Sanctions hits</span>
+            </div>
+            <div class="queue-card__count">3</div>
+            <div class="queue-card__sla">
+              <span><strong>3</strong> in SLA · auto-screened 04:00</span>
+            </div>
+          </a>
+
+          <a class="queue-card" href="dispute-detail.html">
+            <div class="queue-card__head">
+              <div class="queue-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <span class="queue-card__name">Match disputes</span>
+            </div>
+            <div class="queue-card__count">8</div>
+            <div class="queue-card__sla">
+              <span class="near">1 near</span>
+              <span><strong>7</strong> in SLA</span>
+            </div>
+          </a>
+
+          <a class="queue-card" href="#">
+            <div class="queue-card__head">
+              <div class="queue-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16M4 2h16M16 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-3.414 3.414A2 2 0 0 0 8 16.828V22"/></svg>
+              </div>
+              <span class="queue-card__name">Complaints</span>
+            </div>
+            <div class="queue-card__count">5</div>
+            <div class="queue-card__sla">
+              <span><strong>5</strong> in SLA</span>
+            </div>
+          </a>
+
+          <a class="queue-card queue-card--warm" href="redemption-detail.html">
+            <div class="queue-card__head">
+              <div class="queue-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/></svg>
+              </div>
+              <span class="queue-card__name">Redemption holds</span>
+            </div>
+            <div class="queue-card__count">11</div>
+            <div class="queue-card__sla">
+              <span class="near">2 near</span>
+              <span><strong>9</strong> in SLA</span>
+            </div>
+          </a>
+
+          <a class="queue-card" href="#">
+            <div class="queue-card__head">
+              <div class="queue-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <span class="queue-card__name">Rectification</span>
+            </div>
+            <div class="queue-card__count">6</div>
+            <div class="queue-card__sla">
+              <span><strong>6</strong> in SLA</span>
+            </div>
+          </a>
+
+          <a class="queue-card" href="#">
+            <div class="queue-card__head">
+              <div class="queue-card__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
+              </div>
+              <span class="queue-card__name">Brand applications</span>
+            </div>
+            <div class="queue-card__count">4</div>
+            <div class="queue-card__sla">
+              <span><strong>4</strong> in SLA</span>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- RIGHT column: SLA panel + activity feed ─────────────────── -->
+      <div style="display: grid; gap: var(--s-5);">
+
+        <section class="sla-panel">
+          <div class="sla-panel__head">
+            <h2 class="sla-panel__title">
+              <span class="sla-panel__title-dot" aria-hidden="true"></span>
+              SLA breaches
+            </h2>
+            <span class="badge badge--danger">2</span>
+          </div>
+
+          <div class="sla-row">
+            <span class="sla-row__tag">AML</span>
+            <div class="sla-row__body">
+              <div class="sla-row__id">AML_2026_0479</div>
+              <div class="sla-row__title">Joel Henderson · cumulative deposit > £2 k pre-KYC L2</div>
+            </div>
+            <div>
+              <div class="sla-row__overdue">+ 6 h 41 m</div>
+              <div class="sla-row__overdue-sub">since 72 h SLA</div>
+            </div>
+          </div>
+
+          <div class="sla-row">
+            <span class="sla-row__tag">AML</span>
+            <div class="sla-row__body">
+              <div class="sla-row__id">AML_2026_0476</div>
+              <div class="sla-row__title">Theo W. · rapid in-and-out · 4 deposits + 4 redemptions in 8 h</div>
+            </div>
+            <div>
+              <div class="sla-row__overdue">+ 2 h 14 m</div>
+              <div class="sla-row__overdue-sub">since 72 h SLA</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="feed-card">
+          <div class="section-title" style="margin-bottom: var(--s-3);">
+            <h2 style="font-size: 18px;">Recent activity</h2>
+            <a class="section-title__link" href="#">Audit log →</a>
+          </div>
+
+          <div class="feed-row feed-row--success">
+            <span class="feed-row__dot" aria-hidden="true"></span>
+            <div>
+              <div class="feed-row__title"><strong>K. Owusu</strong> approved KYC L1 for <strong>Nia P.</strong></div>
+              <div class="feed-row__meta">KYC_2026_2841 · doc IDV via Didit · clean</div>
+            </div>
+            <div class="feed-row__time">2 m</div>
+          </div>
+
+          <div class="feed-row feed-row--danger">
+            <span class="feed-row__dot" aria-hidden="true"></span>
+            <div>
+              <div class="feed-row__title"><strong>A. Ferreira</strong> froze cash-out for <strong>Joel Henderson</strong></div>
+              <div class="feed-row__meta">AML_2026_0481 · pending 72 h review</div>
+            </div>
+            <div class="feed-row__time">11 m</div>
+          </div>
+
+          <div class="feed-row feed-row--accent">
+            <span class="feed-row__dot" aria-hidden="true"></span>
+            <div>
+              <div class="feed-row__title">System flagged <strong>Theo_W</strong> · rapid in/out</div>
+              <div class="feed-row__meta">AML_2026_0480 · auto-rule R-014 · severity high</div>
+            </div>
+            <div class="feed-row__time">38 m</div>
+          </div>
+
+          <div class="feed-row">
+            <span class="feed-row__dot" aria-hidden="true"></span>
+            <div>
+              <div class="feed-row__title"><strong>K. Owusu</strong> resolved dispute DSP_9A82 in favour of <strong>Joel H.</strong></div>
+              <div class="feed-row__meta">MTC_8c2f1e · evidence reviewed · 440 coin payout released</div>
+            </div>
+            <div class="feed-row__time">1 h</div>
+          </div>
+
+          <div class="feed-row feed-row--success">
+            <span class="feed-row__dot" aria-hidden="true"></span>
+            <div>
+              <div class="feed-row__title"><strong>System</strong> auto-cleared sanctions screening (overnight batch)</div>
+              <div class="feed-row__meta">1,842 names checked · 3 manual-review hits queued</div>
+            </div>
+            <div class="feed-row__time">3 h</div>
+          </div>
+
+          <div class="feed-row">
+            <span class="feed-row__dot" aria-hidden="true"></span>
+            <div>
+              <div class="feed-row__title"><strong>A. Ferreira</strong> approved brand application <strong>Nova Esports Ltd</strong></div>
+              <div class="feed-row__meta">BRD_2026_0042 · UK · registration 14728361 · added to manage list</div>
+            </div>
+            <div class="feed-row__time">5 h</div>
+          </div>
+
+          <div class="feed-row feed-row--danger">
+            <span class="feed-row__dot" aria-hidden="true"></span>
+            <div>
+              <div class="feed-row__title">SLA breach on <strong>AML_2026_0479</strong></div>
+              <div class="feed-row__meta">72 h window elapsed · escalated to MLRO on-call</div>
+            </div>
+            <div class="feed-row__time">6 h</div>
+          </div>
+
+        </section>
+      </div>
+
+    </div>
+
+    <!-- Footnote ──────────────────────────────────────────────────── -->
+    <footer style="margin-top: var(--s-7); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;">
+      <span>© 2026 Boadman Ltd · MLRO terminal · FCA AML registered · UK MLR 2017</span>
+      <span>Session terminates after 15 m idle. Audit log is append-only.</span>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

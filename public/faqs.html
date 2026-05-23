@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Frequently asked questions</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* Anon-public FAQ page — linked from landing footer. Chrome matches public/legal/template.html.
+     Two-column desktop: sticky left category nav + right scrolling Q&A list.
+     Single column on mobile (<900px). Pure HTML — <details>/<summary> for expand. */
+
+  body {
+    background:
+      radial-gradient(at 95% -10%, rgba(255, 87, 51, 0.06), transparent 50%),
+      radial-gradient(at 5% 60%, rgba(255, 167, 0, 0.04), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  /* ===== TOP BAR (mirrors legal/template.html) ===== */
+  .top-bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: var(--s-6);
+    padding: 16px clamp(20px, 4vw, 56px);
+    background: rgba(11, 12, 16, 0.78);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .top-bar img { height: 38px; }
+  .top-bar__cta { margin-left: auto; display: flex; gap: 10px; }
+
+  /* ===== HERO ===== */
+  .faq-hero {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(48px, 6vw, 88px) clamp(20px, 4vw, 56px) clamp(24px, 3vw, 40px);
+  }
+  .faq-hero__breadcrumb {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+    margin-bottom: var(--s-5);
+  }
+  .faq-hero__breadcrumb a { color: var(--text-muted); }
+  .faq-hero__breadcrumb a:hover { color: var(--text-primary); }
+  .faq-hero__stamp {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    background: rgba(255, 87, 51, 0.10);
+    border: 1px solid rgba(255, 87, 51, 0.28);
+    color: var(--orange-400);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    margin-bottom: var(--s-5);
+  }
+  .faq-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(36px, 5vw, 60px);
+    letter-spacing: var(--tr-display);
+    line-height: 1;
+    margin-bottom: var(--s-4);
+  }
+  .faq-hero__sub {
+    color: var(--text-secondary);
+    font-size: 17px;
+    line-height: 1.65;
+    max-width: 64ch;
+    margin-bottom: var(--s-6);
+  }
+  .faq-hero__meta {
+    display: flex; align-items: center; gap: var(--s-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--s-6);
+  }
+  .meta-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border-radius: var(--r-md);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+  }
+  .meta-pill strong { color: var(--text-primary); font-weight: 500; }
+
+  /* Search bar (decorative — no JS) */
+  .faq-search {
+    position: relative;
+    max-width: 560px;
+  }
+  .faq-search input {
+    width: 100%;
+    height: 52px;
+    padding: 0 var(--s-5) 0 48px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 15px;
+  }
+  .faq-search input::placeholder { color: var(--text-muted); }
+  .faq-search input:focus { outline: none; border-color: var(--orange-500); box-shadow: var(--shadow-focus); }
+  .faq-search svg {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px; height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .faq-search kbd {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 3px 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+  }
+
+  /* ===== BODY GRID ===== */
+  .faq-body {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: var(--s-4) clamp(20px, 4vw, 56px) clamp(48px, 6vw, 96px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-8);
+  }
+  @media (min-width: 900px) {
+    .faq-body { grid-template-columns: 260px 1fr; gap: var(--s-10); }
+  }
+
+  /* Sticky category nav (sticky on desktop) */
+  .faq-nav {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    padding: var(--s-4);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+  }
+  .faq-nav__title {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: var(--s-3);
+  }
+  .faq-nav ol {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; gap: 4px;
+    counter-reset: cat;
+  }
+  .faq-nav li { counter-increment: cat; }
+  .faq-nav a {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px;
+    border-radius: var(--r-sm);
+    color: var(--text-secondary);
+    font-size: var(--t-meta);
+    line-height: 1.35;
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .faq-nav a::before {
+    content: counter(cat, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+  .faq-nav a:hover { color: var(--text-primary); background: var(--bg-elevated); }
+  .faq-nav a.is-current {
+    color: var(--text-primary);
+    background: rgba(255, 87, 51, 0.08);
+    border-left: 2px solid var(--orange-500);
+    padding-left: 8px;
+  }
+  .faq-nav a.is-current::before { color: var(--orange-500); }
+  .faq-nav__count {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    padding-top: 2px;
+  }
+  .faq-nav__foot {
+    margin-top: var(--s-4);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--border-subtle);
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .faq-nav__foot a { color: var(--orange-400); }
+
+  /* ===== Q&A CONTENT ===== */
+  .faq-content { display: grid; gap: var(--s-10); }
+
+  .faq-cat__header {
+    margin-bottom: var(--s-4);
+    padding-bottom: var(--s-3);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; align-items: baseline; gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+  .faq-cat__num {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--orange-500);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .faq-cat__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(22px, 2.4vw, 28px);
+    line-height: 1.15;
+    letter-spacing: var(--tr-display);
+  }
+  .faq-cat__count {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .faq-cat__lede {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: var(--s-2);
+    width: 100%;
+  }
+
+  .faq-list { display: grid; gap: 10px; }
+  .faq-list details {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .faq-list details:hover { border-color: var(--border-default); }
+  .faq-list details[open] { border-color: var(--border-flame); }
+  .faq-list summary {
+    padding: var(--s-4) var(--s-5);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    list-style: none;
+    display: flex;
+    gap: var(--s-3);
+    align-items: center;
+    color: var(--text-primary);
+  }
+  .faq-list summary::-webkit-details-marker { display: none; }
+  .faq-list summary::after {
+    content: "+";
+    font-family: var(--font-hud);
+    font-size: 22px;
+    line-height: 1;
+    color: var(--orange-500);
+    margin-left: auto;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .faq-list details[open] summary::after { transform: rotate(45deg); }
+
+  .faq-list .a {
+    padding: 0 var(--s-5) var(--s-5);
+    color: var(--text-secondary);
+    line-height: 1.65;
+    font-size: 14px;
+  }
+  .faq-list .a p { margin: 0 0 var(--s-3); }
+  .faq-list .a p:last-child { margin-bottom: 0; }
+  .faq-list .a strong { color: var(--text-primary); font-weight: 600; }
+  .faq-list .a a { color: var(--orange-500); border-bottom: 1px solid rgba(255, 87, 51, 0.25); }
+  .faq-list .a a:hover { color: var(--orange-400); border-bottom-color: var(--orange-400); }
+  .faq-list .a code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--bg-elevated);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--text-primary);
+  }
+  .faq-list .a .ref {
+    margin-top: var(--s-3);
+    padding-top: var(--s-2);
+    border-top: 1px dashed var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex; flex-wrap: wrap; gap: 6px 14px;
+  }
+
+  /* Provisional-rates footnote inline marker */
+  .provisional-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    background: rgba(255, 170, 34, 0.10);
+    border: 1px solid rgba(255, 170, 34, 0.35);
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    color: var(--amber-500);
+    font-weight: 700;
+    vertical-align: middle;
+  }
+
+  /* ===== STILL-STUCK CTA ===== */
+  .still-stuck {
+    margin-top: var(--s-10);
+    padding: var(--s-6) clamp(20px, 3vw, 32px);
+    background:
+      radial-gradient(at 100% 0%, rgba(255, 87, 51, 0.10), transparent 60%),
+      var(--bg-panel);
+    border: 1px solid var(--border-flame);
+    border-radius: var(--r-lg);
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 700px) {
+    .still-stuck { grid-template-columns: 1fr auto; align-items: center; }
+  }
+  .still-stuck__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 6px;
+    letter-spacing: var(--tr-display);
+  }
+  .still-stuck__body { color: var(--text-secondary); font-size: 14px; line-height: 1.55; }
+  .still-stuck__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* ===== FOOTER (mirrors landing.html) ===== */
+  footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: var(--s-8) clamp(20px, 4vw, 56px) var(--s-6);
+    margin-top: var(--s-10);
+  }
+  .footer__top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  @media (min-width: 800px) { .footer__top { grid-template-columns: 1.5fr repeat(3, 1fr); } }
+  .footer__brand-block img { height: 38px; margin-bottom: 12px; }
+  .footer__brand-block p { color: var(--text-muted); font-size: 13px; line-height: 1.55; max-width: 32ch; }
+  .footer__col-title {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+    margin-bottom: var(--s-3);
+  }
+  .footer__col ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .footer__col a { color: var(--text-secondary); font-size: 13px; }
+  .footer__col a:hover { color: var(--text-primary); }
+  .footer__responsible {
+    margin-top: var(--s-5);
+    padding: var(--s-4) var(--s-5);
+    background: var(--bg-elevated);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    max-width: 1280px;
+    margin-left: auto; margin-right: auto;
+    display: grid; gap: 6px;
+  }
+  .footer__responsible strong { font-family: var(--font-hud); font-size: 11px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--amber-500); }
+  .footer__responsible p { font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+  .footer__responsible a { color: var(--orange-400); font-weight: 600; }
+  .footer__bottom {
+    display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;
+    margin-top: var(--s-8);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    max-width: 1280px;
+    margin-left: auto; margin-right: auto;
+  }
+  .footer__bottom .badges { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+
+  /* Provisional-rates global footnote */
+  .rates-footnote {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 56px);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== TOP BAR ====== -->
+<header class="top-bar">
+  <a href="landing.html"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+  <div class="top-bar__cta">
+    <a href="../player/auth.html" class="btn btn-ghost btn-sm btn-uppercase">Sign in</a>
+    <a href="../player/auth.html" class="btn btn-primary btn-sm btn-uppercase">Sign up</a>
+  </div>
+</header>
+
+<!-- ====== HERO ====== -->
+<section class="faq-hero">
+  <div class="faq-hero__breadcrumb">
+    <a href="landing.html">Boadman</a>
+    <span>›</span>
+    <span style="color: var(--text-secondary);">Help &amp; FAQs</span>
+  </div>
+
+  <span class="faq-hero__stamp">Help centre · Anyone can read</span>
+
+  <h1 class="faq-hero__title">Frequently asked questions</h1>
+
+  <p class="faq-hero__sub">
+    Practical answers about Boadman — what it is, how it works, how to get help.
+    Coins, KYC, disputes, brand sponsorship, the 48-hour prize hold, what happens
+    if something goes wrong. No marketing fluff.
+  </p>
+
+  <div class="faq-hero__meta">
+    <span class="meta-pill">Last updated <strong>24 May 2026</strong></span>
+    <span class="meta-pill">26 questions · 5 categories</span>
+    <span class="meta-pill">UK · NG · 18+</span>
+  </div>
+
+  <!-- Search bar — decorative, no JS -->
+  <div class="faq-search" role="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="search" placeholder="Search FAQs…" aria-label="Search FAQs" />
+    <kbd>⌘ K</kbd>
+  </div>
+</section>
+
+<!-- ====== BODY: NAV + Q&A ====== -->
+<div class="faq-body">
+
+  <!-- Sticky category nav -->
+  <nav class="faq-nav" aria-label="FAQ categories">
+    <div class="faq-nav__title">Categories</div>
+    <ol>
+      <li><a href="#getting-started" class="is-current">Getting started <span class="faq-nav__count">5</span></a></li>
+      <li><a href="#coins">Coins, deposits &amp; cash-outs <span class="faq-nav__count">6</span></a></li>
+      <li><a href="#playing">Playing challenges &amp; tournaments <span class="faq-nav__count">6</span></a></li>
+      <li><a href="#safety">Safety, fairness &amp; responsible play <span class="faq-nav__count">5</span></a></li>
+      <li><a href="#brand">Brand &amp; sponsorship <span class="faq-nav__count">4</span></a></li>
+    </ol>
+    <div class="faq-nav__foot">
+      Can't find your answer? Email
+      <a href="mailto:support@boadman.com">support@boadman.com</a>
+      — we reply within one business day.
+    </div>
+  </nav>
+
+  <!-- Q&A list -->
+  <div class="faq-content">
+
+    <!-- ============================================== -->
+    <!-- 01. GETTING STARTED                            -->
+    <!-- ============================================== -->
+    <section id="getting-started">
+      <header class="faq-cat__header">
+        <span class="faq-cat__num">§ 01</span>
+        <h2 class="faq-cat__title">Getting started</h2>
+        <span class="faq-cat__count">5 questions</span>
+        <p class="faq-cat__lede">Who Boadman is for, what you can play, what verification looks like.</p>
+      </header>
+      <div class="faq-list">
+
+        <details open>
+          <summary>What is Boadman?</summary>
+          <div class="a">
+            <p>Boadman is a competition platform for UK and Nigerian players. You enter 1v1 challenges and single-match tournaments against other players, with prize pools paid in <strong>coins</strong> — our native virtual currency, GBP-pegged at 1 coin = £0.10. It is not gambling: outcomes depend on player skill, not chance. The platform takes a commission on every settled match.</p>
+            <div class="ref"><span>See: <a href="landing.html">How it works</a></span><span><a href="/legal/terms">Terms of Service § 1</a></span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Is it free to sign up?</summary>
+          <div class="a">
+            <p>Yes. Account creation costs nothing and you start with <strong>100 demo coins</strong> that can only be used in challenge-mode practice matches against the platform bot or other demo-mode players. Demo coins cannot be cashed out and have no GBP value. To play for real coins you need to deposit GBP via Stripe.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>What games are supported at launch?</summary>
+          <div class="a">
+            <p>Apex Legends, Cyberpunk 2077, FC25, Valorant and Call of Duty. More titles roll out monthly based on player demand and Publisher verification. If you want a specific game added, drop a vote at <a href="mailto:support@boadman.com">support@boadman.com</a>.</p>
+            <div class="ref"><span>5 games live · v1.0 · 2026-07</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>How does identity verification work?</summary>
+          <div class="a">
+            <p>We use a tiered KYC model. <strong>L1</strong> (government ID + selfie via Didit) is triggered when your rolling-30-day deposits exceed £200, or before your first cash-out. <strong>L2</strong> (enhanced Didit IDV with proof of address + source-of-funds attestation) kicks in for single cash-outs above £2,000, or rolling-12-month cash-outs above £5,000. Most decisions are automatic in under five minutes.</p>
+            <div class="ref"><span>Required by UK MLR 2017</span><span>Provider: Didit</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Which countries can play?</summary>
+          <div class="a">
+            <p>The United Kingdom and Nigeria only at launch. Boadman is registered with the FCA as an AML-supervised business in the UK and uses Paystack BVN-verification in Nigeria. Other regions are on the roadmap but not yet available. <strong>VPN bypass is a Terms of Service violation</strong> and results in account suspension and forfeiture of any pending withdrawals.</p>
+            <div class="ref"><span>UK · NG only</span><span>Geo-block: North Korea, Iran, Myanmar</span></div>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 02. COINS, DEPOSITS & CASH-OUTS                -->
+    <!-- ============================================== -->
+    <section id="coins">
+      <header class="faq-cat__header">
+        <span class="faq-cat__num">§ 02</span>
+        <h2 class="faq-cat__title">Coins, deposits &amp; cash-outs</h2>
+        <span class="faq-cat__count">6 questions</span>
+        <p class="faq-cat__lede">How the closed-loop coin economy works — buying, spending, withdrawing.</p>
+      </header>
+      <div class="faq-list">
+
+        <details>
+          <summary>What is a Boadman coin?</summary>
+          <div class="a">
+            <p>A coin is Boadman's <strong>native virtual token</strong> — distinct from pence, not a re-brand. The platform pegs 1 coin to £0.10 (10 pence) by configuration. Coins are not a cryptocurrency, have no blockchain, and cannot be transferred between players outside of competition escrow. They only redeem to the original payment source under closed-loop redemption.</p>
+            <div class="ref"><span>Rate: 1 coin = £0.10</span><span>Pending SP8-ECON economics review</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>How do I buy coins?</summary>
+          <div class="a">
+            <p>From <code>/wallet → Deposit</code>. Pay in GBP via Stripe (card or Apple/Google Pay in the UK) or NGN via Paystack (Nigeria). Coins are credited to your spendable balance instantly when the payment provider confirms the charge via webhook — typically under 10 seconds. Failed or abandoned purchases do not credit any coins.</p>
+            <div class="ref"><span>Min deposit: £5</span><span>Max single deposit: £1,000</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>How long does a cash-out take?</summary>
+          <div class="a">
+            <p><strong>Bank transfer:</strong> 1–3 UK business days once dispatched (Stripe Financial Connections verified bank in your legal name). <strong>Card refund</strong> (within 180 days of original deposit): same business day, back to the original card. Cash-outs above <strong>£2,000 in any 7-day window</strong> trigger an MLRO review with a 24-hour target before dispatch.</p>
+            <div class="ref"><span>Closed-loop redemption only</span><span>Min cash-out: 100 coins (£10)</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>What's the cash-out fee?<span class="provisional-tag">Provisional</span></summary>
+          <div class="a">
+            <p>A combined <strong>13% on cash-outs</strong> — 10% platform fee plus 3% to cover Stripe and FX rails. Subject to a floor of 20 coins minimum so micro-withdrawals don't bleed the platform. The exact split between platform and rails is under review.</p>
+            <p><em>Rates illustrative — pending SP8-ECON economics review.</em></p>
+            <div class="ref"><span>Worked example: cash out 1,000 coins → receive £87.00</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Why was my cash-out frozen?</summary>
+          <div class="a">
+            <p>Your wallet was flagged for AML review under UK Money Laundering Regulations 2017. Triggers include unusual velocity (e.g. depositing &gt; £2k in 24h), redeeming shortly after a large deposit, or a sanctions-list near-match. <strong>Your coin balance is preserved — nothing is lost.</strong> Our MLRO targets resolution within 72 hours; you'll receive an email with the outcome and any remediation steps.</p>
+            <div class="ref"><span>UK MLR 2017</span><span>Independent of account status</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Can I close my account?</summary>
+          <div class="a">
+            <p>Yes. Go to <code>/profile → Data rights → Delete account</code>. Your personal data is <strong>anonymised immediately</strong>, your profile becomes inaccessible, and any remaining coin balance is cashed out to your verified payout method (subject to KYC). Per UK MLR 2017 § 40, <strong>financial, KYC and AML records are retained for 5 years</strong> in anonymised form before final erasure — a non-negotiable regulatory minimum.</p>
+            <div class="ref"><span>GDPR Article 17 (right to erasure)</span><span>UK MLR 2017 § 40</span></div>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 03. PLAYING CHALLENGES & TOURNAMENTS           -->
+    <!-- ============================================== -->
+    <section id="playing">
+      <header class="faq-cat__header">
+        <span class="faq-cat__num">§ 03</span>
+        <h2 class="faq-cat__title">Playing challenges &amp; tournaments</h2>
+        <span class="faq-cat__count">6 questions</span>
+        <p class="faq-cat__lede">Match formats, escrow, disputes, prize holds, hosting your own.</p>
+      </header>
+      <div class="faq-list">
+
+        <details>
+          <summary>How does a 1v1 challenge work?<span class="provisional-tag">Provisional</span></summary>
+          <div class="a">
+            <p>Pick an opponent, choose a wager (100–10,000 coins) and a format (single match or best-of-3), and send the invite. Both stakes are locked into platform escrow on accept. Play in-game, then both submit results with optional evidence (clip URL or screenshot). On agreement the winner receives the pot <strong>net of 12% commission</strong>; on disagreement it goes to dispute.</p>
+            <p><em>Rates illustrative — pending SP8-ECON economics review.</em></p>
+            <div class="ref"><span>See: <a href="/legal/terms#competitions">Terms § 4</a></span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>What if my opponent and I disagree on the result?</summary>
+          <div class="a">
+            <p>Either player can file a dispute within 48 hours of result submission. Attach evidence — clip URL, stream link, or screenshot. The match prize is frozen and routed to our admin dispute queue with a 72-hour SLA. Outcomes: A wins, B wins, cancelled (both refunded), replay, or <strong>frivolous</strong> — which deducts a <strong>5% fee</strong> from the disputing player and adds a strike. Three strikes in 12 months equals a 30-day host-suspension.</p>
+            <div class="ref"><span>Evidence purged 60 days post-match (GDPR)</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>How are tournaments different from 1v1s?<span class="provisional-tag">Provisional</span></summary>
+          <div class="a">
+            <p>Tournaments are multi-player single-match brackets — typically 8 to 32 entrants. The default prize split is <strong>60% / 30% / 10%</strong> to the top three. Player-hosted tournaments cost a <strong>2-coin host fee</strong> and the platform takes <strong>12% commission</strong>. Brand-hosted tournaments take <strong>15% commission</strong> with no host fee. Hosts release the prize once the bracket completes.</p>
+            <p><em>Rates illustrative — pending SP8-ECON economics review.</em></p>
+            <div class="ref"><span>Formats: single-elim, double-elim, round-robin</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Can I host my own tournament?</summary>
+          <div class="a">
+            <p>Yes. Go to <code>/tournaments/new</code>, choose game, format, entry fee, and bracket size. You'll pay a 2-coin host fee on creation. KYC L1 is required to host — you cannot host on an unverified account. As host you're responsible for releasing the prize within 7 days of the scheduled end; failing to do so loses the host fee and counts as a strike.</p>
+            <div class="ref"><span>Requires KYC L1</span><span>Min bracket: 4 players</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>What happens to coins if a tournament is cancelled?</summary>
+          <div class="a">
+            <p>If the host cancels before the bracket starts, <strong>all entry fees are refunded in full</strong> to participants — but the 2-coin host fee is non-refundable (it discourages frivolous tournament creation). If an admin force-cancels mid-bracket due to host abandonment or an MLRO action, refunds are pro-rated based on progress, with a public audit-log entry explaining the decision.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Why is my prize on a 48-hour hold?</summary>
+          <div class="a">
+            <p>It's the standard <strong>complaint window</strong>. Every prize from a 1v1 challenge or player/brand-hosted tournament sits in a 48-hour hold so another participant in the same competition can flag a cheating or rule-breach concern. After 48 hours with no complaint, the prize matures automatically and the coins are spendable. A filed complaint freezes the prize for admin review.</p>
+            <div class="ref"><span>Admin-hosted tournaments skip the hold</span></div>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 04. SAFETY, FAIRNESS & RESPONSIBLE PLAY        -->
+    <!-- ============================================== -->
+    <section id="safety">
+      <header class="faq-cat__header">
+        <span class="faq-cat__num">§ 04</span>
+        <h2 class="faq-cat__title">Safety, fairness &amp; responsible play</h2>
+        <span class="faq-cat__count">5 questions</span>
+        <p class="faq-cat__lede">Regulation, anti-cheat, deposit limits, data, account security.</p>
+      </header>
+      <div class="faq-list">
+
+        <details>
+          <summary>Is Boadman gambling?</summary>
+          <div class="a">
+            <p>No. Boadman is <strong>skill-based competition wagering</strong> between consenting peers. Match outcomes depend on player skill, not chance, which places us outside the Gambling Commission's regulatory scope (the Gambling Act 2005 carves out skill-only contests). We operate under the UK Money Laundering Regulations 2017 as a financial-services platform, FCA-registered for AML supervision.</p>
+            <div class="ref"><span>Not Gambling Commission-licensed</span><span>FCA AML registered</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>How do you stop cheating?</summary>
+          <div class="a">
+            <p>Both players submit results with optional evidence. Automated checks compare timestamp consistency, repeat-opponent patterns, account-age signals, win-rate anomalies, and known stream metadata. Suspicious matches are auto-flagged to the MLRO for review. Confirmed cheating results in match reversal, prize forfeit, and account suspension or ban. Public leaderboards are recalculated on every reversal.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Can I get help if I'm spending too much?</summary>
+          <div class="a">
+            <p>Yes. Set <strong>daily and weekly deposit limits</strong> in <code>/profile → Communication &amp; limits</code> — changes that <em>decrease</em> a limit apply immediately; <em>increases</em> are delayed by 24 hours by design. Self-exclusion (a hard freeze on deposits and entries for a chosen window) is contact-support-only in v1; email <a href="mailto:support@boadman.com">support@boadman.com</a> and we'll action it within one business day.</p>
+            <div class="ref"><span>UK National Gambling Helpline: 0808 8020 133</span><span><a href="https://www.gamcare.org.uk/">GamCare</a></span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Is my data sold or shared with advertisers?</summary>
+          <div class="a">
+            <p>No. We never sell personal data. UK GDPR consent at sign-up is granular: analytics is opt-in (defaults off), <strong>marketing emails are explicit-opt-in only</strong>, and we never share match history or wallet data with third parties for advertising. We share with regulators when legally required (e.g. Suspicious Activity Reports to the NCA). Full detail at <a href="/legal/privacy">/legal/privacy</a>.</p>
+            <div class="ref"><span>UK GDPR + Data Protection Act 2018</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>What if I lose my password?</summary>
+          <div class="a">
+            <p>Go to <code>/signin → Forgot password</code> and enter the email on your account. You'll receive a single-use reset link valid for 60 minutes. Passwords are hashed — <strong>no Boadman staff can ever see or recover your password</strong>, only force a reset. If you've also lost access to your email, contact <a href="mailto:support@boadman.com">support@boadman.com</a> with identity evidence and we'll manually verify before unlocking.</p>
+            <div class="ref"><span>Hashing: bcrypt via Supabase Auth</span></div>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 05. BRAND & SPONSORSHIP                        -->
+    <!-- ============================================== -->
+    <section id="brand">
+      <header class="faq-cat__header">
+        <span class="faq-cat__num">§ 05</span>
+        <h2 class="faq-cat__title">Brand &amp; sponsorship</h2>
+        <span class="faq-cat__count">4 questions</span>
+        <p class="faq-cat__lede">For companies that want to host tournaments or fund prize pools.</p>
+      </header>
+      <div class="faq-list">
+
+        <details>
+          <summary>Can my brand sponsor a tournament?<span class="provisional-tag">Provisional</span></summary>
+          <div class="a">
+            <p>Yes. Register your company at <a href="../brand/register.html">/signup-brand</a> with its Companies House number (UK) or CAC number (NG). After approval — typically 1–2 business days — fund your brand wallet via Stripe and contribute to any open tournament via the sponsorship flow. <strong>Brand-hosted tournaments take 15% commission</strong> (vs 12% player-hosted). Sponsorship contributions are publicly attributed on the tournament page.</p>
+            <p><em>Rates illustrative — pending SP8-ECON economics review.</em></p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Can my brand wallet cash out?</summary>
+          <div class="a">
+            <p>No. Brand wallets are <strong>spend-only</strong> by design — this is core to our closed-loop coin economy and a key part of why we're not a money-services business. You can fund the wallet, host tournaments, sponsor prize pools, and pay the platform commission, but the balance never returns to GBP. Plan brand wallet top-ups against a concrete sponsorship calendar.</p>
+            <div class="ref"><span>UK MLR 2017 closed-loop compliance</span></div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Where does my brand's logo appear?</summary>
+          <div class="a">
+            <p>On every tournament you host or sponsor: the tournament detail page, match cards in the live bracket, the public tournament-finder card, and the post-match results screen. Premium-tier sponsorships also get logo placement on the live-readout HUD during the match. A public sponsorships list shows every contributor and the amount contributed (in coins).</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Can multiple managers share access to one brand?</summary>
+          <div class="a">
+            <p>Yes — though v1 ships single-owner only. The brand application submitter becomes the initial owner. Additional managers (full operational access, no ownership transfer) can be invited from the brand dashboard once the multi-manager UI lands in <strong>SP24</strong>. Until then, contact <a href="mailto:support@boadman.com">support@boadman.com</a> for manual manager addition with written owner consent.</p>
+            <div class="ref"><span>Roles: owner · manager</span><span>Multi-manager UI: SP24</span></div>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- ===== STILL-STUCK CTA ===== -->
+    <div class="still-stuck">
+      <div>
+        <div class="still-stuck__title">Still didn't answer your question?</div>
+        <div class="still-stuck__body">Our support team replies within one business day. Account-specific questions need you to be signed in — general queries can go to email.</div>
+      </div>
+      <div class="still-stuck__actions">
+        <a href="mailto:support@boadman.com" class="btn btn-secondary btn-uppercase">Email support</a>
+        <a href="../player/auth.html" class="btn btn-primary btn-uppercase">Sign in to ask</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====== Provisional-rates global footnote ====== -->
+<p class="rates-footnote">
+  Where marked <span class="provisional-tag">Provisional</span>: rates illustrative — pending SP8-ECON economics review.
+</p>
+
+<!-- ====== FOOTER (mirrors landing.html) ====== -->
+<footer>
+  <div class="footer__top">
+    <div class="footer__brand-block">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <p>UK esports competition platform. Coin-based 1v1s, single-match tournaments, brand-sponsored events. UK MLR 2017 compliant.</p>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Platform</div>
+      <ul>
+        <li><a href="../player/games.html">Games</a></li>
+        <li><a href="../player/tournaments.html">Tournaments</a></li>
+        <li><a href="../player/challenges.html">Challenges</a></li>
+        <li><a href="../brand/register.html">For brands</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Legal</div>
+      <ul>
+        <li><a href="/legal/terms">Terms of Service</a></li>
+        <li><a href="/legal/privacy">Privacy Policy</a></li>
+        <li><a href="/legal/cookies">Cookie Policy</a></li>
+        <li><a href="/legal/responsible-play">Responsible play</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Support</div>
+      <ul>
+        <li><a href="faqs.html">FAQ</a></li>
+        <li><a href="mailto:support@boadman.com">Contact support</a></li>
+        <li><a href="/status">System status</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__responsible">
+    <strong>⚠ Play responsibly</strong>
+    <p>Competitions involve coins of real-world value. Only stake what you can afford to lose. If gaming is affecting your wellbeing: <a href="https://www.gamcare.org.uk/">GamCare</a> · <a href="https://www.begambleaware.org/">BeGambleAware</a> · National Gambling Helpline: 0808 8020 133 (free, confidential, 24/7).</p>
+  </div>
+
+  <div class="footer__bottom">
+    <span>© 2026 Boadman Ltd · UK · 18+ only</span>
+    <div class="badges">
+      <span>FCA AML registered</span>
+      <span>UK MLR 2017 § 40</span>
+      <span>v1.0 · 2026-07</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

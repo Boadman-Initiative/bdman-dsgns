@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="compliance">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman MLRO · RDM_2026_1124 · Cash-out review</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* Compliance theme — command-center aesthetic (mirrors aml-flag-detail.html) */
+  body {
+    background:
+      radial-gradient(at 10% 0%, rgba(155, 107, 255, 0.06), transparent 50%),
+      radial-gradient(at 100% 100%, rgba(155, 107, 255, 0.04), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+  .compliance-strip {
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple-500) 0%, var(--blue-500) 50%, var(--purple-500) 100%);
+    position: relative;
+  }
+  .compliance-strip::after {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(11,12,16,0.4) 60px, rgba(11,12,16,0.4) 62px);
+  }
+  .mlro-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(155, 107, 255, 0.5);
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.08);
+  }
+
+  /* Hero — redemption summary */
+  .rdm-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid rgba(155, 107, 255, 0.3);
+    margin-bottom: var(--s-5);
+    isolation: isolate;
+    background:
+      radial-gradient(at 80% 30%, rgba(155, 107, 255, 0.14), transparent 50%),
+      var(--bg-panel);
+  }
+  .rdm-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .rdm-hero__content {
+    position: relative; z-index: 1;
+    padding: var(--s-6);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+  @media (min-width: 900px) {
+    .rdm-hero__content { grid-template-columns: 1.5fr 1fr; align-items: center; padding: var(--s-8); }
+  }
+  .severity-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: var(--s-3); }
+
+  .rdm-hero__id { font-family: var(--font-mono); color: var(--text-secondary); font-size: var(--t-meta); margin-bottom: var(--s-4); }
+  .rdm-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 3.6vw, 44px);
+    line-height: 1.05;
+    letter-spacing: var(--tr-display);
+    margin-bottom: var(--s-3);
+  }
+  .rdm-hero__title .amt { color: var(--purple-500); font-variant-numeric: tabular-nums; }
+  .rdm-hero__lede {
+    font-size: var(--t-body);
+    color: var(--text-secondary);
+    margin-bottom: var(--s-5);
+    max-width: 64ch;
+    line-height: 1.55;
+  }
+
+  /* SLA ring */
+  .sla-ring { width: 132px; height: 132px; position: relative; flex-shrink: 0; }
+  .sla-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .sla-ring__track { stroke: rgba(255, 255, 255, 0.06); fill: none; stroke-width: 8; }
+  .sla-ring__bar { stroke: var(--purple-500); fill: none; stroke-width: 8; stroke-linecap: round; }
+  .sla-ring__label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .sla-ring__time { font-family: var(--font-display); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; color: var(--text-primary); line-height: 1; }
+  .sla-ring__sub { font-family: var(--font-hud); font-size: 9px; color: var(--text-muted); letter-spacing: var(--tr-stamp); text-transform: uppercase; margin-top: 4px; }
+
+  /* Hero-side actor strip */
+  .hero-side {
+    padding: var(--s-5);
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+  }
+  .actor-strip {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: var(--s-3);
+    align-items: center;
+    margin-bottom: var(--s-4);
+    padding-bottom: var(--s-4);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .actor-strip__avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-300));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-family: var(--font-display); font-weight: 700; font-size: 24px;
+    border: 2px solid rgba(155, 107, 255, 0.4);
+    overflow: hidden;
+  }
+  .actor-strip__avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .actor-strip__name { font-family: var(--font-display); font-weight: 600; font-size: 18px; margin-bottom: 4px; }
+  .actor-strip__id { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); }
+  .actor-meta { display: grid; gap: 6px; font-size: var(--t-meta); }
+  .actor-meta__row { display: flex; justify-content: space-between; gap: var(--s-3); }
+  .actor-meta__row .k {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .actor-meta__row .v { color: var(--text-primary); font-weight: 500; }
+
+  /* Money breakdown strip */
+  .money-breakdown {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+  }
+  @media (min-width: 720px) { .money-breakdown { grid-template-columns: repeat(4, 1fr); } }
+  .money-tile {
+    padding: var(--s-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.025);
+  }
+  .money-tile__label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .money-tile__value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 22px;
+    line-height: 1.1;
+  }
+  .money-tile__sub {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .money-tile--net { border-color: rgba(155, 107, 255, 0.4); background: rgba(155, 107, 255, 0.06); }
+  .money-tile--net .money-tile__value { color: var(--purple-500); }
+
+  /* Detail grid */
+  @media (min-width: 1100px) {
+    .detail-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--s-6); align-items: flex-start; }
+  }
+
+  /* Definition list (lifted from aml-flag-detail.html) */
+  .def-list { display: grid; gap: 0; }
+  .def-list > div {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--s-4);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .def-list > div:last-child { border-bottom: none; }
+  .def-list dt {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .def-list dd { margin: 0; font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500; }
+  .def-list dd code { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-secondary); }
+
+  /* Why-flagged panel — purple accent */
+  .why-panel {
+    border: 1px solid rgba(155, 107, 255, 0.4);
+    border-radius: var(--r-lg);
+    padding: var(--s-5);
+    background: linear-gradient(180deg, rgba(155, 107, 255, 0.08), transparent 70%), var(--bg-panel);
+  }
+  .why-panel__head { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-3); }
+  .why-panel__icon {
+    width: 36px; height: 36px;
+    border-radius: var(--r-sm);
+    background: var(--purple-tint); color: var(--purple-500);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .why-panel__title { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+  .why-panel__body { font-size: var(--t-body-sm); color: var(--text-secondary); line-height: 1.6; }
+  .why-panel__body strong { color: var(--text-primary); font-weight: 600; }
+  .why-panel__rule {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: var(--s-3);
+    padding: 6px 12px;
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--purple-300);
+    background: rgba(155, 107, 255, 0.08);
+    border: 1px solid rgba(155, 107, 255, 0.3);
+    border-radius: var(--r-sm);
+  }
+
+  /* Destination / payout method card */
+  .payout-card {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: var(--s-4);
+    padding: var(--s-5);
+    align-items: center;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: var(--bg-elevated);
+  }
+  .payout-card__logo {
+    width: 64px; height: 40px;
+    border-radius: var(--r-sm);
+    background: linear-gradient(135deg, #635BFF, #3D34D6);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-hud); font-weight: 800; font-size: 12px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+  }
+  .payout-card__bank { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+  .payout-card__num { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); }
+  .payout-card__verified {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--green-500);
+    padding: 5px 10px;
+    border: 1px solid rgba(34, 210, 121, 0.32);
+    background: var(--green-tint);
+    border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  /* Ledger excerpt (lifted from aml-flag-detail.html) */
+  .ledger {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .ledger__row {
+    display: grid;
+    grid-template-columns: 96px 1fr 140px 110px;
+    gap: var(--s-3);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: center;
+    font-size: var(--t-meta);
+  }
+  .ledger__row:last-child { border-bottom: none; }
+  .ledger__row .time { font-family: var(--font-mono); color: var(--text-muted); }
+  .ledger__row .amt {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    text-align: right;
+  }
+  .ledger__row .status {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: right;
+    color: var(--text-muted);
+  }
+  .ledger__row .status.ok { color: var(--green-500); }
+  .ledger__row .status.review { color: var(--purple-500); }
+  .ledger__row--system {
+    background: var(--purple-tint);
+    border-color: rgba(155, 107, 255, 0.3);
+  }
+
+  /* AML signal panel */
+  .signal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .signal-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: var(--s-3);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: center;
+  }
+  .signal-row:last-child { border-bottom: none; }
+  .signal-row__icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .signal-row__icon--ok { background: var(--green-tint); color: var(--green-500); }
+  .signal-row__icon--watch { background: var(--amber-tint); color: var(--amber-500); }
+  .signal-row__icon--neutral { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+  .signal-row__body { display: grid; gap: 2px; min-width: 0; }
+  .signal-row__title { font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500; }
+  .signal-row__sub { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+  .signal-row__value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .signal-row__value--ok { color: var(--green-500); }
+  .signal-row__value--watch { color: var(--amber-500); }
+
+  /* Timeline (lifted) */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: ""; position: absolute;
+    left: 11px; top: 12px; bottom: 12px; width: 1px;
+    background: var(--border-subtle);
+  }
+  .tl-event {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: var(--s-3);
+    padding: 12px 0;
+    align-items: start;
+  }
+  .tl-event__dot {
+    width: 12px; height: 12px;
+    margin-top: 4px; margin-left: 6px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 2px solid var(--bg-panel);
+    z-index: 1;
+    position: relative;
+  }
+  .tl-event--accent .tl-event__dot {
+    background: var(--purple-500);
+    box-shadow: 0 0 0 4px var(--purple-tint), 0 0 12px var(--purple-500);
+  }
+  .tl-event--system .tl-event__dot { background: var(--blue-500); box-shadow: 0 0 0 4px var(--blue-tint); }
+  .tl-event__body { display: grid; gap: 4px; }
+  .tl-event__head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .tl-event__time { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); }
+  .tl-event__title { font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500; }
+  .tl-event__meta { font-size: var(--t-micro); color: var(--text-muted); font-family: var(--font-mono); }
+  .tl-event__note {
+    margin-top: 6px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--purple-500);
+    background: rgba(155, 107, 255, 0.06);
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Note composer */
+  .note-composer { border-top: 1px dashed var(--border-default); padding-top: var(--s-4); margin-top: var(--s-4); }
+
+  /* Decision actions (lifted from aml-flag-detail.html) */
+  .action-grid { display: grid; gap: 10px; }
+  .action-tile {
+    display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+    text-align: left;
+    width: 100%;
+  }
+  .action-tile:hover {
+    border-color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.06);
+    transform: translateX(2px);
+  }
+  .action-tile__icon {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--r-sm);
+    background: var(--purple-tint);
+    color: var(--purple-500);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .action-tile__icon svg { width: 22px; height: 22px; }
+  .action-tile__body { flex: 1; }
+  .action-tile__title { font-weight: 600; font-size: var(--t-body-sm); color: var(--text-primary); }
+  .action-tile__sub { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); margin-top: 2px; }
+  .action-tile__arrow { color: var(--text-muted); }
+  .action-tile--success { border-color: rgba(34, 210, 121, 0.32); background: linear-gradient(180deg, rgba(34, 210, 121, 0.06), transparent 80%); }
+  .action-tile--success .action-tile__icon { background: var(--green-tint); color: var(--green-500); }
+  .action-tile--success .action-tile__title { color: var(--green-500); }
+  .action-tile--warning { border-color: rgba(255, 170, 34, 0.32); }
+  .action-tile--warning .action-tile__icon { background: var(--amber-tint); color: var(--amber-500); }
+  .action-tile--danger { border-color: rgba(238, 68, 86, 0.32); }
+  .action-tile--danger .action-tile__icon { background: var(--red-tint); color: var(--red-500); }
+
+  /* SAR modal preview (rendered inline as a 'preview window' — not a real overlay) */
+  .sar-preview {
+    margin-top: var(--s-5);
+    border: 1px dashed var(--purple-500);
+    border-radius: var(--r-lg);
+    padding: var(--s-5);
+    background: rgba(155, 107, 255, 0.04);
+  }
+  .sar-preview__chrome {
+    display: flex; align-items: center; gap: var(--s-3);
+    padding-bottom: var(--s-3);
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: var(--s-4);
+  }
+  .sar-preview__dots { display: flex; gap: 6px; }
+  .sar-preview__dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+  .sar-preview__title { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-left: var(--s-2); }
+  .sar-preview__tag {
+    margin-left: auto;
+    font-family: var(--font-hud); font-size: 10px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    color: var(--purple-500); font-weight: 700;
+    padding: 4px 8px;
+    border: 1px solid rgba(155, 107, 255, 0.4);
+    border-radius: var(--r-sm);
+  }
+  .sar-field { display: grid; gap: 6px; margin-bottom: var(--s-3); }
+  .sar-field label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .sar-field input, .sar-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-sm);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--t-body-sm);
+    resize: vertical;
+  }
+  .sar-field textarea { min-height: 72px; }
+  .sar-related {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 6px;
+  }
+  .sar-pill {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-primary);
+    padding: 4px 10px;
+    border: 1px solid var(--border-default);
+    background: var(--bg-elevated);
+    border-radius: var(--r-pill);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .sar-pill__x { color: var(--text-muted); }
+
+  /* Reason textbox (rendered inline beneath the reject tile) */
+  .reason-box {
+    display: none;
+    margin-top: var(--s-3);
+    padding: var(--s-4);
+    border: 1px solid rgba(238, 68, 86, 0.32);
+    background: rgba(238, 68, 86, 0.04);
+    border-radius: var(--r-md);
+  }
+  .reason-box.is-visible { display: block; }
+  .reason-box label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .reason-box textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-sm);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--t-body-sm);
+    min-height: 64px;
+    resize: vertical;
+  }
+
+  /* Decision column — sticky on wide screens */
+  @media (min-width: 1100px) {
+    .decision-col { position: sticky; top: var(--s-4); }
+  }
+
+  /* Section card (reuse pattern) */
+  .card { background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); padding: var(--s-5); }
+  .card-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--s-4); gap: var(--s-3); flex-wrap: wrap; }
+  .card-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+  .card-sub { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="compliance-strip"></div>
+
+<div class="shell shell--with-rail">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search users, flags, brands, audit IDs…" />
+      <kbd class="kbd">⌘K</kbd>
+    </div>
+    <div class="header-actions">
+      <span class="mlro-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        MLRO · K. Owusu
+      </span>
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot" style="background: var(--purple-500); box-shadow: 0 0 8px var(--purple-500);"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar (Redemptions active) -->
+  <aside class="nav-rail" aria-label="Compliance navigation">
+    <a href="../index.html" class="nav-rail__brand" aria-label="Boadman MLRO">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <span class="mlro-label" style="margin-left: auto; padding: 3px 8px; font-size: 9px;">MLRO</span>
+    </a>
+    <span class="nav-section">Compliance</span>
+    <a class="nav-item" href="home.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview</a>
+    <a class="nav-item" href="queue-template.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AML flags<span class="nav-badge">17</span></a>
+    <a class="nav-item" href="kyc-submission-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>KYC queue<span class="nav-badge">42</span></a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Sanctions<span class="nav-badge">3</span></a>
+    <a class="nav-item" href="dispute-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>Disputes<span class="nav-badge">8</span></a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16M4 2h16M16 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-3.414 3.414A2 2 0 0 0 8 16.828V22"/></svg>Complaints<span class="nav-badge">5</span></a>
+    <span class="nav-section">Operations</span>
+    <a class="nav-item" href="user-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Users</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>Brands<span class="nav-badge">4</span></a>
+    <a class="nav-item is-active" href="redemption-detail.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/></svg>Redemptions<span class="nav-badge">11</span></a>
+    <a class="nav-item" href="competition-controls.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 0 12 0a6 6 0 0 0-12 0z"/><path d="M8 13v8l4-3 4 3v-8"/></svg>Tournaments</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Rectification<span class="nav-badge">6</span></a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Audit log</a>
+  </aside>
+
+  <main class="app-main">
+
+    <!-- Breadcrumb + status strip -->
+    <div class="row" style="margin-bottom: var(--s-3); font-size: var(--t-meta); color: var(--text-muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+      <a href="#" style="color: var(--text-muted)">← Redemptions queue</a>
+      <span>›</span>
+      <span style="color: var(--text-secondary)">RDM_2026_1124</span>
+      <span style="margin-left: auto; display: inline-flex; gap: 8px; align-items: center;">
+        <span class="badge badge--compliance">AML review required</span>
+        <span class="badge badge--warning">Awaiting MLRO decision</span>
+      </span>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <section class="rdm-hero">
+      <div class="rdm-hero__content">
+        <div>
+          <div class="severity-strip">
+            <span class="badge badge--compliance">MLRO review · velocity hold</span>
+            <span class="badge badge--warning">SLA · 8 h 17 m remaining</span>
+            <span class="badge badge--neutral" style="font-family: var(--font-mono); font-size: 11px;">Stripe Connect destination</span>
+          </div>
+
+          <div class="rdm-hero__id">
+            <span class="kbd">RDM_2026_1124</span> · Requested 23 May 2026 · 18:42 BST · auto-held by rule R-008
+          </div>
+
+          <h1 class="rdm-hero__title">
+            <span class="amt">£1,820.00</span> cash-out<br>admin review required
+          </h1>
+
+          <p class="rdm-hero__lede">
+            18,200 coins gross · 10% platform fee (£182.00) · 3% Stripe Connect fee (£53.40) · <strong style="color: var(--text-primary)">net £1,584.60</strong> to recipient bank account. Auto-held under MLRO velocity policy because cumulative redemptions exceeded £2,000 across the rolling 7-day window. Coins remain debited from the spendable balance under a pending-hold lien until decision.
+          </p>
+
+          <p class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro); margin-bottom: 0;">
+            Rates illustrative — pending SP8-ECON economics review.
+          </p>
+        </div>
+
+        <!-- Right: SLA ring + actor strip -->
+        <div class="hero-side">
+          <div class="actor-strip">
+            <div class="actor-strip__avatar"><img src="../_assets/avatars/Avatar3.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'J'}))" /></div>
+            <div>
+              <div class="actor-strip__name">Joel Henderson</div>
+              <div class="actor-strip__id">USR_2025_88431 · @joel · UK</div>
+            </div>
+          </div>
+          <div class="actor-meta">
+            <div class="actor-meta__row"><span class="k">KYC tier</span><span class="v"><span class="badge badge--success" style="padding: 2px 8px; font-size: 10px;">L2 verified</span></span></div>
+            <div class="actor-meta__row"><span class="k">Account age</span><span class="v">7 months · joined 14 Oct 2025</span></div>
+            <div class="actor-meta__row"><span class="k">Wallet balance</span><span class="v">3,640 coins spendable</span></div>
+            <div class="actor-meta__row"><span class="k">Lifetime redeemed</span><span class="v">£4,260.00 across 18 payouts</span></div>
+            <div class="actor-meta__row"><span class="k">Prior MLRO holds</span><span class="v">1 · cleared 12 Mar 2026</span></div>
+            <div class="actor-meta__row" style="border-top: 1px dashed var(--border-default); padding-top: 8px; margin-top: 4px;">
+              <span class="k">SLA</span>
+              <span class="v" style="display: flex; align-items: center; gap: 10px;">
+                <span class="sla-ring" aria-label="SLA 8h 17m of 24h">
+                  <svg viewBox="0 0 132 132" style="width: 56px; height: 56px;">
+                    <circle class="sla-ring__track" cx="66" cy="66" r="58"/>
+                    <circle class="sla-ring__bar" cx="66" cy="66" r="58"
+                      stroke-dasharray="364.4"
+                      stroke-dashoffset="240"
+                    />
+                  </svg>
+                </span>
+                <span><strong style="color: var(--purple-500); font-family: var(--font-display);">8 h 17 m</strong><br><span style="font-family: var(--font-mono); font-size: 10px;">of 24 h hold window</span></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Money breakdown strip (full width inside hero) -->
+      <div style="position: relative; z-index: 1; padding: 0 var(--s-6) var(--s-6); ">
+        <div class="money-breakdown">
+          <div class="money-tile">
+            <div class="money-tile__label">Gross coins</div>
+            <div class="money-tile__value">18,200</div>
+            <div class="money-tile__sub">@ £0.10 / coin</div>
+          </div>
+          <div class="money-tile">
+            <div class="money-tile__label">Platform fee · 10%</div>
+            <div class="money-tile__value">£182.00</div>
+            <div class="money-tile__sub">retained by Boadman</div>
+          </div>
+          <div class="money-tile">
+            <div class="money-tile__label">Stripe network · 3%</div>
+            <div class="money-tile__value">£53.40</div>
+            <div class="money-tile__sub">passed through to Stripe</div>
+          </div>
+          <div class="money-tile money-tile--net">
+            <div class="money-tile__label">Net to recipient</div>
+            <div class="money-tile__value">£1,584.60</div>
+            <div class="money-tile__sub">GBP · UK bank · Lloyds ····7842</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DETAIL GRID ===== -->
+    <div class="detail-grid">
+
+      <!-- LEFT — Why · Destination · Ledger · Signals · Timeline -->
+      <div class="stack" style="display: grid; gap: var(--s-5);">
+
+        <!-- Why flagged -->
+        <section class="why-panel">
+          <div class="why-panel__head">
+            <div class="why-panel__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="why-panel__title">Why this redemption is held</div>
+          </div>
+          <div class="why-panel__body">
+            Triggered by velocity rule <strong>R-008 — cumulative redemptions £2,400.00 in 7 days</strong> (threshold £2,000.00). MLRO review is required per <strong>redemption-velocity policy v3.1</strong> before any single cash-out above the threshold can clear to the recipient bank. The user remains free to play and deposit during the hold; only the cash-out is paused.
+            <div class="why-panel__rule">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              rule R-008 · redemption_velocity_7d · v3.1 · live since 12 Feb 2026
+            </div>
+          </div>
+        </section>
+
+        <!-- Destination panel -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Payout destination</div>
+            <span class="card-sub">Stripe Connect · external_account acct_·····3kFh</span>
+          </div>
+          <div class="payout-card">
+            <div class="payout-card__logo">Stripe</div>
+            <div>
+              <div class="payout-card__bank">Lloyds Bank · UK current account</div>
+              <div class="payout-card__num">Sort 30-94-66 · ····7842 · GBP</div>
+            </div>
+            <div class="payout-card__verified">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Verified
+            </div>
+          </div>
+          <dl class="def-list" style="margin-top: var(--s-4);">
+            <div><dt>Verified on</dt><dd>8 Mar 2026 · 14:08 BST via Stripe Financial Connections</dd></div>
+            <div><dt>Account holder</dt><dd>Joel Adebayo Henderson · matches KYC declared legal name <span style="color: var(--green-500); margin-left: 6px;">✓ exact</span></dd></div>
+            <div><dt>Bank country / currency</dt><dd>United Kingdom · GBP · payout in same currency</dd></div>
+            <div><dt>Method age</dt><dd>76 days on file · used for 6 prior payouts (all settled)</dd></div>
+            <div><dt>Estimated settlement</dt><dd>~1 business day after release · Stripe payout window</dd></div>
+          </dl>
+        </section>
+
+        <!-- Ledger excerpt -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Recent redemptions · this user · last 7 days</div>
+            <a href="#" style="color: var(--purple-500); font-size: var(--t-meta); font-weight: 600;">Open full ledger →</a>
+          </div>
+          <div class="ledger">
+            <div class="ledger__row" style="background: var(--bg-elevated); font-family: var(--font-hud); font-size: 10px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-muted);">
+              <span>Date</span><span>Description</span><span style="text-align: right;">Amount</span><span style="text-align: right;">Status</span>
+            </div>
+            <div class="ledger__row ledger__row--system">
+              <span class="time">23 May 18:42</span>
+              <span><strong style="color: var(--text-primary);">RDM_2026_1124</strong> · cash-out · MLRO velocity hold</span>
+              <span class="amt" style="color: var(--purple-500);">£1,820.00</span>
+              <span class="status review">In review</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">19 May 14:08</span>
+              <span>RDM_2026_1091 · cash-out · Lloyds ····7842</span>
+              <span class="amt">£280.00</span>
+              <span class="status ok">Settled</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">17 May 09:33</span>
+              <span>RDM_2026_1067 · cash-out · Lloyds ····7842</span>
+              <span class="amt">£140.00</span>
+              <span class="status ok">Settled</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">15 May 22:01</span>
+              <span>RDM_2026_1044 · cash-out · Lloyds ····7842</span>
+              <span class="amt">£160.00</span>
+              <span class="status ok">Settled</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">14 May 11:18</span>
+              <span>RDM_2026_1022 · cash-out · Lloyds ····7842</span>
+              <span class="amt">£100.00</span>
+              <span class="status ok">Settled</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">17 Apr 16:51</span>
+              <span>RDM_2026_0894 · cash-out · Lloyds ····7842</span>
+              <span class="amt">£420.00</span>
+              <span class="status ok">Settled</span>
+            </div>
+          </div>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin-top: 16px; line-height: 1.55;">
+            <strong style="color: var(--text-primary)">7-day cumulative including RDM_2026_1124:</strong> £2,500.00 across 5 redemption events. The £1,820 request alone crosses the per-event review band; the 7-day cumulative crosses the £2,000 velocity threshold.
+          </p>
+        </section>
+
+        <!-- AML signal panel -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">AML signal panel</div>
+            <span class="card-sub">automated screening · refreshed 18:42 BST</span>
+          </div>
+          <div class="signal-grid">
+            <div class="signal-row">
+              <span class="signal-row__icon signal-row__icon--ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <div class="signal-row__body">
+                <div class="signal-row__title">Name-match score (KYC ↔ bank holder)</div>
+                <div class="signal-row__sub">fuzzy 4-field match · DOB + legal name + postcode + initials</div>
+              </div>
+              <span class="signal-row__value signal-row__value--ok">98.4%</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-row__icon signal-row__icon--ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <div class="signal-row__body">
+                <div class="signal-row__title">Sanctions / PEP screening</div>
+                <div class="signal-row__sub">UK OFSI · EU consolidated · UN consolidated · last screened 22 May 04:00</div>
+              </div>
+              <span class="signal-row__value signal-row__value--ok">Clean</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-row__icon signal-row__icon--ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <div class="signal-row__body">
+                <div class="signal-row__title">Device fingerprint</div>
+                <div class="signal-row__sub">stable iPhone 15 · iOS 19.4 · Boadman app v2.6.1 · first seen 14 Oct 2025</div>
+              </div>
+              <span class="signal-row__value signal-row__value--ok">Clean</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-row__icon signal-row__icon--ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <div class="signal-row__body">
+                <div class="signal-row__title">IP geolocation</div>
+                <div class="signal-row__sub">UK · BT residential · Manchester · no VPN/proxy signal · ASN 2856</div>
+              </div>
+              <span class="signal-row__value signal-row__value--ok">UK</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-row__icon signal-row__icon--ok"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <div class="signal-row__body">
+                <div class="signal-row__title">Card BIN region</div>
+                <div class="signal-row__sub">most-used deposit card Visa •• 4242 · BIN issuer Lloyds UK · matches account</div>
+              </div>
+              <span class="signal-row__value signal-row__value--ok">Match</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-row__icon signal-row__icon--watch"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+              <div class="signal-row__body">
+                <div class="signal-row__title">Time since most recent deposit</div>
+                <div class="signal-row__sub">last deposit £420.00 on 19 May 13:12 · short cycle relative to redemption size</div>
+              </div>
+              <span class="signal-row__value signal-row__value--watch">4 d</span>
+            </div>
+            <div class="signal-row">
+              <span class="signal-row__icon signal-row__icon--neutral"><span style="font-family: var(--font-hud); font-size: 11px; font-weight: 700;">0</span></span>
+              <div class="signal-row__body">
+                <div class="signal-row__title">Prior frivolous-strike count</div>
+                <div class="signal-row__sub">tournament reports, dispute losses, complaint losses · trailing 12 months</div>
+              </div>
+              <span class="signal-row__value">0 strikes</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Investigation timeline -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Investigation timeline</div>
+            <span class="card-sub">UK MLR 2017 §40 · append-only · 5-year retention</span>
+          </div>
+          <div class="timeline">
+            <div class="tl-event tl-event--system">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">23 May · 18:42 BST</span>
+                  <span class="tl-event__title">Rule R-008 triggered · auto-hold applied</span>
+                </div>
+                <div class="tl-event__meta">System · audit redemption.held · rolling_7d_cumulative=£2,400.00 · threshold=£2,000.00</div>
+              </div>
+            </div>
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">23 May · 18:44 BST</span>
+                  <span class="tl-event__title">Assigned to K. Owusu (MLRO on-call)</span>
+                </div>
+                <div class="tl-event__meta">System · audit redemption.assigned · routing_policy=load_balanced</div>
+              </div>
+            </div>
+            <div class="tl-event tl-event--accent">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">23 May · 19:11 BST</span>
+                  <span class="tl-event__title">MLRO note · K. Owusu</span>
+                </div>
+                <div class="tl-event__meta">audit redemption.note_added · v1</div>
+                <div class="tl-event__note">
+                  Spot-checked the last 6 redemptions on this destination — all settled, all on Lloyds ····7842, all consistent with declared income band on KYC L2 (£25–40k). 7-day cumulative is elevated but pattern is one big request after a clean run of small ones, not structuring. Pulling deposit ledger next to confirm source-of-funds story.
+                </div>
+              </div>
+            </div>
+            <div class="tl-event tl-event--accent">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">23 May · 21:28 BST</span>
+                  <span class="tl-event__title">MLRO note · K. Owusu</span>
+                </div>
+                <div class="tl-event__meta">audit redemption.note_added · v2</div>
+                <div class="tl-event__note">
+                  Deposit-side review complete. Source of funds = card-on-file Visa •• 4242, same Lloyds issuer as the destination. £540 deposited over 19 d, net of winnings the £1,820 redemption is consistent with tournament wins (3 cashes in the BoadFC2026 weekly ladder · £1,420 across them). No source-of-funds concern. Leaning release — pending final SOF spot-check.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="note-composer">
+            <label class="label" for="note" style="font-family: var(--font-hud); font-size: 11px; text-transform: uppercase; letter-spacing: var(--tr-stamp); color: var(--text-muted); font-weight: 700;">Add investigation note</label>
+            <textarea id="note" class="textarea" placeholder="Findings, hypotheses, references — stamped with role + current state. Notes are append-only and visible to MLRO peers and Compliance audit."></textarea>
+            <div class="row" style="justify-content: space-between; align-items: center; margin-top: 12px; gap: var(--s-3);">
+              <span style="font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted);">
+                Stamped K. Owusu · MLRO · 24 May 00:21 BST · note becomes immutable on save
+              </span>
+              <button class="btn btn-secondary btn-sm btn-uppercase">Save note</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT — Decision column (sticky) -->
+      <aside class="decision-col" style="display: grid; gap: var(--s-5);">
+
+        <section class="card" style="border-color: rgba(155, 107, 255, 0.4); background: linear-gradient(180deg, rgba(155, 107, 255, 0.06), transparent 100%), var(--bg-panel);">
+          <div class="card-header" style="margin-bottom: var(--s-3);">
+            <div class="card-title">Decision</div>
+            <span class="badge badge--compliance">MLRO only</span>
+          </div>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin-bottom: var(--s-4); line-height: 1.55;">
+            Every action writes an append-only audit row, notifies MLRO peers, releases or rolls back the coin lien, and (where applicable) emails the user per <code class="kbd">notification-channels.md</code>.
+          </p>
+
+          <div class="action-grid">
+
+            <!-- 1. Release -->
+            <button class="action-tile action-tile--success">
+              <span class="action-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Release payout · £1,584.60</div>
+                <div class="action-tile__sub">audit redemption.released · Stripe Connect payout · settles ~1 business day</div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <!-- 2. Hold for further review -->
+            <button class="action-tile action-tile--warning">
+              <span class="action-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Hold for further review</div>
+                <div class="action-tile__sub">audit redemption.extended · manual 7-day extension · second MLRO required to release after</div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <!-- 3. Reject + return coins -->
+            <button class="action-tile action-tile--danger" id="reject-btn" onclick="document.getElementById('reject-reason').classList.toggle('is-visible')">
+              <span class="action-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Reject + return coins to wallet</div>
+                <div class="action-tile__sub">audit redemption.rejected · 18,200 coins back to spendable · reason required</div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <!-- Reject reason text (inline, revealed on click) -->
+            <div class="reason-box is-visible" id="reject-reason">
+              <label for="reject-reason-text">Rejection reason · minimum 20 characters · visible in audit trail and in the user-facing decision email</label>
+              <textarea id="reject-reason-text" placeholder="e.g. Insufficient source-of-funds evidence after MLRO review; user invited to re-submit with payslip or bank statement.&#10;&#10;Non-euphemistic copy — say what happened and why."></textarea>
+              <div class="row" style="justify-content: space-between; margin-top: 10px; font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted);">
+                <span>0 / minimum 20 chars · 4,000 max</span>
+                <span>Coins return immediately · payout never created at Stripe</span>
+              </div>
+            </div>
+
+            <!-- 4. File SAR + freeze -->
+            <button class="action-tile action-tile--danger" onclick="document.getElementById('sar-preview').scrollIntoView({behavior:'smooth'})">
+              <span class="action-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">File SAR with NCA + freeze account</div>
+                <div class="action-tile__sub">opens NCA SAR composer · audit redemption.sar_filed · auto-freezes wallet + cash-out</div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+          </div>
+        </section>
+
+        <!-- Related artefacts -->
+        <section class="card">
+          <div class="card-title" style="margin-bottom: 16px;">Related artefacts</div>
+          <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; font-size: var(--t-meta);">
+            <li style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+              <span style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                KYC submission · L2 verified
+              </span>
+              <a href="kyc-submission-detail.html" style="color: var(--purple-500); font-weight: 600;">KYC_2025_8801 →</a>
+            </li>
+            <li style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+              <span style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Prior MLRO hold · cleared
+              </span>
+              <a href="aml-flag-detail.html" style="color: var(--purple-500); font-weight: 600;">AML_2026_0214 →</a>
+            </li>
+            <li style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+              <span style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                User profile · audit trail
+              </span>
+              <a href="user-detail.html" style="color: var(--purple-500); font-weight: 600;">USR_2025_88431 →</a>
+            </li>
+            <li style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+              <span style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Source-of-funds — tournament cashes
+              </span>
+              <span class="text-muted">3 · £1,420.00</span>
+            </li>
+            <li style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+              <span style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+                Open disputes
+              </span>
+              <span class="text-muted">None</span>
+            </li>
+          </ul>
+        </section>
+
+      </aside>
+    </div>
+
+    <!-- ===== SAR COMPOSER (rendered as a 'preview window' — describes the popup) ===== -->
+    <section class="sar-preview" id="sar-preview">
+      <div class="sar-preview__chrome">
+        <div class="sar-preview__dots">
+          <span class="sar-preview__dot"></span>
+          <span class="sar-preview__dot"></span>
+          <span class="sar-preview__dot"></span>
+        </div>
+        <span class="sar-preview__title">NCA SAR composer</span>
+        <span class="sar-preview__tag">Modal · opens on "File SAR"</span>
+      </div>
+
+      <p class="text-secondary" style="font-size: var(--t-body-sm); margin-bottom: var(--s-4); line-height: 1.6;">
+        Filing a SAR (Suspicious Activity Report) routes the case to the National Crime Agency via the SAR Online portal under <strong style="color: var(--text-primary);">POCA 2002 §330</strong>. Submission auto-freezes the user's wallet + cash-out, blocks further deposits, and writes an immutable SAR record into the compliance vault. Filing is a one-way action — only the MLRO may withdraw a SAR after submission, and only with NCA confirmation.
+      </p>
+
+      <div style="display: grid; gap: var(--s-3); grid-template-columns: 1fr 1fr;">
+        <div class="sar-field" style="grid-column: 1 / -1;">
+          <label>Subject · pre-filled from this redemption</label>
+          <input type="text" value="Joel Adebayo Henderson · USR_2025_88431 · DOB 14 Aug 1996 · UK" readonly />
+        </div>
+        <div class="sar-field">
+          <label>SAR category</label>
+          <input type="text" value="Money laundering — placement / layering suspicion" />
+        </div>
+        <div class="sar-field">
+          <label>Suspected predicate offence</label>
+          <input type="text" value="(optional — leave blank if unknown)" />
+        </div>
+        <div class="sar-field" style="grid-column: 1 / -1;">
+          <label>Narrative · minimum 200 characters · plain English, factual</label>
+          <textarea placeholder="Describe the activity, why it raised suspicion, what the MLRO investigated, what evidence supports the filing. Avoid speculation. Reference rule R-008 trigger, the 7-day cumulative figure, prior holds, and the destination-side findings."></textarea>
+        </div>
+        <div class="sar-field" style="grid-column: 1 / -1;">
+          <label>Related records (attached to filing)</label>
+          <div class="sar-related">
+            <span class="sar-pill">RDM_2026_1124 <span class="sar-pill__x">×</span></span>
+            <span class="sar-pill">USR_2025_88431 <span class="sar-pill__x">×</span></span>
+            <span class="sar-pill">KYC_2025_8801 <span class="sar-pill__x">×</span></span>
+            <span class="sar-pill">AML_2026_0214 <span class="sar-pill__x">×</span></span>
+            <span class="sar-pill" style="border-style: dashed; color: var(--purple-500);">+ Attach record…</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="justify-content: space-between; align-items: center; margin-top: var(--s-5); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); gap: var(--s-3); flex-wrap: wrap;">
+        <span style="font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted);">
+          On submit · POSTs to NCA SAR Online · returns a SAR reference (SAR_xxx) · stored in compliance vault for 5 years per UK MLR 2017 §40
+        </span>
+        <div class="row" style="gap: 8px;">
+          <button class="btn btn-ghost btn-sm btn-uppercase">Cancel</button>
+          <button class="btn btn-secondary btn-sm btn-uppercase">Save draft</button>
+          <button class="btn btn-compliance btn-sm btn-uppercase">Submit SAR + freeze account</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="margin-top: var(--s-7); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;">
+      <span>© 2026 Boadman Ltd · MLRO terminal · FCA AML registered · UK MLR 2017 §40 · 5-year retention on this record</span>
+      <span>Decision audited · idle session timeout 15 m · append-only ledger</span>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

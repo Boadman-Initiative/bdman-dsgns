@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="compliance">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman MLRO · Joel Henderson · User detail</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* Compliance theme — command-center aesthetic (mirrors aml-flag-detail / home) */
+  body {
+    background:
+      radial-gradient(at 10% 0%, rgba(155, 107, 255, 0.06), transparent 50%),
+      radial-gradient(at 100% 100%, rgba(155, 107, 255, 0.04), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  .compliance-strip {
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple-500) 0%, var(--blue-500) 50%, var(--purple-500) 100%);
+    position: relative;
+  }
+  .compliance-strip::after {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(11,12,16,0.4) 60px, rgba(11,12,16,0.4) 62px);
+  }
+
+  .mlro-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(155, 107, 255, 0.5);
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.08);
+  }
+
+  /* ───── Actor strip (mirrored from aml-flag-detail, scaled up for hero use) */
+  .actor-strip {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    gap: var(--s-5);
+    align-items: center;
+  }
+  .actor-strip__avatar {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6B47C5 0%, #9B6BFF 55%, #FFA700 130%);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 36px;
+    border: 2px solid rgba(155, 107, 255, 0.45);
+    box-shadow: 0 0 0 4px rgba(155, 107, 255, 0.1), inset 0 1px 0 rgba(255,255,255,0.15);
+    overflow: hidden;
+    font-variant-numeric: tabular-nums;
+  }
+  .actor-strip__name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 30px;
+    margin-bottom: 6px;
+    letter-spacing: var(--tr-display);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .actor-strip__handle {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: var(--t-meta);
+  }
+  .actor-strip__flag {
+    font-size: 22px; line-height: 1;
+  }
+  .actor-strip__pills {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: var(--s-3);
+  }
+  .actor-strip__id {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: var(--t-micro);
+    margin-top: 8px;
+  }
+
+  /* User hero card */
+  .user-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid rgba(155, 107, 255, 0.3);
+    margin-bottom: var(--s-5);
+    isolation: isolate;
+    background:
+      radial-gradient(at 90% 20%, rgba(155, 107, 255, 0.14), transparent 55%),
+      radial-gradient(at 0% 90%, rgba(255, 87, 51, 0.05), transparent 50%),
+      var(--bg-panel);
+  }
+  .user-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .user-hero__content {
+    position: relative; z-index: 1;
+    padding: var(--s-6) var(--s-7);
+  }
+
+  .hero-actions {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  /* Impersonate purple variant */
+  .btn-impersonate {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--r-md);
+    border: 1px solid rgba(155, 107, 255, 0.45);
+    background: rgba(155, 107, 255, 0.10);
+    color: var(--purple-500);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .btn-impersonate:hover {
+    background: rgba(155, 107, 255, 0.18);
+    border-color: var(--purple-500);
+  }
+  .btn-impersonate svg { width: 14px; height: 14px; }
+
+  .btn-hero {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-default);
+    background: rgba(255,255,255,0.025);
+    color: var(--text-primary);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .btn-hero:hover { border-color: var(--border-strong); background: rgba(255,255,255,0.06); }
+  .btn-hero svg { width: 14px; height: 14px; }
+  .btn-hero--danger {
+    border-color: rgba(238, 68, 86, 0.4);
+    color: var(--red-500);
+    background: var(--red-tint);
+  }
+  .btn-hero--danger:hover { border-color: var(--red-500); background: rgba(238, 68, 86, 0.22); }
+
+  /* KPI strip */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-3);
+    margin-bottom: var(--s-5);
+  }
+  @media (min-width: 900px) {
+    .kpi-strip { grid-template-columns: repeat(4, 1fr); }
+  }
+  .kpi-tile {
+    padding: var(--s-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: var(--bg-panel);
+  }
+  .kpi-tile__label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .kpi-tile__value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .kpi-tile__sub {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-tile__link {
+    color: var(--purple-500);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .kpi-tile--danger { border-color: rgba(238, 68, 86, 0.32); }
+  .kpi-tile--danger .kpi-tile__value { color: var(--red-500); }
+  .kpi-tile--accent { border-color: rgba(155, 107, 255, 0.4); }
+  .kpi-tile--accent .kpi-tile__value { color: var(--purple-500); }
+
+  /* Tab bar */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border-default);
+    margin-bottom: var(--s-5);
+    overflow-x: auto;
+  }
+  .tab-bar__btn {
+    position: relative;
+    padding: 14px 20px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .tab-bar__btn:hover { color: var(--text-secondary); }
+  .tab-bar__btn.is-active { color: var(--text-primary); }
+  .tab-bar__btn.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: var(--purple-500);
+    box-shadow: 0 0 12px var(--purple-500);
+  }
+  .tab-bar__count {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 8px;
+    border-radius: var(--r-pill);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .tab-bar__btn.is-active .tab-bar__count {
+    background: var(--purple-tint);
+    color: var(--purple-500);
+  }
+
+  /* Tab panes */
+  [data-tab] { display: none; }
+  [data-active-tab="compliance"] [data-tab="compliance"],
+  [data-active-tab="ledger"] [data-tab="ledger"],
+  [data-active-tab="audit"] [data-tab="audit"],
+  [data-active-tab="disposition"] [data-tab="disposition"] {
+    display: block;
+  }
+
+  /* Two-column grid for compliance tab */
+  .col-grid {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 1100px) {
+    .col-grid { grid-template-columns: 1.6fr 1fr; align-items: flex-start; }
+  }
+
+  /* Definition list (mirrored from aml-flag-detail) */
+  .def-list { display: grid; gap: 0; }
+  .def-list > div {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: var(--s-4);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .def-list > div:last-child { border-bottom: none; }
+  .def-list dt {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .def-list dd {
+    margin: 0;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .def-list dd code,
+  .def-list dd .mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Mini-table (used for AML flag history, disputes) */
+  .mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--t-meta);
+  }
+  .mini-table thead th {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-default);
+    background: rgba(255,255,255,0.015);
+  }
+  .mini-table tbody td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: var(--t-meta);
+    vertical-align: middle;
+  }
+  .mini-table tbody tr:last-child td { border-bottom: none; }
+  .mini-table tbody tr:hover { background: rgba(155, 107, 255, 0.03); }
+  .mini-table td.mono,
+  .mini-table .mono {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .mini-table td.num {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .mini-table a { color: var(--purple-500); font-weight: 600; }
+
+  /* Frivolous strike counter */
+  .strike-meter {
+    display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: rgba(255,255,255,0.02);
+  }
+  .strike-meter__count {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 32px;
+    font-variant-numeric: tabular-nums;
+    color: var(--amber-500);
+    line-height: 1;
+  }
+  .strike-meter__count span { color: var(--text-muted); font-size: 18px; }
+  .strike-meter__body { flex: 1; }
+  .strike-meter__title { font-weight: 600; font-size: var(--t-body-sm); margin-bottom: 4px; }
+  .strike-meter__sub { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+  .strike-dots {
+    display: flex; gap: 4px;
+  }
+  .strike-dots span {
+    width: 14px; height: 14px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-default);
+  }
+  .strike-dots span.on { background: var(--amber-500); border-color: var(--amber-500); box-shadow: 0 0 8px rgba(255, 170, 34, 0.5); }
+
+  /* Timeline (mirrored from aml-flag-detail) */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: ""; position: absolute;
+    left: 11px; top: 12px; bottom: 12px; width: 1px;
+    background: var(--border-subtle);
+  }
+  .tl-event {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: var(--s-3);
+    padding: 12px 0;
+    align-items: start;
+  }
+  .tl-event__dot {
+    width: 12px; height: 12px;
+    margin-top: 4px; margin-left: 6px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 2px solid var(--bg-panel);
+    z-index: 1;
+    position: relative;
+  }
+  .tl-event--accent .tl-event__dot {
+    background: var(--purple-500);
+    box-shadow: 0 0 0 4px var(--purple-tint), 0 0 12px var(--purple-500);
+  }
+  .tl-event--danger .tl-event__dot {
+    background: var(--red-500);
+    box-shadow: 0 0 0 4px var(--red-tint);
+  }
+  .tl-event--success .tl-event__dot { background: var(--green-500); }
+  .tl-event__body { display: grid; gap: 4px; }
+  .tl-event__head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .tl-event__time {
+    font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .tl-event__title { font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500; }
+  .tl-event__meta { font-size: var(--t-micro); color: var(--text-muted); font-family: var(--font-mono); }
+
+  /* Ledger (mirrored from aml-flag-detail) */
+  .ledger {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .ledger__head {
+    display: grid;
+    grid-template-columns: 110px 1fr 140px 130px;
+    gap: var(--s-3);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-default);
+    background: rgba(255,255,255,0.015);
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .ledger__head > span:last-child { text-align: right; }
+  .ledger__row {
+    display: grid;
+    grid-template-columns: 110px 1fr 140px 130px;
+    gap: var(--s-3);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: center;
+    font-size: var(--t-meta);
+  }
+  .ledger__row:last-child { border-bottom: none; }
+  .ledger__row .time {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .ledger__row .ref { font-family: var(--font-mono); color: var(--text-secondary); font-size: var(--t-micro); }
+  .ledger__row .amt {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    text-align: right;
+  }
+  .ledger__row--system {
+    background: var(--purple-tint);
+    border-color: rgba(155, 107, 255, 0.3);
+  }
+  .ledger__row--system .amt {
+    color: var(--purple-500);
+    font-family: var(--font-hud);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+  }
+  .text-success { color: var(--green-500); }
+  .text-danger { color: var(--red-500); }
+  .text-warning { color: var(--amber-500); }
+
+  /* Action tile (mirrored from aml-flag-detail) — used in disposition tab */
+  .action-grid {
+    display: grid;
+    gap: var(--s-3);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px) {
+    .action-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .action-tile {
+    display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-5);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+    text-align: left;
+    width: 100%;
+  }
+  .action-tile:hover {
+    border-color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.06);
+    transform: translateX(2px);
+  }
+  .action-tile__icon {
+    width: 44px; height: 44px;
+    flex-shrink: 0;
+    border-radius: var(--r-sm);
+    background: var(--purple-tint);
+    color: var(--purple-500);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .action-tile__icon svg { width: 24px; height: 24px; }
+  .action-tile__body { flex: 1; }
+  .action-tile__title {
+    font-weight: 600;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .action-tile__sub {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+  .action-tile__arrow { color: var(--text-muted); font-size: 18px; }
+  .action-tile--danger {
+    border-color: rgba(238, 68, 86, 0.32);
+    background: rgba(238, 68, 86, 0.04);
+  }
+  .action-tile--danger:hover { border-color: var(--red-500); background: rgba(238, 68, 86, 0.10); }
+  .action-tile--danger .action-tile__icon { background: var(--red-tint); color: var(--red-500); }
+  .action-tile--warning {
+    border-color: rgba(255, 170, 34, 0.32);
+    background: rgba(255, 170, 34, 0.04);
+  }
+  .action-tile--warning:hover { border-color: var(--amber-500); background: rgba(255, 170, 34, 0.10); }
+  .action-tile--warning .action-tile__icon { background: var(--amber-tint); color: var(--amber-500); }
+
+  /* Sticky note (disposition tab) */
+  .sticky-note {
+    margin-top: var(--s-5);
+    padding: var(--s-4) var(--s-5);
+    border-left: 3px solid var(--purple-500);
+    background: var(--purple-tint);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+    line-height: 1.55;
+  }
+  .sticky-note strong { color: var(--purple-500); font-weight: 700; }
+
+  /* Section card */
+  .section-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    background: var(--bg-panel);
+    padding: var(--s-5);
+  }
+  .section-card__head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: var(--s-4);
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .section-card__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: var(--tr-display);
+  }
+  .section-card__meta {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+  }
+
+  /* Collapsed details for secondary tabs */
+  details.tab-fallback {
+    margin-top: var(--s-5);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: var(--bg-panel);
+    overflow: hidden;
+  }
+  details.tab-fallback > summary {
+    padding: var(--s-4) var(--s-5);
+    cursor: pointer;
+    list-style: none;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(155, 107, 255, 0.04);
+    border-bottom: 1px solid var(--border-subtle);
+    font-family: var(--font-hud);
+    font-size: 13px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+  details.tab-fallback > summary::-webkit-details-marker { display: none; }
+  details.tab-fallback > summary::after {
+    content: "▾";
+    color: var(--purple-500);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  details.tab-fallback[open] > summary::after { transform: rotate(180deg); }
+  details.tab-fallback[open] > summary { color: var(--text-primary); }
+  details.tab-fallback__body { padding: var(--s-5); }
+
+  /* Tag chip (per-row severity in mini-table) */
+  .chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .chip--high { background: var(--red-tint); color: var(--red-500); }
+  .chip--med { background: var(--amber-tint); color: var(--amber-500); }
+  .chip--low { background: var(--blue-tint); color: var(--blue-500); }
+  .chip--ok { background: var(--green-tint); color: var(--green-500); }
+  .chip--accent { background: var(--purple-tint); color: var(--purple-500); }
+
+  /* Cash-out frozen pill (special — wraps the AML link) */
+  .pill-frozen {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    background: var(--red-tint);
+    color: var(--red-500);
+    border: 1px solid rgba(238, 68, 86, 0.4);
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .pill-frozen a {
+    color: var(--red-500);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .pill-kyc {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    background: var(--green-tint);
+    color: var(--green-500);
+    border: 1px solid rgba(34, 210, 121, 0.4);
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .pill-active {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    background: rgba(155, 107, 255, 0.08);
+    color: var(--purple-400);
+    border: 1px solid rgba(155, 107, 255, 0.35);
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div class="compliance-strip"></div>
+
+<div class="shell shell--with-rail">
+
+  <!-- Header ─────────────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Find another user…" />
+      <kbd class="kbd">⌘K</kbd>
+    </div>
+    <div class="header-actions">
+      <span class="mlro-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        MLRO · K. Owusu
+      </span>
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot" style="background: var(--purple-500); box-shadow: 0 0 8px var(--purple-500);"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar — Users active ─────────────────────────────────────────── -->
+  <aside class="nav-rail" aria-label="Compliance navigation">
+    <a href="../index.html" class="nav-rail__brand" aria-label="Boadman MLRO">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <span class="mlro-label" style="margin-left: auto; padding: 3px 8px; font-size: 9px;">MLRO</span>
+    </a>
+    <span class="nav-section">Compliance</span>
+    <a class="nav-item" href="home.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a class="nav-item" href="queue-template.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      AML flags<span class="nav-badge">17</span>
+    </a>
+    <a class="nav-item" href="kyc-submission-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      KYC queue<span class="nav-badge">42</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      Sanctions<span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item" href="dispute-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+      Disputes<span class="nav-badge">8</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16M4 2h16M16 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-3.414 3.414A2 2 0 0 0 8 16.828V22"/></svg>
+      Complaints<span class="nav-badge">5</span>
+    </a>
+
+    <span class="nav-section">Operations</span>
+    <a class="nav-item is-active" href="user-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      Users
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
+      Brands<span class="nav-badge">4</span>
+    </a>
+    <a class="nav-item" href="redemption-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/></svg>
+      Redemptions<span class="nav-badge">11</span>
+    </a>
+    <a class="nav-item" href="competition-controls.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 0 12 0a6 6 0 0 0-12 0z"/><path d="M8 13v8l4-3 4 3v-8"/></svg>
+      Tournaments
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Rectification<span class="nav-badge">6</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Audit log
+    </a>
+  </aside>
+
+  <main class="app-main">
+
+    <!-- Breadcrumb -->
+    <div class="row" style="margin-bottom: var(--s-3); font-size: var(--t-meta); color: var(--text-muted); gap: 8px;">
+      <a href="#" style="color: var(--text-muted)">← Users</a>
+      <span>›</span>
+      <span style="color: var(--text-secondary); font-family: var(--font-mono);">USR_2026_8c2f1e</span>
+      <span>·</span>
+      <span style="color: var(--text-primary);">Joel Henderson</span>
+    </div>
+
+    <!-- ====================================================================
+         USER HERO CARD
+         ==================================================================== -->
+    <section class="user-hero">
+      <div class="user-hero__content">
+        <div class="actor-strip">
+          <div class="actor-strip__avatar" aria-hidden="true">JH</div>
+
+          <div>
+            <div class="actor-strip__name">
+              Joel Henderson
+              <span class="actor-strip__flag" title="United Kingdom">🇬🇧</span>
+            </div>
+            <div class="actor-strip__handle">@joel · joined 4 Mar 2026 · 81 days ago</div>
+
+            <div class="actor-strip__pills">
+              <span class="pill-kyc">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                KYC L1 verified · Didit
+              </span>
+              <span class="pill-active">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--purple-400); display: inline-block;"></span>
+                Active · last seen 17 m
+              </span>
+              <span class="pill-frozen">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Cash-out frozen · <a href="aml-flag-detail.html">AML_2026_0481</a>
+              </span>
+            </div>
+
+            <div class="actor-strip__id">USR_2026_8c2f1e · DOB 14 Aug 1996 · UK resident · stripe_cus_NkX42aLqM4</div>
+          </div>
+
+          <div class="hero-actions">
+            <button class="btn-hero">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Open chat support
+            </button>
+            <button class="btn-impersonate" title="Open a read-only session as this user. Action is fully audited.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Impersonate (read-only)
+            </button>
+            <button class="btn-hero btn-hero--danger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              Suspend…
+            </button>
+            <button class="btn-hero btn-hero--danger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+              Ban…
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         KPI STRIP
+         ==================================================================== -->
+    <section class="kpi-strip">
+      <div class="kpi-tile">
+        <div class="kpi-tile__label">Lifetime deposits</div>
+        <div class="kpi-tile__value">£3,420.00</div>
+        <div class="kpi-tile__sub">34 transactions · last 21 May</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile__label">Lifetime redemptions</div>
+        <div class="kpi-tile__value">£1,180.00</div>
+        <div class="kpi-tile__sub">12 cashouts · last 14 May</div>
+      </div>
+      <div class="kpi-tile kpi-tile--danger">
+        <div class="kpi-tile__label">Open AML flags</div>
+        <div class="kpi-tile__value">1</div>
+        <div class="kpi-tile__sub">
+          <a class="kpi-tile__link" href="aml-flag-detail.html" style="color: var(--red-500);">AML_2026_0481 →</a>
+        </div>
+      </div>
+      <div class="kpi-tile kpi-tile--accent">
+        <div class="kpi-tile__label">Tournament winnings</div>
+        <div class="kpi-tile__value">8,420 <span style="font-size: 14px; color: var(--text-muted); font-weight: 600;">coins</span></div>
+        <div class="kpi-tile__sub">≈ £842.00 · 4 events placed</div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB BAR + TAB-WRAPPED CONTENT
+         ==================================================================== -->
+    <div data-active-tab="compliance">
+      <div class="tab-bar" role="tablist">
+        <button class="tab-bar__btn is-active" data-set-tab="compliance" role="tab">
+          Compliance
+          <span class="tab-bar__count">6</span>
+        </button>
+        <button class="tab-bar__btn" data-set-tab="ledger" role="tab">
+          Wallet ledger
+          <span class="tab-bar__count">34</span>
+        </button>
+        <button class="tab-bar__btn" data-set-tab="audit" role="tab">
+          Audit trail
+          <span class="tab-bar__count">128</span>
+        </button>
+        <button class="tab-bar__btn" data-set-tab="disposition" role="tab">
+          Wallet disposition
+        </button>
+      </div>
+
+      <!-- ============= COMPLIANCE TAB ============= -->
+      <section data-tab="compliance" role="tabpanel">
+        <div class="col-grid">
+
+          <!-- LEFT column -->
+          <div class="stack" style="display: grid; gap: var(--s-5);">
+
+            <!-- KYC submissions -->
+            <div class="section-card">
+              <div class="section-card__head">
+                <div class="section-card__title">KYC submissions</div>
+                <span class="section-card__meta">IDV provider · Didit · MLR 2017 §28</span>
+              </div>
+              <dl class="def-list">
+                <div>
+                  <dt>L0 → L1</dt>
+                  <dd>
+                    4 Mar 2026 · 14:08 UTC · auto-approved (clean)<br/>
+                    <code>kyc_sub_2026_4421</code> · selfie + UK passport · doc hash <code>sha256:c4f1…91ab</code>
+                  </dd>
+                </div>
+                <div>
+                  <dt>L1 → L2 (pending)</dt>
+                  <dd>
+                    Not started · prompted automatically at £2,000 lifetime deposit threshold<br/>
+                    <span style="color: var(--amber-500);">Required to lift cash-out cap (£500 / week)</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Source-of-funds</dt>
+                  <dd>Not collected · pending L2 step-up</dd>
+                </div>
+                <div>
+                  <dt>Liveness re-check</dt>
+                  <dd>Last 4 Mar 2026 · valid until 4 Mar 2027 (12 mo policy)</dd>
+                </div>
+                <div>
+                  <dt>Legal name</dt>
+                  <dd>Joel Andrew Henderson · matches passport · no rectifications</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- AML flag history -->
+            <div class="section-card">
+              <div class="section-card__head">
+                <div class="section-card__title">AML flag history</div>
+                <span class="section-card__meta">1 open · 0 closed · 12 mo window</span>
+              </div>
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>Flag ID</th>
+                    <th>Severity</th>
+                    <th>Opened</th>
+                    <th>Closed</th>
+                    <th>MLRO decision</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="mono"><a href="aml-flag-detail.html">AML_2026_0481</a></td>
+                    <td><span class="chip chip--high">High</span></td>
+                    <td class="mono">21 May · 07:20 UTC</td>
+                    <td class="mono" style="color: var(--text-muted);">— open —</td>
+                    <td><span class="chip chip--accent">Investigating</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <p style="margin-top: 12px; font-size: var(--t-meta); color: var(--text-muted); font-family: var(--font-mono);">No prior flags. First-time review.</p>
+            </div>
+
+            <!-- Sanctions screening -->
+            <div class="section-card">
+              <div class="section-card__head">
+                <div class="section-card__title">Sanctions &amp; PEP screening</div>
+                <span class="section-card__meta">Auto-rescreen · every 24 h</span>
+              </div>
+              <dl class="def-list">
+                <div>
+                  <dt>Status</dt>
+                  <dd><span class="chip chip--ok">Clean</span> · no matches across UK HMT, OFAC, EU, UN consolidated lists</dd>
+                </div>
+                <div>
+                  <dt>Last screened</dt>
+                  <dd><span class="mono">24 May 2026 · 04:00 UTC</span> · overnight batch run</dd>
+                </div>
+                <div>
+                  <dt>Screening source</dt>
+                  <dd>ComplyAdvantage API v3 · risk score 4 / 100 (low)</dd>
+                </div>
+                <div>
+                  <dt>PEP exposure</dt>
+                  <dd>None detected · no political associations · no adverse media</dd>
+                </div>
+                <div>
+                  <dt>History</dt>
+                  <dd><span class="mono">81 screenings · 0 hits</span> since 4 Mar 2026</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- Dispute history -->
+            <div class="section-card">
+              <div class="section-card__head">
+                <div class="section-card__title">Dispute history</div>
+                <span class="section-card__meta">As complainant · 4 lifetime</span>
+              </div>
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>Dispute ID</th>
+                    <th>Match</th>
+                    <th>Filed</th>
+                    <th>Outcome</th>
+                    <th class="num">Stake</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="mono"><a href="dispute-detail.html">DSP_9A82</a></td>
+                    <td>vs Theo W. · Rocket League 1v1</td>
+                    <td class="mono">19 May</td>
+                    <td><span class="chip chip--ok">Upheld</span></td>
+                    <td class="num">440 coins</td>
+                  </tr>
+                  <tr>
+                    <td class="mono"><a href="#">DSP_8F11</a></td>
+                    <td>vs Marcus K. · FC25 1v1</td>
+                    <td class="mono">11 May</td>
+                    <td><span class="chip chip--ok">Upheld</span></td>
+                    <td class="num">200 coins</td>
+                  </tr>
+                  <tr>
+                    <td class="mono"><a href="#">DSP_7C43</a></td>
+                    <td>vs Anonymous_8412 · Tekken 8</td>
+                    <td class="mono">28 Apr</td>
+                    <td><span class="chip chip--med">Rejected · frivolous</span></td>
+                    <td class="num">100 coins</td>
+                  </tr>
+                  <tr>
+                    <td class="mono"><a href="#">DSP_6B19</a></td>
+                    <td>vs Nia P. · Rocket League 1v1</td>
+                    <td class="mono">14 Apr</td>
+                    <td><span class="chip chip--ok">Resolved · mutual</span></td>
+                    <td class="num">120 coins</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+          <!-- RIGHT column -->
+          <div class="stack" style="display: grid; gap: var(--s-5);">
+
+            <!-- Frivolous strikes -->
+            <div class="section-card">
+              <div class="section-card__head">
+                <div class="section-card__title">Frivolous-dispute strikes</div>
+                <span class="section-card__meta">Policy · 3-strike ban</span>
+              </div>
+              <div class="strike-meter">
+                <div class="strike-meter__count">1<span> / 3</span></div>
+                <div class="strike-meter__body">
+                  <div class="strike-meter__title">One frivolous filing</div>
+                  <div class="strike-meter__sub">DSP_7C43 · 28 Apr · rejected by MLRO</div>
+                </div>
+                <div class="strike-dots" aria-label="1 of 3 strikes">
+                  <span class="on"></span><span></span><span></span>
+                </div>
+              </div>
+              <p style="margin-top: 12px; font-size: var(--t-meta); color: var(--text-muted); line-height: 1.55;">
+                Two further frivolous filings will trigger an automatic dispute-filing block per
+                <code style="font-family: var(--font-mono); color: var(--text-secondary);">policy.dispute_abuse_v2</code>.
+              </p>
+            </div>
+
+            <!-- Compliance notes -->
+            <div class="section-card">
+              <div class="section-card__head">
+                <div class="section-card__title">Compliance notes</div>
+                <span class="section-card__meta">MLR 2017 §40 · append-only · 4 entries</span>
+              </div>
+              <div class="timeline">
+                <div class="tl-event tl-event--accent">
+                  <span class="tl-event__dot"></span>
+                  <div class="tl-event__body">
+                    <div class="tl-event__head">
+                      <span class="tl-event__time">21 May · 10:14</span>
+                      <span class="tl-event__title">Velocity flag opened — first-time event</span>
+                    </div>
+                    <div class="tl-event__meta">K. Owusu · "Watching closely. Card consistent, dest verified. No red flags beyond cadence."</div>
+                  </div>
+                </div>
+                <div class="tl-event">
+                  <span class="tl-event__dot"></span>
+                  <div class="tl-event__body">
+                    <div class="tl-event__head">
+                      <span class="tl-event__time">28 Apr · 17:02</span>
+                      <span class="tl-event__title">Frivolous dispute warning issued</span>
+                    </div>
+                    <div class="tl-event__meta">A. Ferreira · auto-emailed strike notification · template fid-strike-01</div>
+                  </div>
+                </div>
+                <div class="tl-event">
+                  <span class="tl-event__dot"></span>
+                  <div class="tl-event__body">
+                    <div class="tl-event__head">
+                      <span class="tl-event__time">14 Mar · 09:48</span>
+                      <span class="tl-event__title">£250 deposit threshold crossed — SoF prompt scheduled at £2,000</span>
+                    </div>
+                    <div class="tl-event__meta">System · policy.sof_prompt_v1</div>
+                  </div>
+                </div>
+                <div class="tl-event tl-event--success">
+                  <span class="tl-event__dot"></span>
+                  <div class="tl-event__body">
+                    <div class="tl-event__head">
+                      <span class="tl-event__time">4 Mar · 14:08</span>
+                      <span class="tl-event__title">KYC L1 auto-approved · clean Didit liveness + doc check</span>
+                    </div>
+                    <div class="tl-event__meta">System · kyc_sub_2026_4421</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Connected accounts / risk surface -->
+            <div class="section-card">
+              <div class="section-card__head">
+                <div class="section-card__title">Connected risk surface</div>
+                <span class="section-card__meta">Device + payment + network</span>
+              </div>
+              <dl class="def-list">
+                <div><dt>Devices</dt><dd>2 · iPhone 15 Pro (primary) · MacBook Pro (web, 11 sessions)</dd></div>
+                <div><dt>Payment cards</dt><dd>1 · Visa •• 4242 · Stripe-verified · same legal name</dd></div>
+                <div><dt>Bank destinations</dt><dd>1 · HSBC UK •• 7841 · Stripe-verified · same legal name</dd></div>
+                <div><dt>IP / country</dt><dd>UK · stable (London cluster) · no VPN signals · no Tor</dd></div>
+                <div><dt>Linked accounts</dt><dd class="text-muted">None detected</dd></div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============= WALLET LEDGER TAB ============= -->
+      <section data-tab="ledger" role="tabpanel">
+        <div class="section-card">
+          <div class="section-card__head">
+            <div class="section-card__title">Wallet ledger</div>
+            <span class="section-card__meta">8 most recent of 34 entries · filter &amp; export →</span>
+          </div>
+          <div class="ledger">
+            <div class="ledger__head">
+              <span>Timestamp</span>
+              <span>Event · reference</span>
+              <span>Type</span>
+              <span style="text-align: right;">Amount</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">21 May · 07:18</span>
+              <span>Coin purchase · Stripe · Visa •• 4242<br/><span class="ref">stripe_pi_3Pm4xK · LDG_8c2f1e_034</span></span>
+              <span class="ref">deposit</span>
+              <span class="amt text-success">+ £620.00</span>
+            </div>
+            <div class="ledger__row ledger__row--system">
+              <span class="time">21 May · 07:20</span>
+              <span>aml.flag.opened · velocity_24h<br/><span class="ref">AML_2026_0481 · rule v1.4</span></span>
+              <span class="ref">system</span>
+              <span class="amt">flagged</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">20 May · 18:42</span>
+              <span>Redemption request · 5,000 coins → HSBC •• 7841<br/><span class="ref">RED_2026_2104 · pending 48 h hold + AML review</span></span>
+              <span class="ref text-warning">redemption · held</span>
+              <span class="amt text-warning">− 5,000 coins</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">19 May · 21:14</span>
+              <span>Tournament prize · Rocket League 1v1 winner<br/><span class="ref">TRN_2026_1187 · DSP_9A82 resolved</span></span>
+              <span class="ref text-success">prize_credit</span>
+              <span class="amt text-success">+ 440 coins</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">19 May · 20:55</span>
+              <span>Escrow lock · 1v1 challenge buy-in<br/><span class="ref">MTC_8c2f1e_a004</span></span>
+              <span class="ref">escrow_lock</span>
+              <span class="amt">− 220 coins</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">14 May · 11:02</span>
+              <span>Redemption · 2,000 coins → HSBC •• 7841<br/><span class="ref">RED_2026_1988 · cleared 48 h hold</span></span>
+              <span class="ref text-warning">redemption</span>
+              <span class="amt text-warning">− 2,000 coins</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">11 May · 19:30</span>
+              <span>Host fee earned · Saturday FC25 Open<br/><span class="ref">TRN_2026_1042 · 3 % host cut</span></span>
+              <span class="ref text-success">host_fee</span>
+              <span class="amt text-success">+ 180 coins</span>
+            </div>
+            <div class="ledger__row">
+              <span class="time">2 May · 09:14</span>
+              <span>Coin purchase · Stripe · Visa •• 4242<br/><span class="ref">stripe_pi_3Pl7yJ · LDG_8c2f1e_021</span></span>
+              <span class="ref">deposit</span>
+              <span class="amt text-success">+ £100.00</span>
+            </div>
+          </div>
+          <p style="margin-top: 16px; font-size: var(--t-meta); color: var(--text-muted); font-family: var(--font-mono);">
+            Provisional values · 1 coin = £0.10 · rates illustrative — pending SP8-ECON economics review.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============= AUDIT TRAIL TAB ============= -->
+      <section data-tab="audit" role="tabpanel">
+        <div class="section-card">
+          <div class="section-card__head">
+            <div class="section-card__title">Audit trail · admin actions on this user</div>
+            <span class="section-card__meta">Append-only · MLR 2017 §40 · 6 most recent of 128</span>
+          </div>
+          <div class="timeline">
+            <div class="tl-event tl-event--danger">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">21 May · 18:42 UTC</span>
+                  <span class="tl-event__title">A. Ferreira (MLRO) froze cash-out</span>
+                </div>
+                <div class="tl-event__meta">audit · account.cashout_frozen · reason="velocity_24h" · ref AML_2026_0481 · auth ok</div>
+              </div>
+            </div>
+            <div class="tl-event tl-event--accent">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">21 May · 10:14 UTC</span>
+                  <span class="tl-event__title">K. Owusu (MLRO) assigned themselves to flag</span>
+                </div>
+                <div class="tl-event__meta">audit · aml.assigned · ref AML_2026_0481 · MFA verified</div>
+              </div>
+            </div>
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">19 May · 23:08 UTC</span>
+                  <span class="tl-event__title">K. Owusu resolved dispute DSP_9A82 in user's favour</span>
+                </div>
+                <div class="tl-event__meta">audit · dispute.resolved · 440 coin payout · evidence reviewed</div>
+              </div>
+            </div>
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">28 Apr · 17:02 UTC</span>
+                  <span class="tl-event__title">A. Ferreira issued frivolous-dispute strike (1 / 3)</span>
+                </div>
+                <div class="tl-event__meta">audit · dispute.strike_recorded · ref DSP_7C43 · email sent fid-strike-01</div>
+              </div>
+            </div>
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">12 Apr · 11:24 UTC</span>
+                  <span class="tl-event__title">L. Park (Admin) opened impersonate session (read-only · 8 m)</span>
+                </div>
+                <div class="tl-event__meta">audit · admin.impersonate_started · context_id IMP_4f81 · ticket SUP-9921</div>
+              </div>
+            </div>
+            <div class="tl-event tl-event--success">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">4 Mar · 14:08 UTC</span>
+                  <span class="tl-event__title">Account created &amp; KYC L1 auto-approved</span>
+                </div>
+                <div class="tl-event__meta">audit · user.created + kyc.l1_approved · provider Didit · doc sha256:c4f1…91ab</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============= WALLET DISPOSITION TAB ============= -->
+      <section data-tab="disposition" role="tabpanel">
+        <div class="section-card">
+          <div class="section-card__head">
+            <div class="section-card__title">Wallet disposition controls</div>
+            <span class="section-card__meta">MLRO + Admin · 4-eyes required for &gt; 1,000 coins or &gt; £100</span>
+          </div>
+
+          <div class="action-grid">
+
+            <button class="action-tile action-tile--danger">
+              <span class="action-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Lock wallet (full hold)</div>
+                <div class="action-tile__sub">
+                  Stops all coin movement in &amp; out · escrow holds remain<br/>
+                  audit · wallet.locked · reason required
+                </div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <button class="action-tile action-tile--warning">
+              <span class="action-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 11 18 7 14 11"/><path d="M18 7v14"/><path d="M2 21h10"/></svg>
+              </span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Freeze cash-out only</div>
+                <div class="action-tile__sub">
+                  Deposits + play continue · redemptions blocked<br/>
+                  audit · account.cashout_frozen · current state: <strong style="color: var(--amber-500);">already frozen</strong>
+                </div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <button class="action-tile action-tile--danger">
+              <span class="action-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              </span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Reverse last deposit (chargeback)</div>
+                <div class="action-tile__sub">
+                  Refund £620.00 to Visa •• 4242 · debit 6,200 coins<br/>
+                  audit · wallet.chargeback · routes via Stripe refund API
+                </div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <button class="action-tile action-tile--warning">
+              <span class="action-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Manual credit / debit ledger entry</div>
+                <div class="action-tile__sub">
+                  Goodwill credits or clawback debits · requires reference + reason<br/>
+                  audit · ledger.manual_adjustment · 4-eyes required
+                </div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+          </div>
+
+          <div class="sticky-note">
+            <strong>Each action writes an immutable audit row + emails Joel</strong> within 5 minutes per
+            <code style="font-family: var(--font-mono);">notification-channels.md</code>. Reversals are not retroactive — chargebacks and manual entries appear as new ledger lines, never as edits to past lines.
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ====================================================================
+         FOOTNOTE
+         ==================================================================== -->
+    <footer style="margin-top: var(--s-8); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;">
+      <span>© 2026 Boadman Ltd · MLRO terminal · FCA AML registered · UK MLR 2017</span>
+      <span>USR_2026_8c2f1e · Session terminates after 15 m idle · Audit log is append-only.</span>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // Tab switcher — mirrors the state-switcher pattern from CLAUDE.md § 4.
+  document.querySelectorAll('[data-set-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const wrapper = btn.closest('[data-active-tab]');
+      wrapper.dataset.activeTab = btn.dataset.setTab;
+      wrapper.querySelectorAll('[data-set-tab]').forEach(b =>
+        b.classList.toggle('is-active', b === btn)
+      );
+    });
+  });
+</script>
+
+</body>
+</html>

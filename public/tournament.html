@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Apex Legends · Squads · Live now — TRN_2026_0312</title>
+<meta name="description" content="Boadman Open · Apex Legends · Squads · 40,000 coin pool · 16 squads · sponsored by Nova Esports, Cyber Foundry, Hex Gaming. Live now on Boadman." />
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ========================================================================
+     Public tournament page — anon-friendly, deep-linkable
+     Server-rendered HTML, no NavRail / AppHeader. Public chrome only.
+     ===================================================================== */
+
+  body {
+    background:
+      radial-gradient(at 88% -10%, rgba(255, 87, 51, 0.18), transparent 55%),
+      radial-gradient(at 6% 80%, rgba(255, 167, 0, 0.07), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  /* ====== TOP BAR (mirrors landing.html) ====== */
+  .top-bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: var(--s-6);
+    padding: 16px clamp(20px, 4vw, 56px);
+    background: rgba(11, 12, 16, 0.78);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .top-bar__brand { height: 38px; }
+  .top-bar__breadcrumb {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: var(--s-5);
+  }
+  .top-bar__breadcrumb a { color: var(--text-muted); }
+  .top-bar__breadcrumb a:hover { color: var(--text-primary); }
+  @media (min-width: 900px) { .top-bar__breadcrumb { display: inline-flex; gap: 8px; } }
+  .top-bar__cta { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+
+  /* ====== PAGE CONTAINER ====== */
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: clamp(20px, 3vw, 32px) clamp(20px, 4vw, 56px) clamp(48px, 6vw, 96px);
+  }
+
+  /* ====== HERO ====== */
+  .t-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid var(--border-flame);
+    box-shadow: var(--shadow-flame);
+    isolation: isolate;
+    margin-bottom: var(--s-6);
+  }
+  .t-hero__bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(at 80% 30%, rgba(255, 87, 51, 0.55), transparent 55%),
+      radial-gradient(at 10% 90%, rgba(255, 167, 0, 0.35), transparent 55%),
+      linear-gradient(135deg, #2C0A03 0%, #0B0C10 70%);
+  }
+  .t-hero__bg::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(115deg, rgba(255, 87, 51, 0.06) 0 1px, transparent 1px 14px),
+      repeating-linear-gradient(25deg, rgba(255, 167, 0, 0.04) 0 1px, transparent 1px 22px);
+    mix-blend-mode: screen;
+  }
+  .t-hero__bg::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+  }
+  .t-hero__veil {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      linear-gradient(180deg, rgba(11,12,16,0.25) 0%, rgba(11,12,16,0.78) 80%, var(--bg-page) 100%),
+      linear-gradient(90deg, rgba(11,12,16,0.65) 0%, transparent 65%);
+  }
+  .t-hero__content {
+    position: relative; z-index: 2;
+    padding: clamp(28px, 5vw, 56px) clamp(24px, 4vw, 56px) clamp(36px, 5vw, 64px);
+    display: grid;
+    gap: var(--s-5);
+  }
+  .t-hero__meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .t-hero__id {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: 4px;
+    letter-spacing: 0.02em;
+  }
+  .t-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(36px, 6.4vw, 76px);
+    line-height: 0.94;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+    text-shadow: 0 6px 32px rgba(0,0,0,0.55);
+    max-width: 18ch;
+  }
+  .t-hero__title .flame {
+    color: var(--orange-500);
+    text-shadow: 0 0 48px rgba(255, 87, 51, 0.45);
+  }
+  .t-hero__sub {
+    color: var(--text-secondary);
+    font-size: clamp(15px, 1.4vw, 18px);
+    max-width: 64ch;
+    line-height: 1.55;
+  }
+  .t-hero__sub strong { color: var(--text-primary); font-weight: 600; }
+  .t-hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--s-3); }
+
+  /* Live pulsing pill */
+  .live-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px 7px 12px;
+    border-radius: var(--r-pill);
+    background: rgba(255, 63, 78, 0.18);
+    border: 1px solid rgba(255, 63, 78, 0.5);
+    color: var(--red-500);
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+  }
+  .live-pill::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red-500);
+    box-shadow: 0 0 12px var(--red-500);
+    animation: pulse-live 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.75); }
+  }
+  .game-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 8px;
+    border-radius: var(--r-pill);
+    background: rgba(11, 12, 16, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-subtle);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .game-pill__dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-300));
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #1A0E03;
+    font-weight: 800;
+    font-size: 10px;
+  }
+
+  /* ====== STATS STRIP ====== */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    margin-bottom: var(--s-8);
+    border: 1px solid var(--border-subtle);
+  }
+  @media (min-width: 720px) { .stats-strip { grid-template-columns: repeat(4, 1fr); } }
+
+  /* ====== LAYOUT GRID ====== */
+  .t-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    align-items: flex-start;
+  }
+  @media (min-width: 1100px) {
+    .t-grid { grid-template-columns: 1.55fr 1fr; }
+  }
+  .stack { display: grid; gap: var(--s-5); }
+
+  /* ====== PRIZE TIERS CARD ====== */
+  .prize-card { padding: var(--s-6); }
+  .prize-card__head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: var(--s-3); margin-bottom: var(--s-5); flex-wrap: wrap;
+  }
+  .prize-card__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.15;
+  }
+  .prize-card__sub {
+    color: var(--text-secondary);
+    font-size: var(--t-meta);
+    margin-top: 4px;
+  }
+  .prize-tiers {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 720px) { .prize-tiers { grid-template-columns: 1.4fr 1fr 1fr; } }
+  .prize-tier {
+    position: relative;
+    padding: 18px 20px;
+    border-radius: var(--r-md);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column; gap: 6px;
+    overflow: hidden;
+  }
+  .prize-tier--gold { border-color: rgba(255, 197, 66, 0.45); background: linear-gradient(180deg, rgba(255, 197, 66, 0.08), var(--bg-elevated)); }
+  .prize-tier--silver { border-color: rgba(200, 204, 213, 0.35); }
+  .prize-tier--bronze { border-color: rgba(224, 133, 64, 0.35); }
+  .prize-tier__row { display: flex; align-items: center; gap: 12px; }
+  .prize-tier__label {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .prize-tier__amount {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(24px, 2.4vw, 32px);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .prize-tier--gold .prize-tier__amount { color: var(--tier-gold); }
+  .prize-tier--silver .prize-tier__amount { color: var(--tier-silver); }
+  .prize-tier--bronze .prize-tier__amount { color: var(--tier-bronze); }
+  .prize-tier__gbp {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* ====== SPONSOR STRIP ====== */
+  .sponsor-strip { padding: var(--s-5); }
+  .sponsor-strip__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: var(--s-4);
+  }
+  @media (min-width: 720px) { .sponsor-strip__grid { grid-template-columns: repeat(4, 1fr); } }
+  .sponsor-tile {
+    position: relative;
+    padding: 18px 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .sponsor-tile:hover { border-color: var(--border-flame); }
+  .sponsor-tile__logo {
+    width: 40px; height: 40px;
+    border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: 0.04em;
+  }
+  .sponsor-tile__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  .sponsor-tile__amount {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--orange-400);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .sponsor-tile--cta {
+    background: linear-gradient(180deg, var(--orange-tint), transparent 70%), var(--bg-elevated);
+    border: 1px dashed rgba(255, 87, 51, 0.45);
+    align-items: center; justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    color: var(--orange-500);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .sponsor-tile--cta:hover { border-color: var(--orange-500); color: var(--orange-400); }
+  .sponsor-tile--cta svg { width: 18px; height: 18px; }
+
+  /* ====== ROSTER ====== */
+  .roster { padding: var(--s-6); }
+  .roster__head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: var(--s-3); margin-bottom: var(--s-5); flex-wrap: wrap;
+  }
+  .roster__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  @media (min-width: 720px) { .roster__grid { grid-template-columns: repeat(4, 1fr); } }
+  .squad-tile {
+    position: relative;
+    padding: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    display: flex; flex-direction: column; gap: 8px;
+    min-height: 96px;
+  }
+  .squad-tile__name {
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .squad-tile__status {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-secondary);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .squad-tile__status::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green-500);
+    box-shadow: 0 0 6px var(--green-500);
+  }
+  .squad-tile--eliminated { opacity: 0.55; }
+  .squad-tile--eliminated .squad-tile__status::before { background: var(--text-muted); box-shadow: none; }
+  .squad-tile--eliminated .squad-tile__status { color: var(--text-muted); }
+  .squad-tile__dots {
+    display: flex; gap: 4px; margin-top: auto;
+  }
+  .squad-tile__dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: var(--green-500);
+    box-shadow: 0 0 4px var(--green-500);
+  }
+  .squad-tile__dot--out { background: var(--text-muted); box-shadow: none; opacity: 0.4; }
+
+  /* ====== ACTIVITY FEED ====== */
+  .feed { padding: var(--s-6); }
+  .feed__list { display: grid; gap: 1px; background: var(--border-subtle); border-radius: var(--r-sm); overflow: hidden; }
+  .feed-row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--bg-panel);
+    align-items: center;
+  }
+  .feed-row__time {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+  .feed-row__body {
+    font-size: var(--t-body-sm);
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .feed-row__body strong { color: var(--text-primary); font-weight: 600; }
+  .feed-row__tag {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--orange-400);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-right: 6px;
+  }
+  .feed-row__tag--elim { color: var(--red-500); }
+  .feed-row__tag--zone { color: var(--amber-500); }
+  .feed-row__tag--sponsor { color: var(--orange-500); }
+
+  /* ====== NUDGE CARD ====== */
+  .nudge {
+    position: relative;
+    padding: clamp(36px, 5vw, 64px) clamp(24px, 4vw, 56px);
+    border-radius: var(--r-xl);
+    border: 1px solid var(--border-flame);
+    background:
+      radial-gradient(at 80% 100%, rgba(255, 87, 51, 0.22), transparent 60%),
+      radial-gradient(at 10% 0%, rgba(255, 167, 0, 0.12), transparent 60%),
+      linear-gradient(180deg, #1A0E04 0%, #0B0C10 100%);
+    overflow: hidden;
+    isolation: isolate;
+    margin: var(--s-8) 0;
+    box-shadow: var(--shadow-flame);
+  }
+  .nudge::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4; mix-blend-mode: overlay; pointer-events: none;
+  }
+  .nudge__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    align-items: center;
+  }
+  @media (min-width: 900px) { .nudge__grid { grid-template-columns: 1.5fr 1fr; gap: var(--s-10); } }
+  .nudge__eyebrow {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--orange-400);
+    margin-bottom: var(--s-3);
+    display: inline-block;
+  }
+  .nudge__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: var(--s-4);
+  }
+  .nudge__title .flame { color: var(--orange-500); }
+  .nudge__body {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 56ch;
+    margin-bottom: var(--s-5);
+  }
+  .nudge__cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .nudge__bullets {
+    display: grid; gap: 12px;
+    padding: var(--s-5);
+    background: rgba(11, 12, 16, 0.6);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+  }
+  .nudge__bullet {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .nudge__bullet svg {
+    width: 16px; height: 16px;
+    color: var(--orange-500);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .nudge__bullet strong { color: var(--text-primary); font-weight: 600; }
+
+  /* ====== HOW IT WORKS ====== */
+  .how { padding: var(--s-8) 0; }
+  .how__head {
+    text-align: center;
+    margin-bottom: var(--s-8);
+    max-width: 56ch;
+    margin-left: auto; margin-right: auto;
+  }
+  .how__eyebrow {
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--orange-500);
+    margin-bottom: var(--s-3);
+    display: inline-block;
+  }
+  .how__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-bottom: var(--s-3);
+  }
+  .how__lede { color: var(--text-secondary); font-size: 15px; line-height: 1.6; }
+  .steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 720px) { .steps { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1000px) { .steps { grid-template-columns: repeat(4, 1fr); } }
+  .step {
+    position: relative;
+    padding: var(--s-5);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    display: flex; flex-direction: column; gap: 10px;
+    isolation: isolate;
+  }
+  .step::before {
+    content: ""; position: absolute; top: 0; left: var(--s-5); right: var(--s-5); height: 2px;
+    background: linear-gradient(90deg, transparent, var(--orange-500), transparent);
+    opacity: 0.6;
+  }
+  .step__icon {
+    width: 44px; height: 44px;
+    border-radius: var(--r-md);
+    background: var(--orange-tint);
+    color: var(--orange-500);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step__num {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--orange-500);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 800;
+  }
+  .step__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .step__body { color: var(--text-secondary); font-size: 13px; line-height: 1.55; }
+
+  /* ====== ECONOMICS / OTHER STATES BLOCK ====== */
+  .economics {
+    padding: var(--s-5);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    margin-top: var(--s-5);
+  }
+  .economics .stamp { margin-bottom: 6px; }
+  .economics p {
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0 0 8px;
+  }
+
+  /* ====== OTHER-STATES DETAILS ====== */
+  details.other-states {
+    margin-top: var(--s-8);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: var(--bg-panel);
+    overflow: hidden;
+  }
+  details.other-states > summary {
+    cursor: pointer;
+    padding: var(--s-4) var(--s-5);
+    font-family: var(--font-hud);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    list-style: none;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  details.other-states > summary::-webkit-details-marker { display: none; }
+  details.other-states > summary::after {
+    content: "+";
+    font-family: var(--font-hud);
+    font-size: 18px;
+    color: var(--orange-500);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  details.other-states[open] > summary::after { transform: rotate(45deg); }
+  .other-states__body {
+    padding: var(--s-5) var(--s-5) var(--s-6);
+    border-top: 1px solid var(--border-subtle);
+    display: grid; gap: 14px;
+  }
+  .other-state-row {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--bg-elevated);
+    border-radius: var(--r-sm);
+  }
+  .other-state-row__stamp {
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .other-state-row__stamp--open { color: var(--blue-500); }
+  .other-state-row__stamp--awaiting { color: var(--amber-500); }
+  .other-state-row__body { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .other-state-row__body strong { color: var(--text-primary); font-weight: 600; }
+
+  /* ====== FOOTER (mirrors landing.html) ====== */
+  footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: var(--s-8) clamp(20px, 4vw, 56px) var(--s-6);
+    margin-top: var(--s-10);
+  }
+  .footer__top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  @media (min-width: 800px) { .footer__top { grid-template-columns: 1.5fr repeat(3, 1fr); } }
+  .footer__brand-block img { height: 38px; margin-bottom: 12px; }
+  .footer__brand-block p { color: var(--text-muted); font-size: 13px; line-height: 1.55; max-width: 32ch; }
+  .footer__col-title {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+    margin-bottom: var(--s-3);
+  }
+  .footer__col ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .footer__col a { color: var(--text-secondary); font-size: 13px; }
+  .footer__col a:hover { color: var(--text-primary); }
+  .footer__bottom {
+    display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;
+    margin-top: var(--s-8);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    max-width: 1280px;
+    margin-left: auto; margin-right: auto;
+  }
+  .footer__bottom .badges { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .footer__responsible {
+    margin-top: var(--s-5);
+    padding: var(--s-4) var(--s-5);
+    background: var(--bg-elevated);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    max-width: 1280px;
+    margin-left: auto; margin-right: auto;
+    display: grid; gap: 6px;
+  }
+  .footer__responsible strong { font-family: var(--font-hud); font-size: 11px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--amber-500); }
+  .footer__responsible p { font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.6; }
+  .footer__responsible a { color: var(--orange-400); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ====== TOP BAR (anon-public chrome) ====== -->
+<header class="top-bar">
+  <a href="../public/landing.html" aria-label="Boadman home" style="display: inline-flex; align-items: center;">
+    <img class="top-bar__brand" src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+  </a>
+  <span class="top-bar__breadcrumb">
+    <a href="../public/landing.html">Boadman</a>
+    <span>›</span>
+    <a href="#">Tournaments</a>
+    <span>›</span>
+    <span style="color: var(--text-secondary);">TRN_2026_0312</span>
+  </span>
+  <div class="top-bar__cta">
+    <a href="/signin" class="btn btn-ghost btn-sm btn-uppercase">Sign in</a>
+    <a href="/signup" class="btn btn-primary btn-sm btn-uppercase">Sign up</a>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- ====== HERO ====== -->
+  <section class="t-hero">
+    <div class="t-hero__bg" aria-hidden="true"></div>
+    <div class="t-hero__veil" aria-hidden="true"></div>
+
+    <div class="t-hero__content">
+      <div class="t-hero__meta">
+        <span class="live-pill">Live now · Round 2 of 5</span>
+        <span class="game-pill">
+          <span class="game-pill__dot">AL</span>
+          Apex Legends · Squads
+        </span>
+        <span class="t-hero__id">TRN_2026_0312</span>
+      </div>
+
+      <h1 class="t-hero__title">Boadman Open ·<br>Apex <span class="flame">Squads.</span></h1>
+
+      <p class="t-hero__sub">
+        <strong>40,000 coin pool</strong> · 16 squads · hosted by Boadman.
+        Single-bracket squad survival across 5 rounds. Top 3 squads share the pool 60 / 30 / 10.
+        Sponsored by <strong>Nova Esports</strong>, <strong>Cyber Foundry</strong>, and <strong>Hex Gaming</strong>.
+      </p>
+
+      <div class="t-hero__cta">
+        <a href="/signup" class="btn btn-primary btn-lg btn-uppercase">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Sign up to compete
+        </a>
+        <a href="#how" class="btn btn-ghost btn-lg btn-uppercase">How Boadman works</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== LIVE STATS STRIP ====== -->
+  <section class="stats-strip" aria-label="Live tournament stats">
+    <div class="hud-stat" style="border-radius: 0; border: 0;">
+      <span class="hud-stat__label">Total pool</span>
+      <span class="hud-stat__value">40,000<span style="font-size: 13px; color: var(--text-muted); margin-left: 6px; font-family: var(--font-mono);">coins</span></span>
+      <span class="hud-stat__delta">≈ £4,000.00 · incl. 6,000 sponsored</span>
+    </div>
+    <div class="hud-stat" style="border-radius: 0; border: 0;">
+      <span class="hud-stat__label">Squads remaining</span>
+      <span class="hud-stat__value">11<span style="font-size: 13px; color: var(--text-muted); margin-left: 6px; font-family: var(--font-mono);">/ 16</span></span>
+      <span class="hud-stat__delta">5 eliminated · R1–R2</span>
+    </div>
+    <div class="hud-stat" style="border-radius: 0; border: 0;">
+      <span class="hud-stat__label">Round in progress</span>
+      <span class="hud-stat__value">2<span style="font-size: 13px; color: var(--text-muted); margin-left: 6px; font-family: var(--font-mono);">of 5</span></span>
+      <span class="hud-stat__delta">drop zone · Skull Town</span>
+    </div>
+    <div class="hud-stat" style="border-radius: 0; border: 0;">
+      <span class="hud-stat__label">Time elapsed</span>
+      <span class="hud-stat__value">37:14</span>
+      <span class="hud-stat__delta">started 20:42 BST · 24 May</span>
+    </div>
+  </section>
+
+  <div class="t-grid">
+
+    <!-- ====== LEFT COLUMN ====== -->
+    <div class="stack">
+
+      <!-- PRIZE TIERS -->
+      <section class="card card-flame prize-card">
+        <div class="prize-card__head">
+          <div>
+            <div class="prize-card__title">Prize pool · 40,000 coins</div>
+            <div class="prize-card__sub">60 · 30 · 10 split across top 3 squads. Paid after 48-hour complaint hold.</div>
+          </div>
+          <span class="badge badge--flame">Top 3 squads</span>
+        </div>
+        <div class="prize-tiers">
+          <div class="prize-tier prize-tier--gold">
+            <div class="prize-tier__row">
+              <span class="tier-emblem tier-emblem--gold">1</span>
+              <span class="prize-tier__label">1st place · 60 %</span>
+            </div>
+            <div class="prize-tier__amount">24,000 <span style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); font-weight: 500;">coins</span></div>
+            <div class="prize-tier__gbp">≈ £2,400.00 split across 3 squad members</div>
+          </div>
+          <div class="prize-tier prize-tier--silver">
+            <div class="prize-tier__row">
+              <span class="tier-emblem tier-emblem--silver">2</span>
+              <span class="prize-tier__label">2nd · 30 %</span>
+            </div>
+            <div class="prize-tier__amount">12,000</div>
+            <div class="prize-tier__gbp">≈ £1,200.00</div>
+          </div>
+          <div class="prize-tier prize-tier--bronze">
+            <div class="prize-tier__row">
+              <span class="tier-emblem tier-emblem--bronze">3</span>
+              <span class="prize-tier__label">3rd · 10 %</span>
+            </div>
+            <div class="prize-tier__amount">4,000</div>
+            <div class="prize-tier__gbp">≈ £400.00</div>
+          </div>
+        </div>
+        <p class="footnote-rates" style="margin-top: 16px;">Rates illustrative — pending SP8-ECON economics review. 1 coin = £0.10 indicative.</p>
+      </section>
+
+      <!-- SPONSORS -->
+      <section class="card sponsor-strip">
+        <div class="prize-card__head" style="margin-bottom: 0;">
+          <div>
+            <div class="prize-card__title" style="font-size: 18px;">Sponsored by</div>
+            <div class="prize-card__sub">3 brands · 6,000 coins added to the pool.</div>
+          </div>
+        </div>
+        <div class="sponsor-strip__grid">
+          <div class="sponsor-tile">
+            <div class="sponsor-tile__logo" style="background: linear-gradient(135deg, #4D87FF, #1B3FA8);">NE</div>
+            <div>
+              <div class="sponsor-tile__name">Nova Esports</div>
+              <div class="sponsor-tile__amount">+ 3,000 coins</div>
+            </div>
+          </div>
+          <div class="sponsor-tile">
+            <div class="sponsor-tile__logo" style="background: linear-gradient(135deg, #22D279, #0E6B3A);">CF</div>
+            <div>
+              <div class="sponsor-tile__name">Cyber Foundry</div>
+              <div class="sponsor-tile__amount">+ 2,000 coins</div>
+            </div>
+          </div>
+          <div class="sponsor-tile">
+            <div class="sponsor-tile__logo" style="background: linear-gradient(135deg, #9B6BFF, #4A2FA3);">HX</div>
+            <div>
+              <div class="sponsor-tile__name">Hex Gaming</div>
+              <div class="sponsor-tile__amount">+ 1,000 coins</div>
+            </div>
+          </div>
+          <a href="/signup" class="sponsor-tile sponsor-tile--cta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Sponsor this tournament
+          </a>
+        </div>
+        <p class="text-secondary" style="font-size: var(--t-micro); margin-top: 14px; line-height: 1.5; color: var(--text-muted);">
+          Sponsors back the pool publicly — they can't enter, and entrants can't sponsor. Anyone with a Boadman wallet can sponsor; brand sponsors are KYB-verified businesses.
+        </p>
+      </section>
+
+      <!-- ROSTER PREVIEW -->
+      <section class="card roster">
+        <div class="roster__head">
+          <div>
+            <div class="prize-card__title" style="font-size: 18px;">Roster · 16 squads</div>
+            <div class="prize-card__sub">11 active · 5 eliminated. Squad identities hidden until the prize matures.</div>
+          </div>
+          <span class="badge badge--neutral">Anonymous preview</span>
+        </div>
+        <div class="roster__grid">
+          <!-- Row 1 -->
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 01</div>
+            <div class="squad-tile__status">3 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+            </div>
+          </div>
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 02</div>
+            <div class="squad-tile__status">2 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 03</div>
+            <div class="squad-tile__status">3 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+            </div>
+          </div>
+          <div class="squad-tile squad-tile--eliminated">
+            <div class="squad-tile__name">Squad 04</div>
+            <div class="squad-tile__status">Eliminated · R1</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 05</div>
+            <div class="squad-tile__status">3 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+            </div>
+          </div>
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 06</div>
+            <div class="squad-tile__status">1 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+          <div class="squad-tile squad-tile--eliminated">
+            <div class="squad-tile__name">Squad 07</div>
+            <div class="squad-tile__status">Eliminated · R1</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 08</div>
+            <div class="squad-tile__status">2 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 09</div>
+            <div class="squad-tile__status">3 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+            </div>
+          </div>
+          <div class="squad-tile squad-tile--eliminated">
+            <div class="squad-tile__name">Squad 10</div>
+            <div class="squad-tile__status">Eliminated · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 11</div>
+            <div class="squad-tile__status">2 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 12</div>
+            <div class="squad-tile__status">3 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+            </div>
+          </div>
+
+          <!-- Row 4 -->
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 13</div>
+            <div class="squad-tile__status">3 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+            </div>
+          </div>
+          <div class="squad-tile squad-tile--eliminated">
+            <div class="squad-tile__name">Squad 14</div>
+            <div class="squad-tile__status">Eliminated · R1</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+          <div class="squad-tile">
+            <div class="squad-tile__name">Squad 15</div>
+            <div class="squad-tile__status">2 active · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+          <div class="squad-tile squad-tile--eliminated">
+            <div class="squad-tile__name">Squad 16</div>
+            <div class="squad-tile__status">Eliminated · R2</div>
+            <div class="squad-tile__dots">
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+              <span class="squad-tile__dot squad-tile__dot--out"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ====== RIGHT COLUMN ====== -->
+    <aside class="stack">
+
+      <!-- ACTIVITY FEED -->
+      <section class="card feed">
+        <div class="prize-card__head" style="margin-bottom: var(--s-4);">
+          <div>
+            <div class="prize-card__title" style="font-size: 18px;">Match activity</div>
+            <div class="prize-card__sub">Last 6 events · live from host telemetry.</div>
+          </div>
+          <span class="badge badge--danger">Live</span>
+        </div>
+        <div class="feed__list">
+          <div class="feed-row">
+            <div class="feed-row__time">14:08</div>
+            <div class="feed-row__body">
+              <span class="feed-row__tag feed-row__tag--elim">Elim</span>
+              <strong>Squad 12</strong> eliminated <strong>Squad 04</strong> · 3rd-party fight.
+            </div>
+          </div>
+          <div class="feed-row">
+            <div class="feed-row__time">13:42</div>
+            <div class="feed-row__body">
+              <span class="feed-row__tag feed-row__tag--zone">Zone</span>
+              Ring closing · 6 squads inside the safe perimeter.
+            </div>
+          </div>
+          <div class="feed-row">
+            <div class="feed-row__time">12:55</div>
+            <div class="feed-row__body">
+              <span class="feed-row__tag feed-row__tag--elim">Elim</span>
+              <strong>Squad 03</strong> eliminated <strong>Squad 16</strong> · final ring engagement.
+            </div>
+          </div>
+          <div class="feed-row">
+            <div class="feed-row__time">11:30</div>
+            <div class="feed-row__body">
+              <span class="feed-row__tag feed-row__tag--sponsor">Sponsor</span>
+              <strong>Cyber Foundry</strong> topped up the pool with <strong>+ 1,000 coins</strong>.
+            </div>
+          </div>
+          <div class="feed-row">
+            <div class="feed-row__time">09:14</div>
+            <div class="feed-row__body">
+              <span class="feed-row__tag feed-row__tag--elim">Elim</span>
+              <strong>Squad 09</strong> eliminated <strong>Squad 10</strong> · skull town drop.
+            </div>
+          </div>
+          <div class="feed-row">
+            <div class="feed-row__time">00:00</div>
+            <div class="feed-row__body">
+              <span class="feed-row__tag">Round</span>
+              Round 2 started · 14 squads dropped into Skull Town.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ECONOMICS -->
+      <section class="economics">
+        <div class="stamp">Pool composition</div>
+        <p>
+          Entry stakes: <strong style="color: var(--text-primary);">34,000 coins</strong> (16 squads × 2,125 buy-in).<br/>
+          Sponsorships: <strong style="color: var(--text-primary);">6,000 coins</strong> across 3 brands.<br/>
+          Distribution: 60 / 30 / 10 across top 3 squads, after 15 % platform commission (brand-hosted).
+        </p>
+        <p class="footnote-rates" style="margin: 8px 0 0; padding: 0; border: 0;">
+          Rates illustrative — pending SP8-ECON review.
+        </p>
+      </section>
+
+      <!-- COMPLIANCE QUICK-FACTS -->
+      <section class="card" style="padding: var(--s-5);">
+        <div class="stamp" style="margin-bottom: var(--s-3);">Trust & compliance</div>
+        <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; font-size: var(--t-meta); color: var(--text-secondary); line-height: 1.5;">
+          <li style="display: flex; gap: 10px; align-items: flex-start;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 3px; flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong style="color: var(--text-primary);">UK 18+</strong> · all participants identity-verified before payout.</span>
+          </li>
+          <li style="display: flex; gap: 10px; align-items: flex-start;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 3px; flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong style="color: var(--text-primary);">48-hour prize hold</strong> · complaints accepted from any participant before payout matures.</span>
+          </li>
+          <li style="display: flex; gap: 10px; align-items: flex-start;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 3px; flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong style="color: var(--text-primary);">Closed-loop redemption</strong> · coins cash out only to your Stripe-verified bank in your legal name.</span>
+          </li>
+          <li style="display: flex; gap: 10px; align-items: flex-start;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 3px; flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong style="color: var(--text-primary);">UK MLR 2017</strong> · MLRO-supervised AML monitoring on every settled match.</span>
+          </li>
+        </ul>
+      </section>
+
+    </aside>
+  </div>
+
+  <!-- ====== ENGAGEMENT NUDGE ====== -->
+  <section class="nudge">
+    <div class="nudge__grid">
+      <div>
+        <span class="nudge__eyebrow">The next Boadman Open</span>
+        <h2 class="nudge__title">Want in on the <span class="flame">next one?</span></h2>
+        <p class="nudge__body">
+          The next Apex Squads bracket opens next Saturday. Sign-up takes 90 seconds, costs nothing,
+          and you start with <strong style="color: var(--text-primary);">100 demo coins</strong> to feel
+          out a 1v1 challenge before staking real money. Compete when you're ready.
+        </p>
+        <div class="nudge__cta">
+          <a href="/signup" class="btn btn-primary btn-lg btn-uppercase">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create account · free
+          </a>
+          <a href="../public/landing.html" class="btn btn-ghost btn-lg btn-uppercase">Explore Boadman</a>
+        </div>
+      </div>
+      <div class="nudge__bullets">
+        <div class="nudge__bullet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>100 demo coins</strong> on signup to feel the system out before depositing.</span>
+        </div>
+        <div class="nudge__bullet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>No KYC until you cash out</strong> or deposit over £200 — try it, then verify.</span>
+        </div>
+        <div class="nudge__bullet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Host your own tournament</strong> as soon as you fund your wallet — take a host cut.</span>
+        </div>
+        <div class="nudge__bullet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Cash out anytime</strong> · Stripe-verified bank, your legal name, closed-loop.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== HOW IT WORKS ====== -->
+  <section class="how" id="how">
+    <div class="how__head">
+      <span class="how__eyebrow">How Boadman works · 4 steps</span>
+      <h2 class="how__title">From sign-up to cash-out.</h2>
+      <p class="how__lede">
+        Compete with discipline. Buy coins, play tournaments, claim winnings — under
+        a UK MLR 2017-compliant operator that ringfences your money in escrow.
+      </p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        </div>
+        <div class="step__num">01 · 90 seconds</div>
+        <div class="step__title">Sign up</div>
+        <div class="step__body">Email, display name, accept the terms. UK-resident, 18+. KYC waits until you deposit real money or cash out — try first with 100 demo coins.</div>
+      </div>
+      <div class="step">
+        <div class="step__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="12" cy="13" r="3"/><line x1="6" y1="10" x2="6" y2="16"/><line x1="18" y1="10" x2="18" y2="16"/></svg>
+        </div>
+        <div class="step__num">02 · instant</div>
+        <div class="step__title">Deposit or win coins</div>
+        <div class="step__body">Top up via Stripe (1 coin = 10 p) or earn coins by placing in tournaments and 1v1 challenges. Coins sit safely in escrow during play.</div>
+      </div>
+      <div class="step">
+        <div class="step__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        </div>
+        <div class="step__num">03 · play</div>
+        <div class="step__title">Play tournaments</div>
+        <div class="step__body">Join a single-match free-for-all, run a 1v1 challenge, or host your own. Match runs on the game itself — Boadman handles entry, the pool, and result recording.</div>
+      </div>
+      <div class="step">
+        <div class="step__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l3-3h12l3 3M16 13h3"/></svg>
+        </div>
+        <div class="step__num">04 · within 48 h</div>
+        <div class="step__title">Cash out</div>
+        <div class="step__body">Win, sit through the 48-hour complaint hold, then send coins to your Stripe-verified bank — your legal name only. Closed-loop, no shenanigans.</div>
+      </div>
+    </div>
+    <p class="footnote-rates" style="text-align: center; margin-top: var(--s-6);">Rates illustrative — pending SP8-ECON economics review.</p>
+  </section>
+
+  <!-- ====== OTHER STATES (collapsed reference) ====== -->
+  <details class="other-states">
+    <summary>Other tournament states · for reference</summary>
+    <div class="other-states__body">
+      <div class="other-state-row">
+        <span class="other-state-row__stamp other-state-row__stamp--open">Open</span>
+        <div class="other-state-row__body">
+          <strong>Registration open</strong> — squads can still buy in. Public page would show open slots and an "Apply with squad" CTA gated to signup, instead of live match telemetry.
+        </div>
+        <a href="/signup" class="btn btn-ghost btn-sm btn-uppercase">Sign up</a>
+      </div>
+      <div class="other-state-row">
+        <span class="other-state-row__stamp other-state-row__stamp--awaiting">Awaiting</span>
+        <div class="other-state-row__body">
+          <strong>Match concluded · awaiting host result</strong> — public page hides squad identities until winners are recorded. Anon viewers see "Result pending · prize will be released in 48 h after host submission."
+        </div>
+        <a href="/signup" class="btn btn-ghost btn-sm btn-uppercase">Sign up</a>
+      </div>
+      <div class="other-state-row">
+        <span class="other-state-row__stamp" style="color: var(--green-500);">Completed</span>
+        <div class="other-state-row__body">
+          <strong>Winners recorded</strong> — public page reveals podium (squad numbers + brand-host attribution), keeps individual player handles private until the player opts in to public profile.
+        </div>
+        <a href="/signup" class="btn btn-ghost btn-sm btn-uppercase">Sign up</a>
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="footer__top">
+    <div class="footer__brand-block">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <p>UK esports competition platform. Coin-based 1v1s, single-match tournaments, brand-sponsored events. UK MLR 2017 compliant.</p>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Platform</div>
+      <ul>
+        <li><a href="../public/landing.html">Home</a></li>
+        <li><a href="#">Tournaments</a></li>
+        <li><a href="#">Challenges</a></li>
+        <li><a href="#">For brands</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Legal</div>
+      <ul>
+        <li><a href="/legal/terms">Terms of Service</a></li>
+        <li><a href="/legal/privacy">Privacy Policy</a></li>
+        <li><a href="/legal/cookies">Cookie Policy</a></li>
+        <li><a href="/legal/responsible-play">Responsible play</a></li>
+      </ul>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Support</div>
+      <ul>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="mailto:support@boadman.com">Contact support</a></li>
+        <li><a href="/status">System status</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__responsible">
+    <strong>⚠ Play responsibly</strong>
+    <p>Competitions involve coins of real-world value. Only stake what you can afford to lose. If gaming is affecting your wellbeing: <a href="https://www.gamcare.org.uk/">GamCare</a> · <a href="https://www.begambleaware.org/">BeGambleAware</a> · National Gambling Helpline: 0808 8020 133 (free, confidential, 24/7).</p>
+  </div>
+
+  <div class="footer__bottom">
+    <span>© 2026 Boadman Ltd · UK · 18+ only</span>
+    <div class="badges">
+      <span>FCA AML registered</span>
+      <span>UK MLR 2017 § 40</span>
+      <span>v1.0 · 2026-07</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cookie banner · Boadman component showcase</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ============================================================================
+     STUB LANDING BACKGROUND (compressed — cookie banner is the subject)
+     We borrow the hero gradient + faint helmet from public/landing.html so the
+     banner is shown in real context, not against a void.
+     ============================================================================ */
+  body {
+    background:
+      radial-gradient(at 85% -20%, rgba(255, 87, 51, 0.16), transparent 50%),
+      radial-gradient(at 5% 100%, rgba(255, 167, 0, 0.08), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  /* --- Prototype state switcher (this file only, default↔preferences) --- */
+  .cs-switcher {
+    position: sticky; top: 0;
+    z-index: 100;
+    display: flex; gap: 2px;
+    padding: 10px 16px;
+    background: rgba(11, 12, 16, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--orange-tint);
+  }
+  .cs-switcher::before {
+    content: "PROTOTYPE STATE";
+    font-family: var(--font-hud);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    color: var(--orange-500);
+    margin-right: 14px;
+    align-self: center;
+  }
+  .cs-switcher__btn {
+    padding: 6px 12px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .cs-switcher__btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+  .cs-switcher__btn.is-active { background: var(--orange-500); color: var(--text-inverse); }
+
+  [data-cs-state] { display: none; }
+  main[data-active-cs="default"]     [data-cs-state="default"]     { display: block; }
+  main[data-active-cs="preferences"] [data-cs-state="preferences"] { display: block; }
+
+  /* --- Stub landing chrome (so banner sits on a believable page) --- */
+  .stub-top {
+    display: flex; align-items: center; gap: var(--s-6);
+    padding: 16px clamp(20px, 4vw, 56px);
+    background: rgba(11, 12, 16, 0.78);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .stub-top img { height: 36px; }
+  .stub-top .spacer { flex: 1; }
+  .stub-top a {
+    font-family: var(--font-hud); font-weight: 700; font-size: 12px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .stub-hero {
+    padding: clamp(56px, 8vw, 120px) clamp(20px, 4vw, 56px) clamp(80px, 10vw, 140px);
+    max-width: 1280px; margin: 0 auto;
+  }
+  .stub-stamp {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    background: rgba(255, 87, 51, 0.12);
+    border: 1px solid rgba(255, 87, 51, 0.32);
+    color: var(--orange-400);
+    font-family: var(--font-hud); font-weight: 700; font-size: 11px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    margin-bottom: var(--s-5);
+  }
+  .stub-stamp::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--orange-500);
+    box-shadow: 0 0 8px var(--orange-500);
+  }
+  .stub-hero h1 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(40px, 7vw, 84px); line-height: 0.94;
+    letter-spacing: -0.03em; margin-bottom: var(--s-5);
+  }
+  .stub-hero h1 .flame {
+    color: var(--orange-500);
+    text-shadow: 0 0 40px rgba(255, 87, 51, 0.4);
+  }
+  .stub-hero p {
+    color: var(--text-secondary);
+    font-size: clamp(16px, 1.4vw, 19px);
+    max-width: 56ch;
+  }
+
+  /* ============================================================================
+     COOKIE BANNER — DEFAULT (state 1)
+     Bottom-fixed, glass, max-width centered, ~720px
+     ============================================================================ */
+  .cookie-shroud {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 80;
+    display: flex; justify-content: center;
+    padding: var(--s-4) var(--s-4);
+    pointer-events: none;
+    /* Subtle bottom-of-screen fade so the banner reads as overlay, not section */
+    background: linear-gradient(180deg, transparent 0%, rgba(11, 12, 16, 0.55) 100%);
+  }
+
+  .cookie-banner {
+    pointer-events: auto;
+    width: 100%;
+    max-width: 720px;
+    background: rgba(20, 21, 29, 0.78);
+    backdrop-filter: blur(20px) saturate(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(1.1);
+    border: 1px solid var(--border-flame);
+    border-radius: var(--r-xl);
+    box-shadow:
+      0 0 0 1px rgba(255, 87, 51, 0.18),
+      0 24px 60px rgba(0, 0, 0, 0.55),
+      0 6px 16px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .cookie-banner::before {
+    /* Faint flame seam along the top edge */
+    content: ""; position: absolute; top: 0; left: 24px; right: 24px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--orange-500) 50%, transparent);
+    opacity: 0.55;
+  }
+  .cookie-banner__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+    padding: var(--s-5) var(--s-6);
+  }
+  @media (min-width: 760px) {
+    .cookie-banner__inner {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: var(--s-6);
+      padding: var(--s-5) var(--s-6);
+    }
+  }
+
+  .cb-stamp {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-hud);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    color: var(--orange-400);
+    margin-bottom: 8px;
+  }
+  .cb-stamp::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--orange-500);
+    box-shadow: 0 0 6px var(--orange-500);
+  }
+
+  .cookie-banner__copy h3 {
+    font-family: var(--font-display);
+    font-size: 18px; font-weight: 700;
+    margin-bottom: 6px; line-height: 1.2;
+  }
+  .cookie-banner__copy p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px; line-height: 1.55;
+  }
+  .cookie-banner__actions {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center;
+  }
+  @media (min-width: 760px) {
+    .cookie-banner__actions { justify-content: flex-end; }
+  }
+
+  .cb-footer {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 10px var(--s-6) 12px;
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+  .cb-footer a { color: var(--orange-400); }
+  .cb-footer a:hover { color: var(--orange-300); }
+  .cb-footer .cb-regs {
+    display: inline-flex; gap: 10px; flex-wrap: wrap;
+  }
+  .cb-footer .cb-regs span::before {
+    content: "•"; margin-right: 8px; color: var(--text-muted);
+  }
+  .cb-footer .cb-regs span:first-child::before { content: ""; margin: 0; }
+
+  .cb-text-link {
+    background: none; border: none; padding: 0;
+    color: var(--orange-400); cursor: pointer;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+  }
+  .cb-text-link:hover { color: var(--orange-300); }
+  .cb-text-link::after {
+    content: " →"; font-family: var(--font-mono); font-weight: 500;
+  }
+
+  /* ============================================================================
+     COOKIE BANNER — PREFERENCES (state 2)
+     Expanded modal-ish panel. Wider, taller, with category toggles.
+     ============================================================================ */
+  .cookie-modal-shroud {
+    position: fixed; inset: 0;
+    z-index: 90;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: var(--s-6) var(--s-4) var(--s-4);
+    background: rgba(11, 12, 16, 0.72);
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+  }
+  @media (min-width: 760px) {
+    .cookie-modal-shroud { align-items: center; padding: var(--s-8) var(--s-4); }
+  }
+
+  .cookie-modal {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    background: rgba(20, 21, 29, 0.86);
+    backdrop-filter: blur(24px) saturate(1.1);
+    -webkit-backdrop-filter: blur(24px) saturate(1.1);
+    border: 1px solid var(--border-flame);
+    border-radius: var(--r-xl);
+    box-shadow:
+      0 0 0 1px rgba(255, 87, 51, 0.2),
+      0 32px 80px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .cookie-modal::before {
+    content: ""; position: absolute; top: 0; left: 24px; right: 24px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--orange-500) 50%, transparent);
+    opacity: 0.6;
+  }
+
+  .cm-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: var(--s-4);
+    padding: var(--s-6) var(--s-6) var(--s-4);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .cm-head h3 {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 700;
+    margin-bottom: 6px; line-height: 1.15;
+  }
+  .cm-head p { color: var(--text-secondary); font-size: 13px; line-height: 1.55; margin: 0; max-width: 52ch; }
+  .cm-close {
+    width: 32px; height: 32px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-default);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: var(--font-mono); font-size: 14px;
+  }
+  .cm-close:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+  .cm-list {
+    padding: var(--s-3) var(--s-6) var(--s-5);
+    display: grid; gap: var(--s-3);
+  }
+
+  .cat {
+    background: rgba(8, 9, 13, 0.6);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: var(--s-4) var(--s-5);
+  }
+  .cat--locked {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(28, 30, 40, 0.55);
+  }
+  .cat__top {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-bottom: 6px;
+  }
+  .cat__name {
+    font-family: var(--font-display);
+    font-size: 15px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .cat__lock-pill {
+    font-family: var(--font-hud); font-size: 9px; font-weight: 700;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    padding: 3px 7px; border-radius: var(--r-pill);
+    background: var(--orange-tint); color: var(--orange-400);
+    border: 1px solid rgba(255, 87, 51, 0.32);
+  }
+  .cat__desc {
+    color: var(--text-secondary);
+    font-size: 12.5px; line-height: 1.55;
+    margin: 0 0 var(--s-3);
+  }
+  .cat__stored {
+    margin: 0; padding: 0;
+  }
+  .cat__stored summary {
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .cat__stored summary::-webkit-details-marker { display: none; }
+  .cat__stored summary::before {
+    content: "▸"; font-size: 9px; color: var(--orange-400);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .cat__stored[open] summary::before { transform: rotate(90deg); }
+  .cat__stored summary:hover { color: var(--text-secondary); }
+  .cat__cookies {
+    margin-top: var(--s-3);
+    padding: var(--s-3) var(--s-4);
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    display: grid; gap: 6px;
+  }
+  .cat__cookies code {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-primary);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+  }
+  .cat__cookies code span {
+    color: var(--text-muted); font-size: 10px;
+  }
+
+  /* iOS-style toggle (pure CSS, no JS) */
+  .switch {
+    position: relative;
+    width: 46px; height: 26px;
+    flex-shrink: 0;
+    display: inline-block;
+  }
+  .switch input {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; opacity: 0;
+    margin: 0; cursor: pointer;
+  }
+  .switch__track {
+    position: absolute; inset: 0;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-pill);
+    transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  }
+  .switch__thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 20px; height: 20px;
+    background: #F2F3F5;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    transition: transform var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+  }
+  .switch input:checked ~ .switch__track {
+    background: var(--orange-500);
+    border-color: var(--orange-500);
+    box-shadow: 0 0 0 1px var(--orange-500), 0 0 12px rgba(255, 87, 51, 0.35);
+  }
+  .switch input:checked ~ .switch__thumb {
+    transform: translateX(20px);
+    background: #FFFFFF;
+  }
+  .switch input:disabled { cursor: not-allowed; }
+  .switch input:disabled ~ .switch__track {
+    background: var(--orange-tint);
+    border-color: rgba(255, 87, 51, 0.32);
+  }
+  .switch input:disabled ~ .switch__thumb {
+    transform: translateX(20px);
+    background: var(--orange-300);
+  }
+  .switch input:focus-visible ~ .switch__track {
+    box-shadow: var(--shadow-focus);
+  }
+
+  /* Footer of modal */
+  .cm-foot {
+    display: grid; gap: var(--s-3);
+    padding: var(--s-4) var(--s-6) var(--s-5);
+    border-top: 1px solid var(--border-subtle);
+    background: rgba(8, 9, 13, 0.45);
+  }
+  .cm-foot__actions {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: flex-end;
+  }
+  .cm-foot__audit {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-muted);
+    display: flex; gap: 12px; flex-wrap: wrap;
+    align-items: center;
+  }
+  .cm-foot__audit strong {
+    color: var(--orange-400);
+    font-weight: 500;
+  }
+  .cm-foot__audit .dot { color: var(--text-muted); }
+
+  /* Provisional footnote (per CLAUDE.md § 7) — n/a here but ePrivacy stamp lives in same row */
+  .legal-row {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: var(--text-muted);
+  }
+  .legal-row span::before {
+    content: "•"; margin-right: 8px;
+  }
+  .legal-row span:first-child::before { content: ""; margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================================
+     PROTOTYPE STATE SWITCHER (showcase only — strip when lifting to prod)
+     ============================================================================ -->
+<main data-active-cs="default">
+
+  <div class="cs-switcher" role="tablist" aria-label="Cookie banner states">
+    <button class="cs-switcher__btn is-active" data-set-cs="default">Default banner</button>
+    <button class="cs-switcher__btn" data-set-cs="preferences">Preferences panel</button>
+  </div>
+
+  <!-- ============================================================================
+       STUB LANDING-PAGE BACKGROUND (the banner overlays this on first visit)
+       ============================================================================ -->
+  <header class="stub-top">
+    <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+    <div class="spacer"></div>
+    <a href="../public/landing.html">Sign in</a>
+    <a href="../public/landing.html" class="btn btn-primary btn-sm btn-uppercase">Sign up</a>
+  </header>
+
+  <section class="stub-hero">
+    <span class="stub-stamp">UK Esports · Compliance-first · 18+</span>
+    <h1>Compete<br>with <span class="flame">discipline.</span></h1>
+    <p>Coin-based 1v1 challenges, single-match free-for-all tournaments, and brand-sponsored competitions on a single wallet. Stripe-verified payouts, UK MLR 2017 compliant.</p>
+  </section>
+
+  <!-- ============================================================================
+       STATE 1 · DEFAULT BANNER (bottom-fixed strip)
+       ============================================================================ -->
+  <div class="cookie-shroud" data-cs-state="default">
+    <aside class="cookie-banner" role="dialog" aria-live="polite" aria-labelledby="cb-title">
+      <div class="cookie-banner__inner">
+        <div class="cookie-banner__copy">
+          <span class="cb-stamp">Cookie consent · UK GDPR + ePrivacy</span>
+          <h3 id="cb-title">Boadman uses cookies.</h3>
+          <p>
+            Strictly necessary cookies keep you signed in. Analytics + preference
+            cookies are optional and help us improve the platform. You can change
+            your mind any time from settings.
+          </p>
+        </div>
+        <div class="cookie-banner__actions">
+          <button class="btn btn-primary btn-sm btn-uppercase">Accept all</button>
+          <button class="btn btn-ghost btn-sm btn-uppercase">Reject optional</button>
+          <button class="cb-text-link" data-set-cs="preferences">Manage preferences</button>
+        </div>
+      </div>
+      <div class="cb-footer">
+        <a href="/legal/cookies">Cookie policy</a>
+        <div class="cb-regs">
+          <span>UK GDPR Art 7</span>
+          <span>ePrivacy 2002/58/EC</span>
+          <span>PECR reg 6</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============================================================================
+       STATE 2 · PREFERENCES PANEL (expanded modal)
+       ============================================================================ -->
+  <div class="cookie-modal-shroud" data-cs-state="preferences">
+    <aside class="cookie-modal" role="dialog" aria-labelledby="cm-title" aria-modal="true">
+      <header class="cm-head">
+        <div>
+          <span class="cb-stamp">Cookie preferences · UK GDPR + ePrivacy</span>
+          <h3 id="cm-title">Manage your cookie preferences.</h3>
+          <p>
+            Granular consent per category. Under UK GDPR Art 7, consent must be
+            freely given, specific, informed, and unambiguous — toggle only what
+            you want.
+          </p>
+        </div>
+        <button class="cm-close" data-set-cs="default" aria-label="Close preferences">✕</button>
+      </header>
+
+      <div class="cm-list">
+
+        <!-- 1 · Strictly necessary (locked) -->
+        <article class="cat cat--locked">
+          <div class="cat__top">
+            <div class="cat__name">
+              Strictly necessary
+              <span class="cat__lock-pill">Always on</span>
+            </div>
+            <label class="switch" aria-label="Strictly necessary cookies (required, cannot be disabled)">
+              <input type="checkbox" checked disabled />
+              <span class="switch__track"></span>
+              <span class="switch__thumb"></span>
+            </label>
+          </div>
+          <p class="cat__desc">
+            Session cookies, CSRF tokens, language preference. Required for the
+            site to work — sign-in, escrow flows, security. Lawful basis:
+            legitimate interest (PECR reg 6(4) strict-necessity exemption).
+          </p>
+          <details class="cat__stored">
+            <summary>What's stored</summary>
+            <div class="cat__cookies">
+              <code>boadman.session <span>session · httpOnly</span></code>
+              <code>boadman.csrf <span>session · httpOnly</span></code>
+              <code>boadman.lang <span>1 year</span></code>
+            </div>
+          </details>
+        </article>
+
+        <!-- 2 · Analytics -->
+        <article class="cat">
+          <div class="cat__top">
+            <div class="cat__name">Analytics</div>
+            <label class="switch" aria-label="Analytics cookies">
+              <input type="checkbox" />
+              <span class="switch__track"></span>
+              <span class="switch__thumb"></span>
+            </label>
+          </div>
+          <p class="cat__desc">
+            Aggregated usage stats (PostHog or self-hosted). Helps us see which
+            screens get traction. No personal data sold or shared with third
+            parties. IP truncated before storage.
+          </p>
+          <details class="cat__stored">
+            <summary>What's stored</summary>
+            <div class="cat__cookies">
+              <code>ph_id <span>1 year · pseudonymous</span></code>
+              <code>ph_session <span>30 min</span></code>
+              <code>boadman.analytics_opt <span>1 year</span></code>
+            </div>
+          </details>
+        </article>
+
+        <!-- 3 · Preference -->
+        <article class="cat">
+          <div class="cat__top">
+            <div class="cat__name">Preference</div>
+            <label class="switch" aria-label="Preference cookies">
+              <input type="checkbox" />
+              <span class="switch__track"></span>
+              <span class="switch__thumb"></span>
+            </label>
+          </div>
+          <p class="cat__desc">
+            Saves your theme + game filter + last-visited tab choices across
+            sessions. Convenience only — your account works fine without these,
+            you'll just re-set filters on each visit.
+          </p>
+          <details class="cat__stored">
+            <summary>What's stored</summary>
+            <div class="cat__cookies">
+              <code>boadman.theme <span>1 year</span></code>
+              <code>boadman.last_game_filter <span>90 days</span></code>
+              <code>boadman.last_tab <span>30 days</span></code>
+            </div>
+          </details>
+        </article>
+
+        <!-- 4 · Marketing -->
+        <article class="cat">
+          <div class="cat__top">
+            <div class="cat__name">Marketing</div>
+            <label class="switch" aria-label="Marketing cookies">
+              <input type="checkbox" />
+              <span class="switch__track"></span>
+              <span class="switch__thumb"></span>
+            </label>
+          </div>
+          <p class="cat__desc">
+            Cross-site tracking for retargeting ads. Disabled by default per UK
+            GDPR Art 7 (opt-in required). If enabled, third-party pixels may set
+            cookies on partner ad networks.
+          </p>
+          <details class="cat__stored">
+            <summary>What's stored</summary>
+            <div class="cat__cookies">
+              <code>_fbp <span>3 months · Meta pixel</span></code>
+              <code>_gcl_au <span>3 months · Google Ads</span></code>
+              <code>boadman.mkt_opt <span>1 year</span></code>
+            </div>
+          </details>
+        </article>
+
+      </div>
+
+      <footer class="cm-foot">
+        <div class="cm-foot__audit">
+          <span>Consent ID will be saved:</span>
+          <strong>CSNT_2026_8F3A91C2</strong>
+          <span class="dot">·</span>
+          <span>Stored 12 months · re-prompt on policy version change</span>
+        </div>
+        <div class="cm-foot__actions">
+          <button class="btn btn-ghost btn-sm btn-uppercase">Reject all optional</button>
+          <button class="btn btn-ghost btn-sm btn-uppercase">Accept all</button>
+          <button class="btn btn-primary btn-sm btn-uppercase">Save preferences</button>
+        </div>
+        <div class="legal-row">
+          <span><a href="/legal/cookies" style="color: var(--orange-400);">Cookie policy</a></span>
+          <span>UK GDPR Art 7 · consent freely given</span>
+          <span>ePrivacy Directive 2002/58/EC</span>
+          <span>PECR reg 6</span>
+        </div>
+      </footer>
+    </aside>
+  </div>
+
+</main>
+
+<script>
+  /* Prototype-only state toggle. The same listener picks up both the top-bar
+     switcher buttons AND the inline cross-state buttons ("Manage preferences",
+     "Close", etc.) — anything with [data-set-cs]. */
+  const root = document.querySelector('main[data-active-cs]');
+  const switcherBtns = document.querySelectorAll('.cs-switcher__btn');
+
+  document.querySelectorAll('[data-set-cs]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = btn.dataset.setCs;
+      root.dataset.activeCs = next;
+      switcherBtns.forEach(b => b.classList.toggle('is-active', b.dataset.setCs === next));
+    });
+  });
+</script>
+</body>
+</html>

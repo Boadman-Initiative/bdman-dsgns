@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Privacy Policy update — please review</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ============================================================
+     RE-CONSENT INTERSTITIAL
+     User has a live session but their accepted policy versions
+     are stale per backend `requireCurrentConsent`. Renders
+     BEFORE any authed route. Player theme — flame orange.
+     ============================================================ */
+  body {
+    background:
+      radial-gradient(at 80% -10%, rgba(255, 87, 51, 0.12), transparent 55%),
+      radial-gradient(at 10% 110%, rgba(255, 167, 0, 0.06), transparent 55%),
+      var(--bg-page);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== Minimal brand header (no auth CTAs — user is mid-session) ===== */
+  .brand-bar {
+    display: flex;
+    align-items: center;
+    padding: 18px clamp(20px, 4vw, 56px);
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(11, 12, 16, 0.72);
+    backdrop-filter: blur(12px);
+  }
+  .brand-bar__logo { height: 34px; }
+  .brand-bar__tag {
+    margin-left: auto;
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  /* ===== Page shell ===== */
+  .shell {
+    flex: 1;
+    display: grid;
+    place-items: start center;
+    padding: clamp(40px, 6vw, 80px) clamp(16px, 4vw, 32px);
+    width: 100%;
+  }
+
+  /* ===== Terminal card (borrowed from account-states.html) ===== */
+  .terminal-card {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    background: linear-gradient(180deg, var(--bg-panel), var(--bg-elevated));
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-xl);
+    padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .terminal-card::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.35;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .terminal-card > * { position: relative; z-index: 1; }
+
+  .label-strip {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    background: var(--orange-tint);
+    color: var(--orange-400);
+    border: 1px solid rgba(255, 87, 51, 0.28);
+    margin-bottom: 28px;
+  }
+  .label-strip::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--orange-500);
+    box-shadow: 0 0 8px var(--orange-500);
+  }
+
+  .card-icon {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    margin: 0 0 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--orange-tint);
+    color: var(--orange-500);
+    border: 2px solid rgba(255, 87, 51, 0.4);
+  }
+
+  .card-h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(26px, 3.4vw, 38px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .card-h1 em { color: var(--orange-500); font-style: normal; }
+
+  .card-body {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.65;
+    margin-bottom: 24px;
+  }
+  .card-body strong { color: var(--text-primary); font-weight: 600; }
+
+  /* ===== Meta-row (last accepted / current effective) ===== */
+  .meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .meta-row > div {
+    background: var(--bg-input);
+    padding: 14px 16px;
+  }
+  .meta-row .lbl {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .meta-row .val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+  .meta-row .val--current { color: var(--orange-400); }
+
+  /* ===== Diff card (collapsible) ===== */
+  .diff-card {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .diff-card summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .diff-card summary::-webkit-details-marker { display: none; }
+  .diff-card summary::after {
+    content: "+";
+    margin-left: auto;
+    font-family: var(--font-hud);
+    font-size: 20px;
+    color: var(--orange-500);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .diff-card[open] summary::after { transform: rotate(45deg); }
+  .diff-card__count {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--orange-400);
+    background: var(--orange-tint);
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+  }
+  .diff-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 18px 18px;
+    display: grid;
+    gap: 12px;
+  }
+  .diff-list li {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+  .diff-list li:first-child { border-top: 0; padding-top: 4px; }
+  .diff-tag {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 0;
+    height: fit-content;
+    text-align: center;
+    border-radius: var(--r-sm);
+  }
+  .diff-tag--add { background: var(--green-tint); color: var(--green-500); }
+  .diff-tag--remove { background: var(--red-tint); color: var(--red-500); }
+  .diff-tag--clarify { background: var(--blue-tint); color: var(--blue-500); }
+  .diff-list a { color: var(--orange-400); font-weight: 500; }
+  .diff-list a:hover { color: var(--orange-500); }
+
+  /* ===== Iframe placeholder (policy preview) ===== */
+  .preview {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .preview__head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-panel);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .preview__head .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); }
+  .preview__head .url { flex: 1; color: var(--text-secondary); }
+  .preview__head a {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--orange-400);
+    font-weight: 700;
+  }
+  .preview__body {
+    height: 220px;
+    position: relative;
+    background:
+      repeating-linear-gradient(180deg,
+        transparent 0, transparent 22px,
+        rgba(255, 255, 255, 0.04) 22px, rgba(255, 255, 255, 0.04) 23px),
+      var(--bg-input);
+    padding: 22px 24px;
+    overflow: hidden;
+  }
+  .preview__body::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 0%, var(--bg-input) 92%);
+    pointer-events: none;
+  }
+  .preview__line {
+    height: 7px;
+    border-radius: 2px;
+    background: var(--border-default);
+    margin-bottom: 12px;
+  }
+  .preview__line--h { background: var(--border-strong); height: 11px; width: 60%; margin-bottom: 20px; }
+  .preview__line--w-90 { width: 90%; }
+  .preview__line--w-80 { width: 80%; }
+  .preview__line--w-65 { width: 65%; }
+  .preview__line--w-45 { width: 45%; }
+
+  /* ===== Acceptance tiles ===== */
+  .accept-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  @media (min-width: 560px) {
+    .accept-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .accept-tile {
+    position: relative;
+    padding: 16px 16px 16px 46px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+    user-select: none;
+  }
+  .accept-tile:hover { border-color: var(--border-strong); }
+  .accept-tile input { position: absolute; opacity: 0; pointer-events: none; }
+  .accept-tile__box {
+    position: absolute;
+    top: 18px; left: 16px;
+    width: 18px; height: 18px;
+    border-radius: var(--r-sm);
+    background: var(--bg-page);
+    border: 1.5px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .accept-tile__box svg { width: 12px; height: 12px; color: var(--text-inverse); opacity: 0; }
+  .accept-tile input:checked ~ .accept-tile__box {
+    background: var(--orange-500);
+    border-color: var(--orange-500);
+  }
+  .accept-tile input:checked ~ .accept-tile__box svg { opacity: 1; }
+  .accept-tile:has(input:checked) {
+    border-color: var(--border-flame);
+    background: rgba(255, 87, 51, 0.04);
+  }
+  .accept-tile__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+  .accept-tile__meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* ===== CTAs ===== */
+  .cta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .cta-row .btn-primary[disabled],
+  .cta-row .btn-primary:disabled {
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    box-shadow: none;
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* ===== Refusal disclosure (mono note) ===== */
+  .refusal {
+    padding: 14px 16px;
+    background: var(--bg-page);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+  }
+  .refusal strong { color: var(--text-primary); font-weight: 500; }
+
+  /* ===== Legal small-print (UK GDPR Art 7, 17) ===== */
+  .legal-print {
+    padding-top: 24px;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+  .legal-print a { color: var(--text-secondary); text-decoration: underline; text-decoration-color: var(--border-default); }
+  .legal-print a:hover { color: var(--orange-400); text-decoration-color: var(--orange-400); }
+
+  /* ===== Footer ref ===== */
+  .footer-ref {
+    text-align: center;
+    padding: 24px 16px 32px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== BRAND HEADER (no auth CTAs — user is mid-session) ====== -->
+<header class="brand-bar">
+  <a href="/" aria-label="Boadman home">
+    <img class="brand-bar__logo" src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+  </a>
+  <span class="brand-bar__tag">Action required · session paused</span>
+</header>
+
+<!-- ====== TERMINAL CARD ====== -->
+<main class="shell">
+  <article class="terminal-card">
+    <span class="label-strip">Action required · policy update</span>
+
+    <!-- Document / scroll icon -->
+    <div class="card-icon" aria-hidden="true">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="8" y1="13" x2="16" y2="13"/>
+        <line x1="8" y1="17" x2="16" y2="17"/>
+        <line x1="8" y1="9" x2="10" y2="9"/>
+      </svg>
+    </div>
+
+    <h1 class="card-h1">Our Privacy Policy has <em>changed.</em></h1>
+
+    <p class="card-body">
+      We've published a new version of the Boadman Privacy Policy. Before
+      you can continue using your account, please read the changes and
+      record your acceptance. We're asking because UK GDPR <strong>Articles 6, 7
+      and 13</strong> require us to keep your consent current and to tell you,
+      plainly, what we do with your data when we change it.
+    </p>
+
+    <!-- Version meta -->
+    <div class="meta-row">
+      <div>
+        <div class="lbl">Your last acceptance</div>
+        <div class="val">Privacy v2.2 · 14 Aug 2024</div>
+      </div>
+      <div>
+        <div class="lbl">Current effective version</div>
+        <div class="val val--current">Privacy v2.3 · 10 May 2026</div>
+      </div>
+    </div>
+
+    <!-- Diff summary -->
+    <details class="diff-card" open>
+      <summary>
+        What changed?
+        <span class="diff-card__count">5 updates</span>
+      </summary>
+      <ul class="diff-list">
+        <li>
+          <span class="diff-tag diff-tag--add">Added</span>
+          <span>
+            <strong style="color: var(--text-primary);">NCA SAR retention · 5 years.</strong>
+            Suspicious-activity report metadata is now kept for five years
+            after the report date per UK MLR 2017 § 40.
+            <a href="/legal/privacy#aml-retention">Read § 9.3</a>
+          </span>
+        </li>
+        <li>
+          <span class="diff-tag diff-tag--remove">Removed</span>
+          <span>
+            <strong style="color: var(--text-primary);">Third-party advertising partners.</strong>
+            We no longer share any data with ad networks. Existing
+            partnerships terminated 10 May 2026.
+            <a href="/legal/privacy#advertising">Read § 5.4</a>
+          </span>
+        </li>
+        <li>
+          <span class="diff-tag diff-tag--clarify">Clarified</span>
+          <span>
+            <strong style="color: var(--text-primary);">Cookie usage, itemised.</strong>
+            Each cookie is now listed by category (essential, analytics,
+            preference) with a clear purpose, vendor, and retention.
+            <a href="/legal/privacy#cookies">Read § 7</a>
+          </span>
+        </li>
+        <li>
+          <span class="diff-tag diff-tag--clarify">Clarified</span>
+          <span>
+            <strong style="color: var(--text-primary);">Your data-subject rights.</strong>
+            Plain-English walkthrough of how to request access, correction,
+            erasure, restriction, or portability — and our 30-day SLA.
+            <a href="/legal/privacy#your-rights">Read § 10</a>
+          </span>
+        </li>
+        <li>
+          <span class="diff-tag diff-tag--add">Added</span>
+          <span>
+            <strong style="color: var(--text-primary);">Didit (KYC vendor) sub-processor.</strong>
+            Added to the listed sub-processors with scope, location (Estonia),
+            and the safeguards in place.
+            <a href="/legal/privacy#subprocessors">Read § 6.2</a>
+          </span>
+        </li>
+      </ul>
+    </details>
+
+    <!-- Policy preview (CSS placeholder, not real iframe) -->
+    <div class="preview" aria-label="Privacy Policy preview">
+      <div class="preview__head">
+        <span class="dot"></span>
+        <span class="url">boadman.com/legal/privacy · v2.3</span>
+        <a href="/legal/privacy" target="_blank" rel="noopener">Open in new tab ↗</a>
+      </div>
+      <div class="preview__body" role="img" aria-label="Preview of new Privacy Policy document">
+        <div class="preview__line preview__line--h"></div>
+        <div class="preview__line preview__line--w-90"></div>
+        <div class="preview__line preview__line--w-80"></div>
+        <div class="preview__line preview__line--w-65"></div>
+        <div class="preview__line preview__line--w-90"></div>
+        <div class="preview__line preview__line--w-45"></div>
+        <div class="preview__line preview__line--w-80"></div>
+        <div class="preview__line preview__line--w-65"></div>
+      </div>
+    </div>
+
+    <!-- Acceptance tiles -->
+    <form id="acceptForm" novalidate>
+      <div class="accept-grid">
+        <label class="accept-tile">
+          <input type="checkbox" name="privacy" data-doc="privacy" />
+          <span class="accept-tile__box" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <div class="accept-tile__title">I have read and accept the new Privacy Policy</div>
+          <div class="accept-tile__meta">v2.3 · effective 10 May 2026</div>
+        </label>
+
+        <label class="accept-tile">
+          <input type="checkbox" name="cookies" data-doc="cookies" />
+          <span class="accept-tile__box" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <div class="accept-tile__title">I have read and accept the new Cookie Policy</div>
+          <div class="accept-tile__meta">v1.4 · effective 10 May 2026</div>
+        </label>
+      </div>
+
+      <!-- CTAs -->
+      <div class="cta-row">
+        <button id="continueBtn" type="submit" class="btn btn-primary btn-lg btn-uppercase" disabled>
+          Continue to Boadman
+        </button>
+        <a href="/auth/signout" class="btn btn-ghost btn-lg btn-uppercase">Sign out instead</a>
+      </div>
+    </form>
+
+    <!-- Refusal disclosure -->
+    <p class="refusal">
+      <strong>Refusing to accept terminates your active session.</strong>
+      Your account and coin balance remain — you can sign back in later when
+      you're ready to accept. Nothing is forfeited by signing out now.
+    </p>
+
+    <!-- UK GDPR small print -->
+    <p class="legal-print">
+      You can withdraw consent at any time from <a href="/settings/privacy">Settings · Privacy</a>;
+      withdrawal applies prospectively and does not affect the lawfulness of
+      prior processing (UK GDPR <strong>Art 7(3)</strong>). You also retain the
+      right to request erasure of your personal data under
+      <strong>Art 17</strong>, subject to AML record-keeping carve-outs documented
+      in § 9 of the policy. Questions: <a href="mailto:privacy@boadman.com">privacy@boadman.com</a>.
+    </p>
+  </article>
+</main>
+
+<div class="footer-ref">
+  Session ref · RCN-7K42-X91A · paused 24 May 2026 · 00:24 BST · boadman.com
+</div>
+
+<script>
+  // Minimal interaction — gate the primary CTA on both checkboxes.
+  // Production wires this to POST /users/me/policy-acceptance per thread 0008.
+  (function () {
+    var form = document.getElementById('acceptForm');
+    var btn = document.getElementById('continueBtn');
+    if (!form || !btn) return;
+    var boxes = form.querySelectorAll('input[type="checkbox"]');
+    function refresh() {
+      var allChecked = Array.prototype.every.call(boxes, function (b) { return b.checked; });
+      btn.disabled = !allChecked;
+    }
+    boxes.forEach(function (b) { b.addEventListener('change', refresh); });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      // No-op in the prototype. Real handler posts the accepted versions
+      // and follows the `next` from the response back into the app shell.
+    });
+  })();
+</script>
+
+</body>
+</html>

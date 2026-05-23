@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Search · "joel"</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ---- Header strip (results meta) ---- */
+  .sr-head {
+    position: relative;
+    margin-bottom: var(--s-5);
+    padding: var(--s-6) var(--s-7);
+    border-radius: var(--r-xl);
+    background:
+      radial-gradient(at 90% -30%, rgba(255, 87, 51, 0.16), transparent 55%),
+      linear-gradient(135deg, #14151D 0%, #0B0C10 70%);
+    border: 1px solid var(--border-flame);
+    box-shadow: var(--shadow-flame);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .sr-head::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4; mix-blend-mode: overlay; pointer-events: none;
+  }
+  .sr-head__stamp { display: block; margin-bottom: 10px; color: var(--orange-500); }
+  .sr-head__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 3.4vw, 44px);
+    letter-spacing: var(--tr-display);
+    line-height: 1.05;
+    margin-bottom: 6px;
+  }
+  .sr-head__title .q {
+    color: var(--orange-400);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.82em;
+    background: var(--orange-tint);
+    border: 1px solid var(--border-flame);
+    border-radius: var(--r-sm);
+    padding: 2px 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .sr-head__sub {
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+  }
+  .sr-head__sub .sep { color: var(--text-muted); margin: 0 6px; }
+
+  /* ---- Highlight ---- */
+  mark {
+    background: var(--orange-tint);
+    color: var(--orange-300);
+    border-bottom: 1px solid rgba(255, 167, 0, 0.4);
+    padding: 0 1px;
+    border-radius: 2px;
+  }
+
+  /* ---- Section header ---- */
+  .sr-section { margin-bottom: var(--s-8); }
+  .sr-section__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: var(--s-3);
+    margin-bottom: var(--s-4);
+    padding-bottom: var(--s-3);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .sr-section__title {
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-primary);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sr-section__title .count {
+    color: var(--orange-500);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+  .sr-section__more {
+    font-family: var(--font-hud);
+    font-size: 12px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--orange-500);
+  }
+
+  /* ---- Player result cards (grid of 3) ---- */
+  .player-grid {
+    display: grid; gap: var(--s-3);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px) { .player-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { .player-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+  .p-card {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    grid-template-rows: auto auto;
+    gap: 12px 14px;
+    padding: var(--s-4);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    transition: all var(--dur-fast) var(--ease-out);
+    align-items: center;
+  }
+  .p-card:hover { border-color: var(--border-flame); transform: translateY(-1px); }
+  .p-card__avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-deep));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--text-inverse);
+    grid-row: 1 / span 2;
+    border: 2px solid var(--border-subtle);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .p-card__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+  .p-card__handle {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+  }
+  .p-card__meta {
+    grid-column: 1 / -1;
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 4px;
+  }
+  .p-card__record {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    margin-left: auto;
+  }
+  .p-card__record .w { color: var(--green-500); font-weight: 600; }
+  .p-card__record .l { color: var(--red-500); font-weight: 600; }
+  .p-card__cta {
+    grid-column: 1 / -1;
+    margin-top: 6px;
+  }
+  .flag {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    padding: 3px 8px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* ---- Tournament result cards (slightly narrower than tournaments-hub) ---- */
+  .trn-grid {
+    display: grid; gap: var(--s-4);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px) { .trn-grid { grid-template-columns: 1fr 1fr; } }
+  .trn-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transition: all var(--dur-fast) var(--ease-out);
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column;
+  }
+  .trn-card:hover { transform: translateY(-2px); border-color: var(--border-flame); }
+  .trn-card__art { height: 110px; position: relative; overflow: hidden; }
+  .trn-card__art img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; }
+  .trn-card__art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, var(--bg-panel)); }
+  .trn-card__game {
+    position: absolute; top: 10px; left: 10px; z-index: 2;
+    font-family: var(--font-hud);
+    font-size: 10px; font-weight: 700;
+    color: white;
+    background: rgba(11, 12, 16, 0.7);
+    backdrop-filter: blur(6px);
+    padding: 4px 8px;
+    border-radius: var(--r-sm);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+  }
+  .trn-card__live { position: absolute; top: 10px; right: 10px; z-index: 2; }
+  .trn-card__body { padding: var(--s-4); display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
+  .trn-card__title { font-family: var(--font-display); font-weight: 600; font-size: 16px; margin-bottom: 4px; line-height: 1.2; }
+  .trn-card__sub { font-size: var(--t-meta); color: var(--text-muted); font-family: var(--font-mono); }
+  .trn-card__stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    padding: var(--s-3) var(--s-4);
+    border-top: 1px solid var(--border-subtle);
+    background: color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+  }
+  .trn-card__stat-label { font-family: var(--font-hud); font-size: 9px; color: var(--text-muted); letter-spacing: var(--tr-stamp); text-transform: uppercase; font-weight: 700; }
+  .trn-card__stat-value { font-family: var(--font-display); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px; margin-top: 2px; }
+
+  /* ---- Challenge result rows (mirror challenges.html idiom) ---- */
+  .ch-row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto auto auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    margin-bottom: 8px;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .ch-row:hover { border-color: var(--border-flame); }
+  .ch-row__avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-deep));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 700; font-size: 16px;
+    color: var(--text-inverse);
+  }
+  .ch-row__title { font-weight: 600; font-size: 14px; }
+  .ch-row__meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .ch-row__wager {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 15px;
+  }
+  .ch-row__wager .unit { font-size: 10px; color: var(--text-muted); font-family: var(--font-hud); letter-spacing: var(--tr-stamp); margin-left: 4px; }
+  .ch-row__open {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--orange-500);
+  }
+
+  /* ---- Brand rows (sponsor-row idiom) ---- */
+  .brand-row {
+    display: grid;
+    grid-template-columns: 48px 1fr auto auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    margin-bottom: 8px;
+  }
+  .brand-row:hover { border-color: var(--border-flame); }
+  .brand-row__logo {
+    width: 48px; height: 48px;
+    border-radius: var(--r-sm);
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--orange-400);
+    border: 1px solid var(--border-default);
+    letter-spacing: var(--tr-hud);
+  }
+  .brand-row__name { font-family: var(--font-display); font-weight: 600; font-size: 14px; }
+  .brand-row__meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .brand-row__count {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .brand-row__count-label {
+    font-family: var(--font-hud);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+
+  /* ---- FAQ rows ---- */
+  .faq-row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    margin-bottom: 8px;
+  }
+  .faq-row:hover { border-color: var(--border-flame); }
+  .faq-row__icon {
+    width: 40px; height: 40px;
+    border-radius: var(--r-sm);
+    background: var(--orange-tint);
+    color: var(--orange-500);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .faq-row__icon svg { width: 20px; height: 20px; }
+  .faq-row__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  .faq-row__excerpt {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  /* ---- Empty-state variant ---- */
+  details.empty-shell {
+    margin-top: var(--s-6);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--r-md);
+    padding: 0;
+    background: color-mix(in srgb, var(--bg-panel) 50%, transparent);
+  }
+  details.empty-shell > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 18px;
+    font-family: var(--font-hud);
+    font-size: 12px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  details.empty-shell > summary::-webkit-details-marker { display: none; }
+  details.empty-shell > summary::after {
+    content: "▾";
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  details.empty-shell[open] > summary::after { transform: rotate(180deg); }
+
+  .empty-state {
+    padding: var(--s-8) var(--s-6);
+    border-top: 1px dashed var(--border-default);
+    text-align: center;
+  }
+  .empty-state__icon {
+    width: 80px; height: 80px;
+    margin: 0 auto var(--s-4);
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    border: 1px solid var(--border-default);
+  }
+  .empty-state__icon svg { width: 40px; height: 40px; }
+  .empty-state h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    color: var(--text-secondary);
+    font-size: var(--t-meta);
+    max-width: 48ch;
+    margin: 0 auto var(--s-5);
+    line-height: 1.55;
+  }
+  .empty-state__suggestions {
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: left;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: var(--s-4);
+  }
+  .empty-state__sugg-head {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .empty-state__sugg-list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .empty-state__sugg-list li a {
+    display: inline-block;
+    padding: 6px 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .empty-state__sugg-list li a:hover { color: var(--orange-400); border-color: var(--border-flame); }
+
+  /* ---- Search tips footer ---- */
+  .sr-tips {
+    margin-top: var(--s-8);
+    padding: var(--s-4) var(--s-5);
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .sr-tips .lbl {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--orange-500);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+  .sr-tips code {
+    font-family: var(--font-mono);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-sm);
+    padding: 1px 6px;
+    color: var(--text-primary);
+    font-size: 11px;
+  }
+
+  /* ---- Quick-filter chip row ---- */
+  .sr-chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: var(--s-6);
+    padding-bottom: var(--s-3);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+</style>
+</head>
+<body>
+
+<div class="shell shell--with-rail">
+
+  <!-- ===== HEADER (search input shows active query) ===== -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" value="joel" placeholder="Search games, players, tournaments…" />
+      <kbd class="kbd">⌘K</kbd>
+    </div>
+    <div class="header-actions">
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot"></span>
+      </button>
+      <div class="avatar-pill"><span class="avatar">J</span><span>Joel</span></div>
+    </div>
+  </header>
+
+  <!-- ===== SIDEBAR (no active item — search isn't a nav destination) ===== -->
+  <aside class="nav-rail" aria-label="Primary">
+    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+
+    <span class="nav-section">Play</span>
+    <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
+    <a class="nav-item" href="tournaments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>Tournaments<span class="nav-badge">12</span></a>
+    <a class="nav-item" href="challenges.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m14 5 3 3-3 3M17 8H6"/></svg>Challenges<span class="nav-badge">2</span></a>
+    <a class="nav-item" href="games.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Games</a>
+
+    <span class="nav-section">Account</span>
+    <a class="nav-item" href="wallet-default.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l3-3h12l3 3M16 13h3"/></svg>Wallet</a>
+    <a class="nav-item" href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profile</a>
+
+    <div class="rail-balance">
+      <div class="rail-balance__label">Spendable</div>
+      <div class="rail-balance__amount">12,400<span class="unit">coins</span></div>
+      <div class="rail-balance__sub">£1,240.00</div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="app-main">
+
+    <!-- (1) Header strip -->
+    <section class="sr-head">
+      <span class="stamp sr-head__stamp">Search · platform-wide</span>
+      <h1 class="sr-head__title">Results for <span class="q">"joel"</span></h1>
+      <div class="sr-head__sub">
+        <span>5 categories</span>
+        <span class="sep">·</span>
+        <span style="font-variant-numeric: tabular-nums;">23 matches</span>
+        <span class="sep">·</span>
+        <span style="font-variant-numeric: tabular-nums;">240 ms</span>
+      </div>
+    </section>
+
+    <!-- (2) Category quick-filter chips -->
+    <div class="sr-chips">
+      <button class="chip-filter is-active">All <span style="color: var(--text-inverse); opacity: 0.7; margin-left: 4px; font-variant-numeric: tabular-nums;">23</span></button>
+      <button class="chip-filter">Players <span style="color: var(--text-muted); margin-left: 4px; font-variant-numeric: tabular-nums;">12</span></button>
+      <button class="chip-filter">Tournaments <span style="color: var(--text-muted); margin-left: 4px; font-variant-numeric: tabular-nums;">4</span></button>
+      <button class="chip-filter">Challenges <span style="color: var(--text-muted); margin-left: 4px; font-variant-numeric: tabular-nums;">3</span></button>
+      <button class="chip-filter">Brands <span style="color: var(--text-muted); margin-left: 4px; font-variant-numeric: tabular-nums;">2</span></button>
+      <button class="chip-filter">Help <span style="color: var(--text-muted); margin-left: 4px; font-variant-numeric: tabular-nums;">2</span></button>
+    </div>
+
+    <!-- (3) Players section -->
+    <section class="sr-section">
+      <div class="sr-section__head">
+        <div class="sr-section__title">
+          Players
+          <span class="count">12 matches</span>
+        </div>
+        <a href="#" class="sr-section__more">+ 9 more →</a>
+      </div>
+
+      <div class="player-grid">
+        <!-- Player 1 -->
+        <div class="p-card">
+          <div class="p-card__avatar">J</div>
+          <div>
+            <div class="p-card__name"><mark>Joel</mark> Henderson</div>
+            <div class="p-card__handle">@<mark>joel</mark> · joined Feb 2025</div>
+          </div>
+          <div class="p-card__meta">
+            <span class="flag">UK</span>
+            <span class="badge badge--gold">L2 verified</span>
+            <span class="p-card__record"><span class="w">18 W</span> · <span class="l">4 L</span> · 82 %</span>
+          </div>
+          <div class="p-card__cta">
+            <a href="profile.html" class="btn btn-primary btn-sm btn-block btn-uppercase">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m14 5 3 3-3 3M17 8H6"/></svg>
+              Challenge
+            </a>
+          </div>
+        </div>
+
+        <!-- Player 2 -->
+        <div class="p-card">
+          <div class="p-card__avatar" style="background: linear-gradient(135deg, #4D87FF, #1B3F8F);">J</div>
+          <div>
+            <div class="p-card__name"><mark>Joel</mark>_Strikes</div>
+            <div class="p-card__handle">@<mark>joel</mark>_strikes · joined Aug 2025</div>
+          </div>
+          <div class="p-card__meta">
+            <span class="flag">UK</span>
+            <span class="badge badge--neutral">L1 verified</span>
+            <span class="p-card__record"><span class="w">7 W</span> · <span class="l">3 L</span> · 70 %</span>
+          </div>
+          <div class="p-card__cta">
+            <a href="profile.html" class="btn btn-primary btn-sm btn-block btn-uppercase">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m14 5 3 3-3 3M17 8H6"/></svg>
+              Challenge
+            </a>
+          </div>
+        </div>
+
+        <!-- Player 3 -->
+        <div class="p-card">
+          <div class="p-card__avatar" style="background: linear-gradient(135deg, #22D279, #0B6B3D);">J</div>
+          <div>
+            <div class="p-card__name"><mark>Joel</mark>le K.</div>
+            <div class="p-card__handle">@<mark>joel</mark>le · joined Apr 2026</div>
+          </div>
+          <div class="p-card__meta">
+            <span class="flag">NG</span>
+            <span class="badge badge--neutral">L1 verified</span>
+            <span class="p-card__record"><span class="w">2 W</span> · <span class="l">0 L</span> · 100 %</span>
+          </div>
+          <div class="p-card__cta">
+            <a href="profile.html" class="btn btn-primary btn-sm btn-block btn-uppercase">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m14 5 3 3-3 3M17 8H6"/></svg>
+              Challenge
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- (4) Tournaments section -->
+    <section class="sr-section">
+      <div class="sr-section__head">
+        <div class="sr-section__title">
+          Tournaments
+          <span class="count">4 matches</span>
+        </div>
+        <a href="#" class="sr-section__more">+ 2 more →</a>
+      </div>
+
+      <div class="trn-grid">
+        <!-- Tournament 1 -->
+        <a href="tournament-detail.html" class="trn-card">
+          <div class="trn-card__art" style="background: linear-gradient(135deg, #0F2A18, #0B0C10);">
+            <span class="trn-card__game">FC25</span>
+            <span class="trn-card__live"><span class="badge badge--info" style="font-size: 9px; padding: 3px 8px;">Open</span></span>
+          </div>
+          <div class="trn-card__body">
+            <div>
+              <div class="trn-card__title"><mark>Joel</mark>'s Friday Cup</div>
+              <div class="trn-card__sub">Hosted by @<mark>joel</mark> · open registration · starts 21:00 BST</div>
+            </div>
+            <a class="btn btn-secondary btn-sm btn-uppercase" href="tournament-detail.html">View →</a>
+          </div>
+          <div class="trn-card__stats">
+            <div><div class="trn-card__stat-label">Pool</div><div class="trn-card__stat-value">4,000</div></div>
+            <div><div class="trn-card__stat-label">Entry</div><div class="trn-card__stat-value">250</div></div>
+            <div><div class="trn-card__stat-label">Squads</div><div class="trn-card__stat-value">8 / 16</div></div>
+          </div>
+        </a>
+
+        <!-- Tournament 2 -->
+        <a href="tournament-detail.html" class="trn-card">
+          <div class="trn-card__art" style="background: linear-gradient(135deg, #1A2540, #0B0C10);">
+            <span class="trn-card__game">Valorant</span>
+            <span class="trn-card__live"><span class="live-pulse" style="font-size: 9px; padding: 3px 8px;">Live</span></span>
+          </div>
+          <div class="trn-card__body">
+            <div>
+              <div class="trn-card__title"><mark>Joel</mark>le Open</div>
+              <div class="trn-card__sub">Hosted by @<mark>joel</mark>le · live now · finishes ~22:30 BST</div>
+            </div>
+            <a class="btn btn-secondary btn-sm btn-uppercase" href="tournament-detail.html">View →</a>
+          </div>
+          <div class="trn-card__stats">
+            <div><div class="trn-card__stat-label">Pool</div><div class="trn-card__stat-value">12,000</div></div>
+            <div><div class="trn-card__stat-label">Entry</div><div class="trn-card__stat-value">500</div></div>
+            <div><div class="trn-card__stat-label">Players</div><div class="trn-card__stat-value">24 / 24</div></div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- (5) Challenges section -->
+    <section class="sr-section">
+      <div class="sr-section__head">
+        <div class="sr-section__title">
+          Challenges
+          <span class="count">3 matches</span>
+        </div>
+        <a href="#" class="sr-section__more">View all →</a>
+      </div>
+
+      <!-- Challenge row 1 -->
+      <div class="ch-row">
+        <div class="ch-row__avatar">J</div>
+        <div>
+          <div class="ch-row__title">vs <mark>Joel</mark> Henderson · Cyberpunk 2077</div>
+          <div class="ch-row__meta">Best-of-3 · MTC_8F2A11 · played 14 May 2026</div>
+        </div>
+        <div class="ch-row__wager">500 <span class="unit">coins</span></div>
+        <span class="badge badge--success">You won</span>
+        <a href="match.html" class="ch-row__open">Open →</a>
+      </div>
+
+      <!-- Challenge row 2 -->
+      <div class="ch-row">
+        <div class="ch-row__avatar" style="background: linear-gradient(135deg, #4D87FF, #1B3F8F);">J</div>
+        <div>
+          <div class="ch-row__title">vs <mark>Joel</mark>_Strikes · Apex Legends</div>
+          <div class="ch-row__meta">Single match · MTC_91B40C · live now</div>
+        </div>
+        <div class="ch-row__wager">250 <span class="unit">coins</span></div>
+        <span class="badge badge--flame">In flight</span>
+        <a href="match.html" class="ch-row__open">Open →</a>
+      </div>
+
+      <!-- Challenge row 3 -->
+      <div class="ch-row">
+        <div class="ch-row__avatar" style="background: linear-gradient(135deg, #22D279, #0B6B3D);">J</div>
+        <div>
+          <div class="ch-row__title">vs <mark>Joel</mark>le K. · FC25</div>
+          <div class="ch-row__meta">Single match · MTC_77A332 · awaiting acceptance · expires in 18 h</div>
+        </div>
+        <div class="ch-row__wager">150 <span class="unit">coins</span></div>
+        <span class="badge badge--info">Pending</span>
+        <a href="challenges.html" class="ch-row__open">Open →</a>
+      </div>
+    </section>
+
+    <!-- (6) Brands section -->
+    <section class="sr-section">
+      <div class="sr-section__head">
+        <div class="sr-section__title">
+          Brands
+          <span class="count">2 matches</span>
+        </div>
+        <a href="#" class="sr-section__more">View all →</a>
+      </div>
+
+      <div class="brand-row">
+        <div class="brand-row__logo">JF</div>
+        <div>
+          <div class="brand-row__name"><mark>Joel</mark> Foundry Ltd</div>
+          <div class="brand-row__meta">UK · brand-hosted tournaments · verified Mar 2025</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="brand-row__count">4</div>
+          <div class="brand-row__count-label">Sponsored</div>
+        </div>
+        <a href="#" class="ch-row__open">View brand →</a>
+      </div>
+
+      <div class="brand-row">
+        <div class="brand-row__logo" style="color: var(--green-500);">JE</div>
+        <div>
+          <div class="brand-row__name"><mark>Joel</mark>le Esports NG</div>
+          <div class="brand-row__meta">NG · brand-hosted tournaments · verified Oct 2025</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="brand-row__count">1</div>
+          <div class="brand-row__count-label">Sponsored</div>
+        </div>
+        <a href="#" class="ch-row__open">View brand →</a>
+      </div>
+    </section>
+
+    <!-- (7) Help / FAQ section -->
+    <section class="sr-section">
+      <div class="sr-section__head">
+        <div class="sr-section__title">
+          Help
+          <span class="count">2 matches</span>
+        </div>
+        <a href="#" class="sr-section__more">All help articles →</a>
+      </div>
+
+      <a href="#" class="faq-row" style="text-decoration: none; color: inherit;">
+        <div class="faq-row__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        </div>
+        <div>
+          <div class="faq-row__title">How do I challenge a friend like <mark>Joel</mark>?</div>
+          <div class="faq-row__excerpt">Open their profile, hit Challenge, set wager and game…</div>
+        </div>
+        <span class="ch-row__open">Read →</span>
+      </a>
+
+      <a href="#" class="faq-row" style="text-decoration: none; color: inherit;">
+        <div class="faq-row__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        </div>
+        <div>
+          <div class="faq-row__title">Can I rename my account from "<mark>joel</mark>123" to a clean handle?</div>
+          <div class="faq-row__excerpt">Yes — once per 90 days from Profile → Display name…</div>
+        </div>
+        <span class="ch-row__open">Read →</span>
+      </a>
+    </section>
+
+    <!-- (8) Empty-state variant (collapsible) -->
+    <details class="empty-shell">
+      <summary>Preview · empty-state variant (when query returns 0 results)</summary>
+      <div class="empty-state">
+        <div class="empty-state__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+            <path d="M8 11h6"/>
+          </svg>
+        </div>
+        <h3>No results for "xyz".</h3>
+        <p>Try fewer terms, check spelling, or pick a different category. Searches across players, tournaments, challenges, brands, and help articles.</p>
+
+        <div class="empty-state__suggestions">
+          <div class="empty-state__sugg-head">Top searches today</div>
+          <ul class="empty-state__sugg-list">
+            <li><a href="#">apex spring</a></li>
+            <li><a href="#">@theo_w</a></li>
+            <li><a href="#">cyberpunk</a></li>
+            <li><a href="#">fc25 friday</a></li>
+            <li><a href="#">nova esports</a></li>
+            <li><a href="#">predator lobby</a></li>
+          </ul>
+          <div class="empty-state__sugg-head" style="margin-top: 16px;">Suggested tournaments</div>
+          <ul class="empty-state__sugg-list">
+            <li><a href="tournament-detail.html">Apex Spring Showdown</a></li>
+            <li><a href="tournament-detail.html">Sunday Series · W21</a></li>
+            <li><a href="tournament-detail.html">Rebirth Resurgence</a></li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <!-- (9) Search tips footer -->
+    <div class="sr-tips">
+      <span class="lbl">Search tip</span>
+      Prefix with <code>@</code> for usernames, <code>#</code> for tournaments, <code>&amp;</code> for brands. Match IDs (<code>MTC_xxx</code>, <code>TRN_xxx</code>, <code>AML_xxx</code>) are searchable directly.
+    </div>
+
+    <p class="footnote-rates">Rates illustrative — pending SP8-ECON economics review.</p>
+
+  </main>
+</div>
+
+<script>
+  // Quick-filter chip toggle (prototype only — real impl drives router state)
+  document.querySelectorAll('.sr-chips .chip-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sr-chips .chip-filter').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman · Sponsor a tournament · Nova Esports</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ============================================================================
+     SPONSOR-A-TOURNAMENT WIZARD — page-local styles
+     Uses player/brand theme (flame orange). 3-step wizard via state-switcher.
+     ============================================================================ */
+
+  /* --- step gate (overrides default state-switcher gating for custom keys) --- */
+  [data-active-wizard]                                  > [data-wizard]              { display: none; }
+  [data-active-wizard="pick"]       [data-wizard="pick"],
+  [data-active-wizard="contribute"] [data-wizard="contribute"],
+  [data-active-wizard="review"]     [data-wizard="review"]                           { display: block; }
+
+  /* --- stepper rail --- */
+  .step-rail {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3);
+    margin: var(--s-4) 0 var(--s-6);
+  }
+  .step-rail__cell {
+    border: 1px solid var(--border-default);
+    background: var(--bg-panel);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: var(--s-3);
+    position: relative;
+  }
+  .step-rail__cell--done   { border-color: rgba(34, 210, 121, 0.35); }
+  .step-rail__cell--active {
+    border-color: var(--border-flame);
+    box-shadow: var(--shadow-flame);
+    background: linear-gradient(180deg, var(--orange-tint), transparent 60%), var(--bg-panel);
+  }
+  .step-rail__index {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-hud); font-weight: 800; font-size: 13px;
+    background: var(--bg-elevated); color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+    letter-spacing: var(--tr-stamp);
+  }
+  .step-rail__cell--active .step-rail__index { background: var(--orange-500); color: var(--text-inverse); border-color: var(--orange-500); }
+  .step-rail__cell--done   .step-rail__index { background: var(--green-tint); color: var(--green-500); border-color: rgba(34,210,121,0.4); }
+  .step-rail__label   { display: block; font-family: var(--font-hud); font-weight: 700; font-size: 11px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px; }
+  .step-rail__cell--active .step-rail__label { color: var(--orange-500); }
+  .step-rail__title { font-weight: 600; font-size: var(--t-body-sm); color: var(--text-primary); line-height: 1.2; }
+
+  /* --- hero intro --- */
+  .sp-hero {
+    display: grid; grid-template-columns: 1fr auto; gap: var(--s-5);
+    align-items: end;
+    padding: var(--s-6);
+    background: linear-gradient(135deg, var(--orange-tint), transparent 70%), var(--bg-panel);
+    border: 1px solid var(--border-flame);
+    border-radius: var(--r-lg);
+    margin-bottom: var(--s-5);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-flame);
+  }
+  .sp-hero::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain); opacity: 0.4;
+    mix-blend-mode: overlay; pointer-events: none;
+  }
+  .sp-hero__stamp { font-family: var(--font-hud); font-weight: 800; font-size: 12px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--orange-500); }
+  .sp-hero h1 { font-size: clamp(28px, 3vw, 40px); margin-top: 6px; }
+  .sp-hero p { color: var(--text-secondary); margin-top: 10px; max-width: 64ch; line-height: 1.55; }
+  .sp-hero__brand-chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: var(--r-pill);
+    background: var(--bg-elevated); border: 1px solid var(--border-default);
+    font-size: var(--t-meta);
+  }
+  .sp-hero__brand-chip .avatar { width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg, #4D87FF, #9B6BFF); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 11px; }
+
+  /* --- tournament grid (Step 1) --- */
+  .trn-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-4); }
+  @media (min-width: 900px)  { .trn-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1180px) { .trn-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .trn-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    cursor: pointer;
+    transition: border-color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+  .trn-card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+  .trn-card.is-selected { border-color: var(--border-flame); box-shadow: var(--shadow-flame); }
+  .trn-card__banner {
+    height: 120px; position: relative; overflow: hidden;
+    display: flex; align-items: flex-end; padding: var(--s-3);
+  }
+  .trn-card__banner::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-scanline); opacity: 0.7; pointer-events: none;
+  }
+  .trn-card__banner--apex    { background: linear-gradient(135deg, #FF5733 0%, #A30300 60%, #1B0A06 100%); }
+  .trn-card__banner--cyber   { background: linear-gradient(135deg, #FFC542 0%, #FF5733 50%, #4D1A00 100%); }
+  .trn-card__banner--rocket  { background: linear-gradient(135deg, #4D87FF 0%, #9B6BFF 50%, #1A0F3D 100%); }
+  .trn-card__banner-stamp {
+    position: relative; z-index: 1;
+    font-family: var(--font-hud); font-weight: 800; font-size: 10px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    color: rgba(255,255,255,0.92);
+    padding: 4px 8px; background: rgba(0,0,0,0.4); border-radius: var(--r-sm);
+  }
+  .trn-card__body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .trn-card__id { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+  .trn-card__title { font-family: var(--font-display); font-weight: 600; font-size: var(--t-h3); line-height: 1.2; }
+  .trn-card__meta { font-size: var(--t-meta); color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 8px 14px; }
+  .trn-card__pool { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
+  .trn-card__pool-now { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 22px; color: var(--orange-500); }
+  .trn-card__pool-target { font-size: var(--t-micro); color: var(--text-muted); font-family: var(--font-mono); }
+  .trn-card__pick {
+    border: 1px solid var(--border-default);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    height: 40px; border-radius: var(--r-md);
+    font-family: var(--font-hud); font-weight: 800; font-size: 11px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    margin-top: 4px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .trn-card.is-selected .trn-card__pick { background: var(--orange-500); color: var(--text-inverse); border-color: var(--orange-500); }
+  .trn-card.is-selected .trn-card__pick::before { content: "✓"; }
+  .trn-card:not(.is-selected) .trn-card__pick::before { content: "+"; font-size: 16px; line-height: 1; }
+
+  /* --- Step 2 layout --- */
+  .step2-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-5); }
+  @media (min-width: 1100px) { .step2-grid { grid-template-columns: 1.5fr 1fr; } }
+
+  /* compact selected-tournament pin */
+  .trn-pin {
+    display: grid; grid-template-columns: 72px 1fr auto; gap: var(--s-4);
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-flame);
+    border-radius: var(--r-md);
+    margin-bottom: var(--s-5);
+  }
+  .trn-pin__banner { width: 72px; height: 56px; border-radius: var(--r-sm); background: linear-gradient(135deg, #FF5733 0%, #A30300 60%, #1B0A06 100%); position: relative; overflow: hidden; }
+  .trn-pin__banner::after { content: ""; position: absolute; inset: 0; background-image: var(--tex-scanline); opacity: 0.6; }
+  .trn-pin__title { font-family: var(--font-display); font-weight: 600; font-size: var(--t-body); }
+  .trn-pin__id    { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); margin-top: 2px; }
+  .trn-pin__meta  { font-size: var(--t-meta); color: var(--text-secondary); margin-top: 4px; }
+
+  /* preset amount tiles */
+  .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .preset-tile {
+    height: 64px; border-radius: var(--r-md);
+    border: 1px solid var(--border-default);
+    background: var(--bg-elevated);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .preset-tile:hover { border-color: var(--border-strong); }
+  .preset-tile.is-active { border-color: var(--orange-500); background: var(--orange-tint); box-shadow: 0 0 0 1px var(--orange-500); }
+  .preset-tile__amt { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; font-size: var(--t-body); }
+  .preset-tile__gbp { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); margin-top: 2px; }
+  .preset-tile.is-active .preset-tile__gbp { color: var(--orange-500); }
+
+  /* amount input */
+  .amount-wrap {
+    display: grid; grid-template-columns: 1fr auto; align-items: center;
+    gap: var(--s-3);
+    padding: 4px 4px 4px 16px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+  }
+  .amount-wrap:focus-within { border-color: var(--orange-500); box-shadow: var(--shadow-focus); }
+  .amount-wrap input {
+    background: transparent; border: none; outline: none;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 28px;
+    width: 100%;
+    padding: 12px 0;
+  }
+  .amount-wrap .unit {
+    padding: 0 14px; height: 44px; border-radius: var(--r-sm);
+    background: var(--bg-elevated);
+    display: inline-flex; align-items: center;
+    font-family: var(--font-hud); font-weight: 800; font-size: 12px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-secondary);
+  }
+
+  /* live preview / math read-out */
+  .math-read {
+    background: var(--bg-input);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    display: grid; gap: 10px;
+  }
+  .math-read__row { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: var(--s-3); font-size: var(--t-body-sm); }
+  .math-read__row span:first-child { color: var(--text-secondary); }
+  .math-read__row strong { font-family: var(--font-display); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .math-read__row--total { border-top: 1px solid var(--border-default); padding-top: 10px; margin-top: 4px; }
+  .math-read__row--total strong { color: var(--orange-500); font-size: var(--t-h3); }
+
+  /* wallet check line */
+  .wallet-check {
+    display: grid; grid-template-columns: 40px 1fr auto; gap: var(--s-3);
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--green-tint);
+    border: 1px solid rgba(34, 210, 121, 0.3);
+    border-radius: var(--r-md);
+  }
+  .wallet-check__icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(34, 210, 121, 0.2); color: var(--green-500); display: inline-flex; align-items: center; justify-content: center; }
+  .wallet-check__title { font-weight: 600; font-size: var(--t-body-sm); }
+  .wallet-check__meta  { font-size: var(--t-micro); color: var(--text-secondary); font-family: var(--font-mono); margin-top: 2px; }
+  .wallet-check__after { font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; font-size: var(--t-body); color: var(--green-500); }
+
+  /* visibility toggle */
+  .vis-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vis-tile {
+    border: 1px solid var(--border-default);
+    background: var(--bg-elevated);
+    border-radius: var(--r-md);
+    padding: 14px;
+    cursor: pointer;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .vis-tile.is-active { border-color: var(--orange-500); background: var(--orange-tint); box-shadow: 0 0 0 1px var(--orange-500); }
+  .vis-tile__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .vis-tile__title { font-weight: 600; font-size: var(--t-body-sm); }
+  .vis-tile__copy  { font-size: var(--t-micro); color: var(--text-muted); line-height: 1.5; }
+  .vis-tile__cost  { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--orange-500); }
+
+  /* preview card (right column step 2) */
+  .preview-card {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.02), transparent 30%),
+      var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    position: sticky; top: 88px;
+  }
+  .preview-card__stamp { font-family: var(--font-hud); font-weight: 800; font-size: 10px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+  .preview-card .card-title { margin-bottom: 8px; }
+  .preview-card__msg {
+    font-style: italic; color: var(--text-secondary); font-size: var(--t-body-sm); margin-top: 2px;
+  }
+
+  /* Step 3 summary card */
+  .summary-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-flame);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-flame);
+    position: relative;
+    overflow: hidden;
+  }
+  .summary-card::after { content: ""; position: absolute; inset: 0; background-image: var(--tex-grain); opacity: 0.35; mix-blend-mode: overlay; pointer-events: none; }
+  .summary-row { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: var(--s-3); padding: 10px 0; border-bottom: 1px solid var(--border-subtle); font-size: var(--t-body-sm); }
+  .summary-row:last-of-type { border-bottom: none; }
+  .summary-row span:first-child { color: var(--text-secondary); }
+  .summary-row strong { font-family: var(--font-display); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .summary-row--total strong { font-size: var(--t-h3); color: var(--orange-500); }
+  .summary-row--net    strong { color: var(--green-500); font-size: var(--t-h3); }
+
+  /* locked info */
+  .locked-info {
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    margin-top: var(--s-4);
+    display: grid; grid-template-columns: 28px 1fr; gap: var(--s-3);
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .locked-info__icon { color: var(--amber-500); font-family: var(--font-hud); font-weight: 800; font-size: 18px; line-height: 1.2; }
+
+  /* receipt preview */
+  .receipt {
+    margin-top: var(--s-5);
+    padding: 16px;
+    background: var(--green-tint);
+    border: 1px solid rgba(34, 210, 121, 0.35);
+    border-radius: var(--r-md);
+    display: grid; grid-template-columns: 44px 1fr auto; gap: var(--s-3);
+    align-items: center;
+  }
+  .receipt__icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(34,210,121,0.22); color: var(--green-500); display: inline-flex; align-items: center; justify-content: center; }
+  .receipt__title { font-weight: 600; font-size: var(--t-body-sm); }
+  .receipt__meta  { font-size: var(--t-micro); color: var(--text-secondary); font-family: var(--font-mono); margin-top: 2px; }
+  .receipt__link { font-size: var(--t-meta); font-weight: 600; color: var(--green-500); }
+
+  /* wizard action bar */
+  .wizard-actions {
+    display: flex; justify-content: space-between; gap: var(--s-3);
+    margin-top: var(--s-6);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .section-stack > * + * { margin-top: var(--s-5); }
+  .label { font-family: var(--font-hud); font-weight: 700; font-size: 11px; letter-spacing: var(--tr-stamp); text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; display: block; }
+  .field-hint { font-size: var(--t-micro); color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+  .char-count { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+</style>
+</head>
+
+<body data-active-wizard="pick">
+
+<div class="shell shell--with-rail">
+
+  <!-- =================== HEADER =================== -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search…" />
+    </div>
+    <div class="header-actions">
+      <button class="icon-bell" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button>
+      <div class="avatar-pill"><span class="avatar">J</span><span>Joel · Nova Owner</span></div>
+    </div>
+  </header>
+
+  <!-- =================== NAV RAIL =================== -->
+  <aside class="nav-rail">
+    <a href="../index.html" class="nav-rail__brand"><img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" /></a>
+    <span class="nav-section">Brand</span>
+    <a class="nav-item" href="register.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V7l8-4 8 4v14"/></svg>My brands</a>
+    <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="9" rx="1.5"/></svg>Dashboard</a>
+    <a class="nav-item" href="wallet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18v12"/></svg>Brand wallet</a>
+    <a class="nav-item is-active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="12 2 22 22 2 22"/></svg>Sponsorships</a>
+    <a class="nav-item" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9H4"/></svg>Tournaments hosted</a>
+    <span class="nav-section">Account</span>
+    <a class="nav-item" href="../player/wallet-default.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/></svg>Switch to Player</a>
+  </aside>
+
+  <!-- =================== MAIN =================== -->
+  <main class="app-main">
+
+    <!-- ============== STATE SWITCHER (prototype chrome) ============== -->
+    <div class="state-switcher" role="tablist" aria-label="Wizard step">
+      <button class="state-switcher__btn is-active" data-wiz="pick">1 · Choose tournament</button>
+      <button class="state-switcher__btn"           data-wiz="contribute">2 · Contribution + message</button>
+      <button class="state-switcher__btn"           data-wiz="review">3 · Review &amp; confirm</button>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="row" style="margin-bottom: var(--s-3); font-size: var(--t-meta); color: var(--text-muted);">
+      <a href="dashboard.html" style="color: var(--text-muted)">← Nova Esports Ltd</a><span>›</span><span style="color: var(--text-secondary)">Sponsor a tournament</span>
+    </div>
+
+    <!-- =================== HERO =================== -->
+    <section class="sp-hero">
+      <div style="position: relative; z-index: 1;">
+        <span class="sp-hero__stamp">Brand sponsorship · multi-step</span>
+        <h1>Sponsor a tournament</h1>
+        <p>Contribute coins to a prize pool. Your logo appears on the tournament page, in match cards, and in winner announcements. <strong style="color: var(--text-primary)">Brand-tournament commission rate is 15 %</strong> (vs 12 % on player-hosted).</p>
+      </div>
+      <div class="sp-hero__brand-chip" style="position: relative; z-index: 1;">
+        <span class="avatar">NE</span>
+        <span><strong style="color: var(--text-primary)">Nova Esports Ltd</strong> · 12,400 coins available</span>
+      </div>
+    </section>
+
+    <!-- =================== STEP RAIL =================== -->
+    <div class="step-rail" id="stepRail">
+      <div class="step-rail__cell step-rail__cell--active" data-cell="pick">
+        <span class="step-rail__index">1</span>
+        <div><span class="step-rail__label">Step 1</span><span class="step-rail__title">Choose tournament</span></div>
+      </div>
+      <div class="step-rail__cell" data-cell="contribute">
+        <span class="step-rail__index">2</span>
+        <div><span class="step-rail__label">Step 2</span><span class="step-rail__title">Contribution + message</span></div>
+      </div>
+      <div class="step-rail__cell" data-cell="review">
+        <span class="step-rail__index">3</span>
+        <div><span class="step-rail__label">Step 3</span><span class="step-rail__title">Review &amp; confirm</span></div>
+      </div>
+    </div>
+
+    <!-- ===================================================================
+         STEP 1 — CHOOSE TOURNAMENT
+         =================================================================== -->
+    <section data-wizard="pick">
+      <div class="card-header" style="margin-bottom: var(--s-4);">
+        <div>
+          <div class="card-title">Eligible tournaments</div>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin-top: 4px;">Only tournaments currently in <strong style="color: var(--text-primary)">registration</strong> status and accepting sponsorships are shown. Brands cannot sponsor their own hosted events.</p>
+        </div>
+        <span class="badge badge--neutral">3 eligible · 2 brand-hosted excluded</span>
+      </div>
+
+      <div class="trn-grid">
+
+        <!-- Selected (default) -->
+        <article class="trn-card is-selected" data-trn="apex" onclick="selectTrn(this)">
+          <div class="trn-card__banner trn-card__banner--apex">
+            <span class="trn-card__banner-stamp">Apex Legends · Squads</span>
+          </div>
+          <div class="trn-card__body">
+            <span class="trn-card__id">TRN_2026_0287</span>
+            <h3 class="trn-card__title">Boadman Open · Apex Legends</h3>
+            <div class="trn-card__meta">
+              <span>Registration · 14 / 32 squads</span>
+              <span>Starts in 5 d</span>
+              <span>Player-hosted</span>
+            </div>
+            <div class="trn-card__pool">
+              <div>
+                <span class="stamp" style="font-size: 10px;">Current pool</span>
+                <div class="trn-card__pool-now">7,200<span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-left: 6px;">coins</span></div>
+              </div>
+              <span class="trn-card__pool-target">target 25,000</span>
+            </div>
+            <button class="trn-card__pick">Selected</button>
+          </div>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="trn-card" data-trn="cyber" onclick="selectTrn(this)">
+          <div class="trn-card__banner trn-card__banner--cyber">
+            <span class="trn-card__banner-stamp">Cyberpunk · Co-op</span>
+          </div>
+          <div class="trn-card__body">
+            <span class="trn-card__id">TRN_2026_0294</span>
+            <h3 class="trn-card__title">Cyberpunk Rebirth · Resurgence</h3>
+            <div class="trn-card__meta">
+              <span>Registration · 9 / 16 teams</span>
+              <span>Starts in 8 d</span>
+              <span>Player-hosted</span>
+            </div>
+            <div class="trn-card__pool">
+              <div>
+                <span class="stamp" style="font-size: 10px;">Current pool</span>
+                <div class="trn-card__pool-now">3,400<span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-left: 6px;">coins</span></div>
+              </div>
+              <span class="trn-card__pool-target">target 10,000</span>
+            </div>
+            <button class="trn-card__pick">Sponsor this</button>
+          </div>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="trn-card" data-trn="rocket" onclick="selectTrn(this)">
+          <div class="trn-card__banner trn-card__banner--rocket">
+            <span class="trn-card__banner-stamp">Rocket League · 3v3</span>
+          </div>
+          <div class="trn-card__body">
+            <span class="trn-card__id">TRN_2026_0301</span>
+            <h3 class="trn-card__title">Rocket League · Spring Cup</h3>
+            <div class="trn-card__meta">
+              <span>Registration · 18 / 24 teams</span>
+              <span>Starts in 3 d</span>
+              <span>Player-hosted</span>
+            </div>
+            <div class="trn-card__pool">
+              <div>
+                <span class="stamp" style="font-size: 10px;">Current pool</span>
+                <div class="trn-card__pool-now">5,800<span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-left: 6px;">coins</span></div>
+              </div>
+              <span class="trn-card__pool-target">target 15,000</span>
+            </div>
+            <button class="trn-card__pick">Sponsor this</button>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="wizard-actions">
+        <a href="dashboard.html" class="btn btn-ghost">← Cancel</a>
+        <button class="btn btn-primary btn-uppercase" onclick="goStep('contribute')">Continue to contribution →</button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STEP 2 — CONTRIBUTION + MESSAGE
+         =================================================================== -->
+    <section data-wizard="contribute">
+
+      <!-- pinned selected tournament -->
+      <div class="trn-pin">
+        <div class="trn-pin__banner"></div>
+        <div>
+          <div class="trn-pin__title">Boadman Open · Apex Legends · Squads</div>
+          <div class="trn-pin__id">TRN_2026_0287</div>
+          <div class="trn-pin__meta">Registration · 14 / 32 squads · current pool 7,200 coins · target 25,000</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="goStep('pick')">Change</button>
+      </div>
+
+      <div class="step2-grid">
+
+        <!-- LEFT — form -->
+        <div class="section-stack">
+
+          <section class="card">
+            <div class="card-header" style="margin-bottom: var(--s-3);">
+              <div class="card-title">Contribution amount</div>
+              <span class="badge badge--flame">Coins</span>
+            </div>
+
+            <span class="label">Preset</span>
+            <div class="preset-grid">
+              <button class="preset-tile"           data-amt="1000"  onclick="setAmt(this)"><span class="preset-tile__amt">1,000</span><span class="preset-tile__gbp">£100</span></button>
+              <button class="preset-tile"           data-amt="2500"  onclick="setAmt(this)"><span class="preset-tile__amt">2,500</span><span class="preset-tile__gbp">£250</span></button>
+              <button class="preset-tile is-active" data-amt="5000"  onclick="setAmt(this)"><span class="preset-tile__amt">5,000</span><span class="preset-tile__gbp">£500</span></button>
+              <button class="preset-tile"           data-amt="10000" onclick="setAmt(this)"><span class="preset-tile__amt">10,000</span><span class="preset-tile__gbp">£1,000</span></button>
+            </div>
+
+            <div style="margin-top: var(--s-4);">
+              <span class="label">Or enter custom amount</span>
+              <div class="amount-wrap">
+                <input id="amountInput" type="text" inputmode="numeric" value="5,000" onchange="customAmt(this.value)" />
+                <span class="unit">Coins</span>
+              </div>
+              <p class="field-hint">Minimum 100 coins. Brand-wallet sponsorship cap: 3,200 of 5,000 / 30-day rolling window remaining after this sponsorship.</p>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-title" style="margin-bottom: 12px;">Live preview</div>
+            <div class="math-read">
+              <div class="math-read__row"><span>Contribution (gross)</span><strong id="prGross">5,000 coins</strong></div>
+              <div class="math-read__row"><span>GBP value · 1 coin = 10 p</span><strong id="prGbp">£500.00</strong></div>
+              <div class="math-read__row"><span>Brand-tournament commission · 15 %</span><strong id="prFee" style="color: var(--amber-500);">− 750 coins</strong></div>
+              <div class="math-read__row math-read__row--total"><span>Net to prize pool</span><strong id="prNet">4,250 coins</strong></div>
+            </div>
+
+            <div class="wallet-check" style="margin-top: var(--s-4);">
+              <span class="wallet-check__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M16 12h2"/></svg></span>
+              <div>
+                <div class="wallet-check__title">Nova Esports Ltd · brand wallet</div>
+                <div class="wallet-check__meta">12,400 coins available · £1,240 GBP · approved · low risk</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="wallet-check__after" id="walletAfter">7,400</div>
+                <div class="wallet-check__meta">remaining after this</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header" style="margin-bottom: 12px;">
+              <div class="card-title">Public message</div>
+              <span class="char-count"><span id="msgCount">42</span> / 200</span>
+            </div>
+            <textarea class="textarea" id="msgInput" maxlength="200" rows="3" oninput="document.getElementById('msgCount').textContent=this.value.length; document.getElementById('previewMsg').textContent='“'+this.value+'”'; document.getElementById('summaryMsg').textContent='“'+this.value+'”';">Nova Esports celebrates the Apex community.</textarea>
+            <p class="field-hint">Optional. Shown on the tournament page next to your logo. No URLs, no profanity, no calls-to-action outside Boadman — moderated post-publish.</p>
+          </section>
+
+          <section class="card">
+            <div class="card-title" style="margin-bottom: 12px;">Brand visibility</div>
+            <div class="vis-toggle">
+              <div class="vis-tile is-active" data-vis="tournament" onclick="setVis(this)">
+                <div class="vis-tile__head">
+                  <span class="vis-tile__title">Tournament level</span>
+                  <span class="badge badge--neutral" style="font-size: 9px;">Default</span>
+                </div>
+                <p class="vis-tile__copy">Logo + message appear on the tournament detail page, sponsors panel, and the winner-announcement post.</p>
+                <span class="vis-tile__cost">Included</span>
+              </div>
+              <div class="vis-tile" data-vis="every-match" onclick="setVis(this)">
+                <div class="vis-tile__head">
+                  <span class="vis-tile__title">Tournament + every match card</span>
+                  <span class="badge badge--flame" style="font-size: 9px;">Premium</span>
+                </div>
+                <p class="vis-tile__copy">All of the above, plus your logo rendered on the in-app card for every match in the bracket. Higher visibility, higher CPM equivalent.</p>
+                <span class="vis-tile__cost">+ 1,000 coins · £100</span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- RIGHT — logo placement preview -->
+        <aside>
+          <div class="preview-card">
+            <div class="preview-card__stamp">Live preview · tournament-detail sidebar</div>
+
+            <section class="card" style="padding: 14px 16px; background: var(--bg-input);">
+              <div class="card-header" style="margin-bottom: 10px;">
+                <div class="card-title" style="font-size: var(--t-body);">Public sponsorships</div>
+                <span class="badge badge--info" style="font-size: 9px;">4 backers · 5,800 coins</span>
+              </div>
+
+              <div class="sponsor-row" style="border: 1px solid var(--border-flame); border-radius: var(--r-md); padding: 10px; background: var(--orange-tint); margin-bottom: 8px;">
+                <div class="sponsor-row__avatar" style="background: linear-gradient(135deg, #4D87FF, #9B6BFF);">NE</div>
+                <div>
+                  <div class="sponsor-row__funder">Nova Esports <span class="badge badge--info" style="font-size: 9px;">Brand</span> <span class="badge badge--flame" style="font-size: 9px;">New</span></div>
+                  <div class="sponsor-row__msg" id="previewMsg">&ldquo;Nova Esports celebrates the Apex community.&rdquo;</div>
+                </div>
+                <div class="sponsor-row__amount" id="previewAmt">+ 5,000</div>
+              </div>
+
+              <div class="sponsor-row">
+                <div class="sponsor-row__avatar" style="background: linear-gradient(135deg, var(--green-500), var(--blue-500));">A</div>
+                <div>
+                  <div class="sponsor-row__funder">Amara_Strikes</div>
+                  <div class="sponsor-row__msg">&ldquo;GLHF all.&rdquo;</div>
+                </div>
+                <div class="sponsor-row__amount">+ 500</div>
+              </div>
+              <div class="sponsor-row">
+                <div class="sponsor-row__avatar" style="background: linear-gradient(135deg, var(--amber-500), var(--red-500));">D</div>
+                <div>
+                  <div class="sponsor-row__funder">DaveK_99</div>
+                </div>
+                <div class="sponsor-row__amount">+ 200</div>
+              </div>
+              <div class="sponsor-row">
+                <div class="sponsor-row__avatar" style="background: linear-gradient(135deg, var(--purple-500), #4D87FF);">M</div>
+                <div>
+                  <div class="sponsor-row__funder">MetroGGs</div>
+                  <div class="sponsor-row__msg">&ldquo;Good luck Squad 7.&rdquo;</div>
+                </div>
+                <div class="sponsor-row__amount">+ 100</div>
+              </div>
+            </section>
+
+            <p class="field-hint" style="margin-top: 12px;">This is roughly how Nova Esports' attribution will appear once funds clear. Final layout updates with tournament status.</p>
+          </div>
+        </aside>
+
+      </div>
+
+      <div class="wizard-actions">
+        <button class="btn btn-ghost" onclick="goStep('pick')">← Back to tournament list</button>
+        <button class="btn btn-primary btn-uppercase" onclick="goStep('review')">Review sponsorship →</button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         STEP 3 — REVIEW & CONFIRM
+         =================================================================== -->
+    <section data-wizard="review">
+
+      <div class="step2-grid">
+
+        <!-- LEFT — summary -->
+        <div class="section-stack">
+          <div class="summary-card">
+            <div style="position: relative; z-index: 1;">
+              <span class="sp-hero__stamp">Sponsorship summary · about to commit</span>
+              <h2 style="font-size: var(--t-h2); margin-top: 6px; margin-bottom: var(--s-4);">Confirm your contribution</h2>
+
+              <div class="summary-row"><span>Tournament</span><strong>Boadman Open · Apex Legends</strong></div>
+              <div class="summary-row"><span>Tournament ID</span><strong style="font-family: var(--font-mono); font-weight: 500;">TRN_2026_0287</strong></div>
+              <div class="summary-row"><span>Format · entrants</span><strong>Squads · 14 / 32</strong></div>
+              <div class="summary-row"><span>Brand wallet</span><strong>Nova Esports Ltd · 12,400 coins</strong></div>
+              <div class="summary-row summary-row--total"><span>Contribution (gross)</span><strong id="sumGross">5,000 coins · £500</strong></div>
+              <div class="summary-row"><span>Brand-tournament commission · 15 %</span><strong id="sumFee" style="color: var(--amber-500);">− 750 coins (£75)</strong></div>
+              <div class="summary-row summary-row--net"><span>Net to prize pool</span><strong id="sumNet">4,250 coins · £425</strong></div>
+              <div class="summary-row"><span>Visibility</span><strong id="sumVis">Tournament-level</strong></div>
+              <div class="summary-row"><span>Public message</span><strong id="summaryMsg" style="font-weight: 400; font-style: italic; color: var(--text-secondary); max-width: 28ch; text-align: right;">&ldquo;Nova Esports celebrates the Apex community.&rdquo;</strong></div>
+            </div>
+
+            <div class="locked-info" style="position: relative; z-index: 1;">
+              <span class="locked-info__icon">!</span>
+              <div>
+                Once submitted, sponsorships are released to the prize pool as the tournament progresses. If the tournament is cancelled, your contribution returns to your brand wallet — <strong style="color: var(--text-primary);">minus the 15 % commission, which is non-refundable</strong>. Public attribution is permanent in the event ledger.
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-actions" style="border-top: none; padding-top: 0;">
+            <button class="btn btn-secondary" onclick="goStep('contribute')">← Back to edit</button>
+            <button class="btn btn-primary btn-lg btn-uppercase" onclick="showReceipt()">Confirm sponsorship · 5,000 coins</button>
+          </div>
+
+          <!-- after-confirm receipt stub (hidden until 'Confirm' clicked) -->
+          <div id="receiptStub" class="receipt" style="display: none;">
+            <span class="receipt__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <div>
+              <div class="receipt__title">Sponsorship recorded</div>
+              <div class="receipt__meta">SPON_2026_0118 · 2026-05-24 00:42:11 BST · tx applied to brand wallet</div>
+            </div>
+            <a href="../player/tournament-detail.html" class="receipt__link">View tournament →</a>
+          </div>
+
+        </div>
+
+        <!-- RIGHT — sticky context -->
+        <aside>
+          <div class="preview-card">
+            <div class="preview-card__stamp">What players will see</div>
+
+            <div class="sponsor-row" style="border: 1px solid var(--border-flame); border-radius: var(--r-md); padding: 10px; background: var(--orange-tint);">
+              <div class="sponsor-row__avatar" style="background: linear-gradient(135deg, #4D87FF, #9B6BFF);">NE</div>
+              <div>
+                <div class="sponsor-row__funder">Nova Esports <span class="badge badge--info" style="font-size: 9px;">Brand</span></div>
+                <div class="sponsor-row__msg">&ldquo;Nova Esports celebrates the Apex community.&rdquo;</div>
+              </div>
+              <div class="sponsor-row__amount">+ 5,000</div>
+            </div>
+
+            <div class="locked-info" style="margin-top: var(--s-4);">
+              <span class="locked-info__icon" style="color: var(--blue-500);">i</span>
+              <div>
+                Funds settle into the prize-pool escrow within seconds of confirming. Logo placement may take up to 60 s to appear on cached tournament pages.
+              </div>
+            </div>
+
+            <div style="margin-top: var(--s-4); padding: 12px 14px; border: 1px dashed var(--border-default); border-radius: var(--r-md);">
+              <span class="stamp" style="font-size: 10px;">Two-sided rule</span>
+              <p style="font-size: var(--t-micro); color: var(--text-secondary); line-height: 1.55; margin-top: 6px;">Brands cannot enter tournaments they sponsor. Players who sponsor cannot enter the same tournament. Boadman enforces this to prevent self-funded wins.</p>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </section>
+
+    <p class="footnote-rates" style="margin-top: var(--s-8);">Rates illustrative — 15 % brand-tournament commission pending SP8-ECON economics review.</p>
+
+  </main>
+</div>
+
+<script>
+  // ----- wizard state -----
+  const body = document.body;
+
+  function goStep(key) {
+    body.dataset.activeWizard = key;
+
+    // state-switcher pills
+    document.querySelectorAll('.state-switcher__btn').forEach(b => {
+      b.classList.toggle('is-active', b.dataset.wiz === key);
+    });
+
+    // step-rail cells
+    const order = ['pick','contribute','review'];
+    const idx = order.indexOf(key);
+    document.querySelectorAll('#stepRail .step-rail__cell').forEach((cell, i) => {
+      cell.classList.remove('step-rail__cell--active','step-rail__cell--done');
+      if (i < idx)  cell.classList.add('step-rail__cell--done');
+      if (i === idx) cell.classList.add('step-rail__cell--active');
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.querySelectorAll('.state-switcher__btn').forEach(b => {
+    b.addEventListener('click', () => goStep(b.dataset.wiz));
+  });
+
+  // ----- step 1: tournament card selection -----
+  function selectTrn(card) {
+    document.querySelectorAll('.trn-card').forEach(c => {
+      c.classList.remove('is-selected');
+      const btn = c.querySelector('.trn-card__pick');
+      if (btn) btn.textContent = 'Sponsor this';
+    });
+    card.classList.add('is-selected');
+    const btn = card.querySelector('.trn-card__pick');
+    if (btn) btn.textContent = 'Selected';
+
+    // auto-advance after a beat
+    setTimeout(() => goStep('contribute'), 320);
+  }
+
+  // ----- step 2: amount math -----
+  const COIN_RATE_PENCE = 10;          // 1 coin = 10p
+  const COMMISSION = 0.15;             // brand-tournament
+
+  function fmt(n)    { return n.toLocaleString('en-GB'); }
+  function gbp(coins) { return '£' + (coins * COIN_RATE_PENCE / 100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function gbpFlat(coins) { return '£' + (coins * COIN_RATE_PENCE / 100).toLocaleString('en-GB'); }
+
+  function applyAmt(amt) {
+    const visExtra = document.querySelector('.vis-tile.is-active')?.dataset.vis === 'every-match' ? 1000 : 0;
+    const effective = amt + visExtra;
+    const fee = Math.round(effective * COMMISSION);
+    const net = effective - fee;
+    const wallet = 12400;
+    const after = Math.max(0, wallet - effective);
+
+    document.getElementById('prGross').textContent = fmt(effective) + ' coins';
+    document.getElementById('prGbp').textContent   = gbp(effective);
+    document.getElementById('prFee').textContent   = '− ' + fmt(fee) + ' coins';
+    document.getElementById('prNet').textContent   = fmt(net) + ' coins';
+    document.getElementById('walletAfter').textContent = fmt(after);
+
+    document.getElementById('previewAmt').textContent = '+ ' + fmt(effective);
+    document.getElementById('sumGross').textContent   = fmt(effective) + ' coins · ' + gbpFlat(effective);
+    document.getElementById('sumFee').textContent     = '− ' + fmt(fee) + ' coins (' + gbpFlat(fee) + ')';
+    document.getElementById('sumNet').textContent     = fmt(net) + ' coins · ' + gbpFlat(net);
+
+    // update primary CTA label
+    const confirmBtn = document.querySelector('[onclick="showReceipt()"]');
+    if (confirmBtn) confirmBtn.textContent = 'Confirm sponsorship · ' + fmt(effective) + ' coins';
+  }
+
+  function setAmt(tile) {
+    document.querySelectorAll('.preset-tile').forEach(t => t.classList.remove('is-active'));
+    tile.classList.add('is-active');
+    const amt = parseInt(tile.dataset.amt, 10);
+    document.getElementById('amountInput').value = fmt(amt);
+    applyAmt(amt);
+  }
+
+  function customAmt(v) {
+    const n = parseInt((v + '').replace(/[^0-9]/g, ''), 10) || 0;
+    document.querySelectorAll('.preset-tile').forEach(t => {
+      t.classList.toggle('is-active', parseInt(t.dataset.amt, 10) === n);
+    });
+    document.getElementById('amountInput').value = fmt(n);
+    applyAmt(n);
+  }
+
+  // ----- step 2: visibility tile -----
+  function setVis(tile) {
+    document.querySelectorAll('.vis-tile').forEach(t => t.classList.remove('is-active'));
+    tile.classList.add('is-active');
+    document.getElementById('sumVis').textContent = tile.dataset.vis === 'every-match'
+      ? 'Tournament + every match card (premium)'
+      : 'Tournament-level';
+    // recompute math (premium adds 1000 coins)
+    const active = document.querySelector('.preset-tile.is-active');
+    const amt = active ? parseInt(active.dataset.amt, 10) : 5000;
+    applyAmt(amt);
+  }
+
+  // ----- step 3: confirm -> show receipt stub -----
+  function showReceipt() {
+    document.getElementById('receiptStub').style.display = 'grid';
+    document.querySelector('[onclick="showReceipt()"]').setAttribute('disabled','true');
+    document.querySelector('[onclick="showReceipt()"]').style.opacity = '0.5';
+    document.querySelector('[onclick="showReceipt()"]').textContent = 'Sponsorship confirmed ✓';
+  }
+</script>
+
+</body>
+</html>

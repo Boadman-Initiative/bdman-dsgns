@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="compliance">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman MLRO · KYC_2026_2841 · Adaeze Okoye</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     Compliance theme · KYC submission detail
+     Inherits the visual grammar from aml-flag-detail.html and
+     home.html. Local class names are prefixed `kyc-` to avoid any
+     collision with token / component classes.
+     ───────────────────────────────────────────────────────────── */
+  body {
+    background:
+      radial-gradient(at 10% 0%, rgba(155, 107, 255, 0.06), transparent 50%),
+      radial-gradient(at 100% 100%, rgba(155, 107, 255, 0.04), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  .compliance-strip {
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple-500) 0%, var(--blue-500) 50%, var(--purple-500) 100%);
+    position: relative;
+  }
+  .compliance-strip::after {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(11,12,16,0.4) 60px, rgba(11,12,16,0.4) 62px);
+  }
+
+  /* MLRO label — matched to aml-flag-detail.html */
+  .mlro-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(155, 107, 255, 0.5);
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.08);
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────── */
+  .kyc-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid rgba(155, 107, 255, 0.3);
+    margin-bottom: var(--s-5);
+    isolation: isolate;
+    background:
+      radial-gradient(at 85% 25%, rgba(155, 107, 255, 0.14), transparent 50%),
+      var(--bg-panel);
+  }
+  .kyc-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .kyc-hero__content {
+    position: relative; z-index: 1;
+    padding: var(--s-6);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+  @media (min-width: 900px) {
+    .kyc-hero__content { grid-template-columns: 1.4fr 1fr; align-items: center; padding: var(--s-8); }
+  }
+  .kyc-hero__strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: var(--s-3); }
+  .kyc-hero__id {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: var(--t-meta);
+    margin-bottom: var(--s-4);
+  }
+  .kyc-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 3.6vw, 44px);
+    line-height: 1.05;
+    letter-spacing: var(--tr-display);
+    margin-bottom: var(--s-3);
+  }
+  .kyc-hero__sub {
+    color: var(--text-secondary);
+    font-size: var(--t-body);
+    margin-bottom: var(--s-5);
+    max-width: 58ch;
+    line-height: 1.55;
+  }
+
+  /* SLA ring — lifted from aml-flag-detail.html */
+  .sla-ring {
+    width: 132px; height: 132px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .sla-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .sla-ring__track { stroke: rgba(255, 255, 255, 0.06); fill: none; stroke-width: 8; }
+  .sla-ring__bar {
+    stroke: var(--purple-500); fill: none; stroke-width: 8;
+    stroke-linecap: round;
+  }
+  .sla-ring__label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .sla-ring__time {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 28px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+  .sla-ring__sub {
+    font-family: var(--font-hud);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .hero-side__numbers { display: grid; gap: 6px; }
+  .hero-side__stat { display: flex; align-items: baseline; gap: 8px; }
+  .hero-side__stat-label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    min-width: 110px;
+  }
+  .hero-side__stat-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 16px;
+  }
+
+  /* ── Grid ─────────────────────────────────────────────────── */
+  @media (min-width: 1100px) {
+    .kyc-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--s-6); align-items: flex-start; }
+    .kyc-aside { position: sticky; top: calc(var(--header-height) + var(--s-4)); }
+  }
+
+  /* Definition list — matched */
+  .def-list { display: grid; gap: 0; }
+  .def-list > div {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: var(--s-4);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .def-list > div:last-child { border-bottom: none; }
+  .def-list dt {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .def-list dd {
+    margin: 0;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* ── Document grid ─────────────────────────────────────────── */
+  .doc-grid {
+    display: grid;
+    gap: var(--s-3);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px) {
+    .doc-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .doc-tile {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    display: grid;
+    grid-template-rows: 160px auto;
+  }
+  .doc-tile__preview {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  /* CSS-only blurred-gradient placeholder for each document type */
+  .doc-tile__preview--id-front {
+    background:
+      radial-gradient(at 30% 30%, rgba(155, 107, 255, 0.45), transparent 55%),
+      radial-gradient(at 80% 70%, rgba(77, 135, 255, 0.35), transparent 60%),
+      linear-gradient(135deg, #2a1f4d 0%, #1a2a4d 100%);
+  }
+  .doc-tile__preview--id-back {
+    background:
+      radial-gradient(at 70% 30%, rgba(77, 135, 255, 0.4), transparent 55%),
+      radial-gradient(at 20% 80%, rgba(155, 107, 255, 0.35), transparent 60%),
+      linear-gradient(135deg, #1a2a4d 0%, #2a1f4d 100%);
+  }
+  .doc-tile__preview--selfie {
+    background:
+      radial-gradient(at 50% 35%, rgba(255, 170, 34, 0.32), transparent 50%),
+      radial-gradient(at 50% 80%, rgba(155, 107, 255, 0.3), transparent 60%),
+      linear-gradient(160deg, #2c2440 0%, #1a1830 100%);
+  }
+  .doc-tile__preview::after {
+    content: ""; position: absolute; inset: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 14px),
+      rgba(11, 12, 16, 0.35);
+    pointer-events: none;
+  }
+  .doc-tile__overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px;
+    z-index: 2;
+    text-align: center;
+    padding: 0 var(--s-3);
+  }
+  .doc-tile__icon {
+    width: 44px; height: 44px;
+    border-radius: var(--r-sm);
+    background: rgba(155, 107, 255, 0.18);
+    border: 1px solid rgba(155, 107, 255, 0.4);
+    color: var(--purple-400);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .doc-tile__icon svg { width: 22px; height: 22px; }
+  .doc-tile__placeholder-label {
+    font-family: var(--font-hud);
+    font-size: 9px;
+    color: rgba(236, 237, 242, 0.75);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .doc-tile__corner {
+    position: absolute;
+    top: 10px; left: 10px;
+    z-index: 3;
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--r-sm);
+    background: rgba(11, 12, 16, 0.7);
+    color: var(--purple-400);
+    border: 1px solid rgba(155, 107, 255, 0.4);
+  }
+  .doc-tile__body {
+    padding: var(--s-3) var(--s-4);
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-panel);
+    display: grid;
+    gap: 6px;
+  }
+  .doc-tile__type {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+  }
+  .doc-tile__meta {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .doc-tile__actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 4px;
+  }
+  .doc-tile__link {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--purple-500);
+    text-decoration: none;
+  }
+  .doc-tile__link:hover { color: var(--purple-400); }
+
+  /* ── Auto-checks list ──────────────────────────────────────── */
+  .check-list { display: grid; gap: 0; }
+  .check-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: var(--s-3);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: center;
+    border-radius: var(--r-sm);
+  }
+  .check-row:last-child { border-bottom: none; }
+  .check-row--success { background: var(--green-tint); border-color: rgba(34, 210, 121, 0.22); }
+  .check-row--warning { background: var(--amber-tint); border-color: rgba(255, 170, 34, 0.22); }
+  .check-row--danger  { background: var(--red-tint);   border-color: rgba(255, 63, 78, 0.22); }
+  .check-row__dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--bg-page);
+    flex-shrink: 0;
+  }
+  .check-row--success .check-row__dot { background: var(--green-500); }
+  .check-row--warning .check-row__dot { background: var(--amber-500); }
+  .check-row--danger  .check-row__dot { background: var(--red-500); }
+  .check-row__dot svg { width: 12px; height: 12px; }
+  .check-row__body { display: grid; gap: 2px; min-width: 0; }
+  .check-row__title { font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500; }
+  .check-row__meta { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+  .check-row__value {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: var(--t-body-sm);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .check-row--success .check-row__value { color: var(--green-500); }
+  .check-row--warning .check-row__value { color: var(--amber-500); }
+  .check-row--danger  .check-row__value { color: var(--red-500); }
+
+  /* ── Risk score ────────────────────────────────────────────── */
+  .risk-score {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+  @media (min-width: 720px) {
+    .risk-score { grid-template-columns: 200px 1fr; align-items: center; }
+  }
+  .risk-score__big {
+    text-align: center;
+    padding: var(--s-4);
+    border: 1px solid rgba(34, 210, 121, 0.3);
+    border-radius: var(--r-lg);
+    background: var(--green-tint);
+  }
+  .risk-score__big-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--green-500);
+  }
+  .risk-score__big-total {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .risk-score__big-band {
+    margin-top: var(--s-3);
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--green-500);
+    padding: 4px 10px;
+    border-radius: var(--r-sm);
+    background: rgba(34, 210, 121, 0.16);
+    display: inline-block;
+  }
+  .risk-bars { display: grid; gap: var(--s-3); }
+  .risk-bar { display: grid; gap: 4px; }
+  .risk-bar__head { display: flex; justify-content: space-between; align-items: baseline; }
+  .risk-bar__label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .risk-bar__value {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+  .risk-bar__track {
+    height: 8px;
+    border-radius: var(--r-pill);
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    position: relative;
+  }
+  .risk-bar__fill {
+    height: 100%;
+    border-radius: var(--r-pill);
+    background: linear-gradient(90deg, var(--green-500), var(--green-500));
+  }
+  .risk-bar--warning .risk-bar__fill { background: linear-gradient(90deg, var(--amber-500), var(--amber-500)); }
+  .risk-bar--danger  .risk-bar__fill { background: linear-gradient(90deg, var(--red-500), var(--red-500)); }
+  .risk-bar--accent  .risk-bar__fill { background: linear-gradient(90deg, var(--purple-500), var(--blue-500)); }
+
+  /* ── Timeline ──────────────────────────────────────────────── */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: ""; position: absolute;
+    left: 11px; top: 12px; bottom: 12px; width: 1px;
+    background: var(--border-subtle);
+  }
+  .tl-event {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: var(--s-3);
+    padding: 12px 0;
+    align-items: start;
+  }
+  .tl-event__dot {
+    width: 12px; height: 12px;
+    margin-top: 4px; margin-left: 6px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 2px solid var(--bg-panel);
+    z-index: 1;
+    position: relative;
+  }
+  .tl-event--accent .tl-event__dot {
+    background: var(--purple-500);
+    box-shadow: 0 0 0 4px var(--purple-tint), 0 0 12px var(--purple-500);
+  }
+  .tl-event--danger .tl-event__dot {
+    background: var(--red-500);
+    box-shadow: 0 0 0 4px var(--red-tint);
+  }
+  .tl-event--success .tl-event__dot {
+    background: var(--green-500);
+    box-shadow: 0 0 0 4px var(--green-tint);
+  }
+  .tl-event__body { display: grid; gap: 4px; }
+  .tl-event__head {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .tl-event__time { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); }
+  .tl-event__title { font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500; }
+  .tl-event__meta { font-size: var(--t-micro); color: var(--text-muted); font-family: var(--font-mono); }
+
+  /* ── Investigation notes (prior + composer) ────────────────── */
+  .note-list { display: grid; gap: var(--s-3); }
+  .note-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.02);
+    padding: var(--s-3) var(--s-4);
+    display: grid;
+    gap: 6px;
+  }
+  .note-card__head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+  .note-card__actor {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+  }
+  .note-card__time {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+  }
+  .note-card__text {
+    font-size: var(--t-body-sm);
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .note-card__text strong { color: var(--text-primary); font-weight: 600; }
+
+  .note-composer {
+    border-top: 1px dashed var(--border-default);
+    padding-top: var(--s-4);
+    margin-top: var(--s-4);
+  }
+
+  /* ── Decision actions — matched ─────────────────────────────── */
+  .action-grid { display: grid; gap: 10px; }
+  .action-tile {
+    display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+    text-align: left;
+    width: 100%;
+  }
+  .action-tile:hover {
+    border-color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.06);
+    transform: translateX(2px);
+  }
+  .action-tile__icon {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--r-sm);
+    background: var(--purple-tint);
+    color: var(--purple-500);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .action-tile__icon svg { width: 22px; height: 22px; }
+  .action-tile__body { flex: 1; }
+  .action-tile__title { font-weight: 600; font-size: var(--t-body-sm); color: var(--text-primary); }
+  .action-tile__sub { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); margin-top: 2px; }
+  .action-tile__arrow { color: var(--text-muted); }
+  .action-tile--success .action-tile__icon { background: var(--green-tint); color: var(--green-500); }
+  .action-tile--danger  .action-tile__icon { background: var(--red-tint);   color: var(--red-500); }
+  .action-tile--warning .action-tile__icon { background: var(--amber-tint); color: var(--amber-500); }
+
+  /* ── Actor strip — matched ─────────────────────────────────── */
+  .actor-strip {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: var(--s-3);
+    padding-bottom: var(--s-4);
+    margin-bottom: var(--s-4);
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: center;
+  }
+  .actor-strip__avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-300));
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 24px;
+    border: 2px solid rgba(155, 107, 255, 0.4);
+    overflow: hidden;
+  }
+  .actor-strip__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .actor-strip__id { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); }
+
+  .level-arrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--purple-500);
+  }
+  .level-arrow .pill {
+    padding: 3px 8px;
+    border-radius: var(--r-sm);
+    background: rgba(155, 107, 255, 0.12);
+    border: 1px solid rgba(155, 107, 255, 0.4);
+  }
+  .level-arrow .pill--muted {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border-default);
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="compliance-strip"></div>
+
+<div class="shell shell--with-rail">
+
+  <!-- ── Header (logo lives in sidebar) ───────────────────────── -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search users, flags, brands, audit IDs…" />
+      <kbd class="kbd">⌘K</kbd>
+    </div>
+    <div class="header-actions">
+      <span class="mlro-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        MLRO · K. Owusu
+      </span>
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot" style="background: var(--purple-500); box-shadow: 0 0 8px var(--purple-500);"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <aside class="nav-rail" aria-label="Compliance navigation">
+    <a href="../index.html" class="nav-rail__brand" aria-label="Boadman MLRO">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <span class="mlro-label" style="margin-left: auto; padding: 3px 8px; font-size: 9px;">MLRO</span>
+    </a>
+    <span class="nav-section">Compliance</span>
+    <a class="nav-item" href="home.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a class="nav-item" href="queue-template.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      AML flags<span class="nav-badge">17</span>
+    </a>
+    <a class="nav-item is-active" href="kyc-submission-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      KYC queue<span class="nav-badge">42</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      Sanctions<span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item" href="dispute-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+      Disputes<span class="nav-badge">8</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16M4 2h16M16 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-3.414 3.414A2 2 0 0 0 8 16.828V22"/></svg>
+      Complaints<span class="nav-badge">5</span>
+    </a>
+
+    <span class="nav-section">Operations</span>
+    <a class="nav-item" href="user-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      Users
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
+      Brands<span class="nav-badge">4</span>
+    </a>
+    <a class="nav-item" href="redemption-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/></svg>
+      Redemptions<span class="nav-badge">11</span>
+    </a>
+    <a class="nav-item" href="competition-controls.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 0 12 0a6 6 0 0 0-12 0z"/><path d="M8 13v8l4-3 4 3v-8"/></svg>
+      Tournaments
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Rectification<span class="nav-badge">6</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Audit log
+    </a>
+  </aside>
+
+  <!-- ── Main ─────────────────────────────────────────────────── -->
+  <main class="app-main">
+
+    <!-- Breadcrumb -->
+    <div class="row" style="margin-bottom: var(--s-3); font-size: var(--t-meta); color: var(--text-muted); display: flex; gap: 8px; align-items: center;">
+      <a href="#" style="color: var(--text-muted)">← KYC queue</a>
+      <span>›</span>
+      <span style="color: var(--text-secondary)">KYC_2026_2841</span>
+    </div>
+
+    <!-- ── HERO ──────────────────────────────────────────────── -->
+    <section class="kyc-hero">
+      <div class="kyc-hero__content">
+        <div>
+          <div class="kyc-hero__strip">
+            <span class="badge badge--compliance">KYC review</span>
+            <span class="badge badge--warning">Awaiting MLRO</span>
+            <span class="level-arrow">
+              <span class="pill pill--muted">L0</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+              <span class="pill">L1 requested</span>
+            </span>
+          </div>
+
+          <div class="kyc-hero__id">
+            <span class="kbd">KYC_2026_2841</span> · Submitted 22 May 2026 · 14:38 UTC · provider Didit
+          </div>
+
+          <h1 class="kyc-hero__title">Identity verification<br><span style="color: var(--purple-500)">Adaeze Okoye</span></h1>
+
+          <p class="kyc-hero__sub">
+            Applicant submitted Nigerian international passport (front + back) and a Didit-captured liveness selfie. Provider returned a "review" verdict — OCR confidence high, face-match strong, but face-match score sits just under the auto-approve floor. No sanctions or PEP hits. Cash-out remains locked at L0 caps until decision.
+          </p>
+
+          <div class="row" style="gap: 12px; display: flex; flex-wrap: wrap;">
+            <button class="btn btn-compliance btn-uppercase">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Take decision
+            </button>
+            <button class="btn btn-secondary btn-uppercase">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              Assign to me
+            </button>
+          </div>
+        </div>
+
+        <!-- SLA ring + numbers -->
+        <div class="row" style="gap: var(--s-5); display: flex; align-items: center; flex-wrap: nowrap;">
+          <div class="sla-ring" aria-label="SLA progress 47%">
+            <svg viewBox="0 0 132 132">
+              <circle class="sla-ring__track" cx="66" cy="66" r="58"/>
+              <circle class="sla-ring__bar" cx="66" cy="66" r="58"
+                stroke-dasharray="364.4"
+                stroke-dashoffset="193"
+              />
+            </svg>
+            <div class="sla-ring__label">
+              <div class="sla-ring__time">25 h</div>
+              <div class="sla-ring__sub">/ 48 h target</div>
+            </div>
+          </div>
+          <div class="hero-side__numbers">
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Submitted</span><span class="hero-side__stat-value">22 May · 14:38</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">In queue</span><span class="hero-side__stat-value">23 h 12 m</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Provider verdict</span><span class="hero-side__stat-value" style="color: var(--amber-500);">Review</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Composite risk</span><span class="hero-side__stat-value" style="color: var(--green-500);">23 / 100</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Sanctions / PEP</span><span class="hero-side__stat-value" style="color: var(--green-500);">No hits</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Prior submissions</span><span class="hero-side__stat-value" style="color: var(--text-muted);">0</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="kyc-grid">
+
+      <!-- ── LEFT column ────────────────────────────────────── -->
+      <div class="stack" style="display: grid; gap: var(--s-5);">
+
+        <!-- Identity panel -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Declared identity</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">applicant-supplied · cross-checked against doc OCR</span>
+          </div>
+          <dl class="def-list">
+            <div><dt>Legal name</dt><dd style="font-variant-numeric: tabular-nums;">Adaeze Chioma Okoye</dd></div>
+            <div><dt>Date of birth</dt><dd style="font-variant-numeric: tabular-nums;">17 Feb 1998 · age 28</dd></div>
+            <div><dt>Country of residence</dt><dd>United Kingdom · Manchester M14</dd></div>
+            <div><dt>Nationality (declared)</dt><dd>Nigeria · passport A081·2374</dd></div>
+            <div><dt>Username</dt><dd><span class="kbd">adaeze_o</span> · joined 14 Apr 2026</dd></div>
+            <div><dt>Email</dt><dd>adaeze.o<span class="text-muted">@</span>•••mail.com · verified 14 Apr 2026</dd></div>
+            <div><dt>Phone</dt><dd style="font-variant-numeric: tabular-nums;">+44 7700 ••42 18 · verified 14 Apr 2026</dd></div>
+            <div><dt>Current KYC level</dt><dd>
+              <span class="level-arrow">
+                <span class="pill pill--muted">L0 · email + phone</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+                <span class="pill">L1 · ID + selfie</span>
+              </span>
+            </dd></div>
+            <div><dt>Reason for L1</dt><dd>Reached £500 cumulative deposits · L1 required before next purchase</dd></div>
+          </dl>
+        </section>
+
+        <!-- Document grid -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Submitted documents</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">3 of 3 uploaded · Didit session did_sess_ed14·8b2c</span>
+          </div>
+          <div class="doc-grid">
+
+            <div class="doc-tile">
+              <div class="doc-tile__preview doc-tile__preview--id-front">
+                <span class="doc-tile__corner">Front</span>
+                <div class="doc-tile__overlay">
+                  <span class="doc-tile__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2.5"/><path d="M14 10h4M14 14h3"/></svg>
+                  </span>
+                  <span class="doc-tile__placeholder-label">[document not yet uploaded in mockup]</span>
+                </div>
+              </div>
+              <div class="doc-tile__body">
+                <div class="doc-tile__type">Passport · photo page</div>
+                <div class="doc-tile__meta">Uploaded 22 May · 14:36 UTC · 2.4 MB · JPEG</div>
+                <div class="doc-tile__meta">sha256 <span style="color: var(--text-secondary);">8a3f·9d12·4e7c·…</span></div>
+                <div class="doc-tile__actions">
+                  <a href="#" class="doc-tile__link">View full size →</a>
+                  <span class="badge badge--success">OCR ok</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="doc-tile">
+              <div class="doc-tile__preview doc-tile__preview--id-back">
+                <span class="doc-tile__corner">Back</span>
+                <div class="doc-tile__overlay">
+                  <span class="doc-tile__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M6 10h12M6 14h8M6 17h5"/></svg>
+                  </span>
+                  <span class="doc-tile__placeholder-label">[document not yet uploaded in mockup]</span>
+                </div>
+              </div>
+              <div class="doc-tile__body">
+                <div class="doc-tile__type">Passport · signature page</div>
+                <div class="doc-tile__meta">Uploaded 22 May · 14:36 UTC · 1.9 MB · JPEG</div>
+                <div class="doc-tile__meta">sha256 <span style="color: var(--text-secondary);">d20e·4c91·b7a3·…</span></div>
+                <div class="doc-tile__actions">
+                  <a href="#" class="doc-tile__link">View full size →</a>
+                  <span class="badge badge--success">MRZ ok</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="doc-tile">
+              <div class="doc-tile__preview doc-tile__preview--selfie">
+                <span class="doc-tile__corner">Selfie</span>
+                <div class="doc-tile__overlay">
+                  <span class="doc-tile__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                  </span>
+                  <span class="doc-tile__placeholder-label">[document not yet uploaded in mockup]</span>
+                </div>
+              </div>
+              <div class="doc-tile__body">
+                <div class="doc-tile__type">Liveness selfie</div>
+                <div class="doc-tile__meta">Captured 22 May · 14:38 UTC · 3-frame challenge</div>
+                <div class="doc-tile__meta">sha256 <span style="color: var(--text-secondary);">7f02·11b8·6e0d·…</span></div>
+                <div class="doc-tile__actions">
+                  <a href="#" class="doc-tile__link">View full size →</a>
+                  <span class="badge badge--warning">Borderline</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Auto-checks -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Provider auto-checks</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">Didit IDV v4.2 · ran 22 May 14:38 UTC · 2.4 s</span>
+          </div>
+          <div class="check-list">
+
+            <div class="check-row check-row--success">
+              <span class="check-row__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div class="check-row__body">
+                <div class="check-row__title">Document OCR confidence</div>
+                <div class="check-row__meta">All MRZ fields matched declared identity · no character ambiguity</div>
+              </div>
+              <div class="check-row__value">98.4 %</div>
+            </div>
+
+            <div class="check-row check-row--warning">
+              <span class="check-row__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </span>
+              <div class="check-row__body">
+                <div class="check-row__title">Face-match score (selfie → passport photo)</div>
+                <div class="check-row__meta">Below 90 % auto-approve floor · within human-review band 85–90 %</div>
+              </div>
+              <div class="check-row__value">87.6 %</div>
+            </div>
+
+            <div class="check-row check-row--success">
+              <span class="check-row__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div class="check-row__body">
+                <div class="check-row__title">Document liveness / tamper check</div>
+                <div class="check-row__meta">No replay, screen, or print attack detected · holograms confirmed</div>
+              </div>
+              <div class="check-row__value">Pass</div>
+            </div>
+
+            <div class="check-row check-row--success">
+              <span class="check-row__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div class="check-row__body">
+                <div class="check-row__title">Selfie liveness</div>
+                <div class="check-row__meta">3-frame motion challenge passed · no deepfake signature</div>
+              </div>
+              <div class="check-row__value">Pass</div>
+            </div>
+
+            <div class="check-row check-row--success">
+              <span class="check-row__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div class="check-row__body">
+                <div class="check-row__title">Sanctions screening (Dow Jones · daily refresh)</div>
+                <div class="check-row__meta">UK, EU, UN, OFAC lists · screened 22 May 14:38</div>
+              </div>
+              <div class="check-row__value">0 hits</div>
+            </div>
+
+            <div class="check-row check-row--success">
+              <span class="check-row__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div class="check-row__body">
+                <div class="check-row__title">PEP screening</div>
+                <div class="check-row__meta">No politically-exposed match in any tier 1–4 register</div>
+              </div>
+              <div class="check-row__value">0 hits</div>
+            </div>
+
+            <div class="check-row check-row--success">
+              <span class="check-row__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div class="check-row__body">
+                <div class="check-row__title">Adverse media</div>
+                <div class="check-row__meta">No matches across global news + watchlist corpora</div>
+              </div>
+              <div class="check-row__value">Clear</div>
+            </div>
+
+            <div class="check-row check-row--success">
+              <span class="check-row__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <div class="check-row__body">
+                <div class="check-row__title">Prior fraud history on Boadman</div>
+                <div class="check-row__meta">No prior AML flags · no prior KYC rejections · no chargebacks</div>
+              </div>
+              <div class="check-row__value">None</div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Risk score -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Composite risk score</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">weighted · lower = lower risk</span>
+          </div>
+          <div class="risk-score">
+            <div class="risk-score__big">
+              <div class="risk-score__big-value">23</div>
+              <div class="risk-score__big-total">/ 100</div>
+              <div class="risk-score__big-band">Low risk</div>
+            </div>
+            <div class="risk-bars">
+              <div class="risk-bar">
+                <div class="risk-bar__head"><span class="risk-bar__label">Document quality</span><span class="risk-bar__value">95 %</span></div>
+                <div class="risk-bar__track"><div class="risk-bar__fill" style="width: 95%"></div></div>
+              </div>
+              <div class="risk-bar risk-bar--warning">
+                <div class="risk-bar__head"><span class="risk-bar__label">Face-match strength</span><span class="risk-bar__value">88 %</span></div>
+                <div class="risk-bar__track"><div class="risk-bar__fill" style="width: 88%"></div></div>
+              </div>
+              <div class="risk-bar">
+                <div class="risk-bar__head"><span class="risk-bar__label">Sanctions / PEP cleanliness</span><span class="risk-bar__value">100 %</span></div>
+                <div class="risk-bar__track"><div class="risk-bar__fill" style="width: 100%"></div></div>
+              </div>
+              <div class="risk-bar risk-bar--accent">
+                <div class="risk-bar__head"><span class="risk-bar__label">Account-age &amp; behaviour</span><span class="risk-bar__value">38 d clean</span></div>
+                <div class="risk-bar__track"><div class="risk-bar__fill" style="width: 72%"></div></div>
+              </div>
+              <div class="risk-bar">
+                <div class="risk-bar__head"><span class="risk-bar__label">Geographic risk (UK resident · NG nationality)</span><span class="risk-bar__value">Standard</span></div>
+                <div class="risk-bar__track"><div class="risk-bar__fill" style="width: 82%"></div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Audit timeline + investigation notes -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Investigation timeline</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">MLR 2017 §40 · append-only</span>
+          </div>
+          <div class="timeline">
+
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">22 May · 14:36 UTC</span>
+                  <span class="tl-event__title">Applicant began Didit IDV session</span>
+                </div>
+                <div class="tl-event__meta">did_sess_ed14·8b2c · channel web · IP UK · no VPN</div>
+              </div>
+            </div>
+
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">22 May · 14:38 UTC</span>
+                  <span class="tl-event__title">Documents + selfie uploaded · session completed</span>
+                </div>
+                <div class="tl-event__meta">3 artefacts · 7.6 MB total</div>
+              </div>
+            </div>
+
+            <div class="tl-event tl-event--accent">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">22 May · 14:38 UTC</span>
+                  <span class="tl-event__title">Provider returned verdict <strong>"review"</strong> · routed to MLRO queue</span>
+                </div>
+                <div class="tl-event__meta">face-match 87.6 % below 90 % auto-approve floor</div>
+              </div>
+            </div>
+
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">22 May · 16:02 UTC</span>
+                  <span class="tl-event__title">Assigned to A. Ferreira (Deputy MLRO)</span>
+                </div>
+                <div class="tl-event__meta">audit kyc.assigned</div>
+              </div>
+            </div>
+
+            <div class="tl-event tl-event--accent">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">23 May · 09:14 UTC</span>
+                  <span class="tl-event__title">Reassigned to K. Owusu · borderline face-match flagged for MLRO sign-off</span>
+                </div>
+                <div class="tl-event__meta">audit kyc.reassigned</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-header" style="margin-top: var(--s-5);">
+            <div class="card-title" style="font-size: 16px;">Investigation notes</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">visible to MLRO + deputies only</span>
+          </div>
+          <div class="note-list">
+
+            <div class="note-card">
+              <div class="note-card__head">
+                <span class="note-card__actor">A. Ferreira · Deputy MLRO</span>
+                <span class="note-card__time">22 May · 16:11 UTC</span>
+              </div>
+              <p class="note-card__text">
+                <strong>Face-match strength.</strong> The 87.6 % score reflects glare on the passport photo page rather than a genuine mismatch — MRZ + holograms verify the document, and the selfie liveness is clean. I would lean approve, but want a second pair of eyes given this is a first-deposit-threshold trigger. Holding for K. Owusu.
+              </p>
+            </div>
+
+            <div class="note-card">
+              <div class="note-card__head">
+                <span class="note-card__actor">K. Owusu · MLRO</span>
+                <span class="note-card__time">23 May · 09:22 UTC</span>
+              </div>
+              <p class="note-card__text">
+                <strong>Picked up.</strong> Cross-referenced the passport MRZ against the Nigerian Immigration register format — valid issue date, valid check digits. Sanctions + PEP confirmed clean. Geographic profile (UK resident, NG nationality) is standard for our cohort. Will resolve before SLA window expires.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="note-composer">
+            <label class="label" for="note">Add investigation note</label>
+            <textarea id="note" class="textarea" placeholder="Findings, hypotheses, references — stamped with role + current state."></textarea>
+            <div class="row" style="display: flex; justify-content: flex-end; margin-top: 12px; gap: var(--s-2);">
+              <button class="btn btn-ghost btn-sm">Cancel</button>
+              <button class="btn btn-secondary btn-sm">Save note</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ── RIGHT column — sticky decisions ─────────────────── -->
+      <aside class="kyc-aside stack" style="display: grid; gap: var(--s-5);">
+
+        <!-- Applicant -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Applicant</div>
+            <span class="badge badge--info">PII read · audited</span>
+          </div>
+          <div class="actor-strip">
+            <div class="actor-strip__avatar">AO</div>
+            <div>
+              <div class="actor-strip__name">Adaeze Okoye</div>
+              <div class="actor-strip__id">UK · DOB 17 Feb 1998 · joined 14 Apr 2026</div>
+            </div>
+          </div>
+          <dl class="def-list">
+            <div><dt>Status</dt><dd><span class="badge badge--success">Active</span></dd></div>
+            <div><dt>Account age</dt><dd>38 days</dd></div>
+            <div><dt>Wallet balance</dt><dd style="font-variant-numeric: tabular-nums;">820 coins (£82.00)</dd></div>
+            <div><dt>30-day deposits</dt><dd style="font-variant-numeric: tabular-nums;">£540.00 · 4 events</dd></div>
+            <div><dt>Cash-out</dt><dd><span class="badge badge--warning">L0 cap · awaiting L1</span></dd></div>
+            <div><dt>Tournaments entered</dt><dd>6 · 1 podium</dd></div>
+          </dl>
+          <div class="row" style="display: flex; gap: 8px; margin-top: 16px;">
+            <button class="btn btn-secondary btn-sm">Open profile</button>
+            <button class="btn btn-secondary btn-sm">Audit trail</button>
+          </div>
+        </section>
+
+        <!-- Decision -->
+        <section class="card" style="border-color: rgba(155, 107, 255, 0.4); background: linear-gradient(180deg, rgba(155, 107, 255, 0.06), transparent 100%), var(--bg-panel);">
+          <div class="card-header">
+            <div class="card-title">Decision</div>
+            <span class="badge badge--compliance">MLRO only</span>
+          </div>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin-bottom: var(--s-4); line-height: 1.55;">
+            Every action writes an audit row, notifies the applicant per <code class="kbd">notification-channels.md</code>, and updates the KYC level on the user record.
+          </p>
+
+          <div class="action-grid">
+            <button class="action-tile action-tile--success">
+              <span class="action-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Approve L1</div>
+                <div class="action-tile__sub">audit kyc.approved · raise level · lift L0 caps</div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <button class="action-tile action-tile--warning">
+              <span class="action-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Request more documents</div>
+                <div class="action-tile__sub">audit kyc.resubmit_requested · email applicant</div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <button class="action-tile action-tile--danger">
+              <span class="action-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Reject with reason</div>
+                <div class="action-tile__sub">audit kyc.rejected · hold L0 caps · email reason</div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+
+            <button class="action-tile">
+              <span class="action-tile__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              <div class="action-tile__body">
+                <div class="action-tile__title">Escalate to MLRO</div>
+                <div class="action-tile__sub">audit kyc.escalated · route to K. Owusu sign-off</div>
+              </div>
+              <span class="action-tile__arrow">→</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Related artefacts -->
+        <section class="card">
+          <div class="card-title" style="margin-bottom: 16px;">Related artefacts</div>
+          <ul class="stack" style="display: grid; gap: 10px; list-style: none; padding: 0; margin: 0; font-size: var(--t-meta);">
+            <li class="row row--between" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="row" style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Prior KYC submissions
+              </span>
+              <span class="text-muted">None</span>
+            </li>
+            <li class="row row--between" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="row" style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                AML flags · 12 mo
+              </span>
+              <span class="text-muted">None</span>
+            </li>
+            <li class="row row--between" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="row" style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+                Sanctions screening · last
+              </span>
+              <span>22 May · clear</span>
+            </li>
+            <li class="row row--between" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="row" style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Open disputes
+              </span>
+              <span class="text-muted">None</span>
+            </li>
+            <li class="row row--between" style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="row" style="display: flex; gap: 8px; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+                Didit session log
+              </span>
+              <a href="#" style="color: var(--purple-500); font-weight: 600;">Open →</a>
+            </li>
+          </ul>
+        </section>
+
+      </aside>
+    </div>
+
+    <!-- Footnote -->
+    <footer style="margin-top: var(--s-7); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;">
+      <span>© 2026 Boadman Ltd · MLRO terminal · FCA AML registered · UK MLR 2017</span>
+      <span>Session terminates after 15 m idle. Audit log is append-only.</span>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

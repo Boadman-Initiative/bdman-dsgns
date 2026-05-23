@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="compliance">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman MLRO · DSP_2026_9A82 · Joel H. vs Theo W.</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* Page-specific tweaks for the dispute adjudication surface.
+     Mirrors aml-flag-detail.html chrome (def-list, action-grid, timeline)
+     and adds the side-by-side claim panel as the centerpiece. */
+  body {
+    background:
+      radial-gradient(at 10% 0%, rgba(155, 107, 255, 0.06), transparent 50%),
+      radial-gradient(at 100% 100%, rgba(155, 107, 255, 0.04), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+
+  .compliance-strip {
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple-500) 0%, var(--blue-500) 50%, var(--purple-500) 100%);
+    position: relative;
+  }
+  .compliance-strip::after {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(11,12,16,0.4) 60px, rgba(11,12,16,0.4) 62px);
+  }
+
+  .mlro-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(155, 107, 255, 0.5);
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.08);
+  }
+
+  /* ===== Hero (match identity) ============================================= */
+  .dispute-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid rgba(155, 107, 255, 0.3);
+    margin-bottom: var(--s-5);
+    isolation: isolate;
+    background:
+      radial-gradient(at 85% 25%, rgba(155, 107, 255, 0.14), transparent 55%),
+      radial-gradient(at 10% 100%, rgba(77, 135, 255, 0.05), transparent 60%),
+      var(--bg-panel);
+  }
+  .dispute-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.4; mix-blend-mode: overlay; pointer-events: none;
+  }
+  .dispute-hero__content {
+    position: relative; z-index: 1;
+    padding: var(--s-6);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+  @media (min-width: 900px) {
+    .dispute-hero__content { grid-template-columns: 1.4fr 1fr; align-items: center; padding: var(--s-8); }
+  }
+  .dispute-hero__strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: var(--s-3); }
+  .dispute-hero__id {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: var(--t-meta);
+    margin-bottom: var(--s-4);
+  }
+  .dispute-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 3.6vw, 44px);
+    line-height: 1.05;
+    letter-spacing: var(--tr-display);
+    margin-bottom: var(--s-3);
+  }
+  .dispute-hero__title .vs {
+    color: var(--purple-500);
+    margin: 0 12px;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    vertical-align: middle;
+    font-family: var(--font-hud);
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 24px;
+    margin-bottom: var(--s-5);
+    max-width: 60ch;
+  }
+  @media (min-width: 600px) {
+    .meta-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  .meta-grid__item { display: grid; gap: 4px; }
+  .meta-grid__label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+  .meta-grid__value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+  }
+
+  /* SLA ring (lifted shape from aml-flag-detail) */
+  .hero-side {
+    display: flex; align-items: center; gap: var(--s-5);
+    padding: var(--s-5);
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+  }
+  .sla-ring { width: 132px; height: 132px; position: relative; flex-shrink: 0; }
+  .sla-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .sla-ring__track { stroke: rgba(255, 255, 255, 0.06); fill: none; stroke-width: 8; }
+  .sla-ring__bar { stroke: var(--purple-500); fill: none; stroke-width: 8; stroke-linecap: round; }
+  .sla-ring__label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .sla-ring__time {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: 26px; font-variant-numeric: tabular-nums;
+    color: var(--text-primary); line-height: 1;
+  }
+  .sla-ring__sub {
+    font-family: var(--font-hud); font-size: 9px;
+    color: var(--text-muted); letter-spacing: var(--tr-stamp);
+    text-transform: uppercase; margin-top: 4px;
+  }
+  .sla-ring__deadline {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-secondary);
+    margin-top: 6px;
+    text-align: center;
+  }
+  .hero-side__numbers { display: grid; gap: 6px; }
+  .hero-side__stat { display: flex; align-items: baseline; gap: 8px; }
+  .hero-side__stat-label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    min-width: 100px;
+  }
+  .hero-side__stat-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 15px;
+  }
+
+  /* ===== Side-by-side claim panels (the centerpiece) ====================== */
+  .claims-section { margin-bottom: var(--s-5); }
+  .claims-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: var(--s-4); flex-wrap: wrap; gap: var(--s-3);
+  }
+  .claims-head h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .claims-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
+  @media (min-width: 900px) {
+    .claims-grid {
+      grid-template-columns: 1fr auto 1fr;
+      align-items: stretch;
+    }
+  }
+  .claim-card {
+    position: relative;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    background: var(--bg-panel);
+    padding: var(--s-5);
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: var(--s-4);
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .claim-card::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.18; mix-blend-mode: overlay; pointer-events: none; z-index: -1;
+  }
+  .claim-card--joel { border-color: rgba(77, 135, 255, 0.35); }
+  .claim-card--theo { border-color: rgba(255, 87, 51, 0.35); }
+  .claim-card__head {
+    display: flex; align-items: center; gap: var(--s-3);
+  }
+  .claim-card__avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-300));
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    border: 2px solid rgba(155, 107, 255, 0.35);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .claim-card--joel .claim-card__avatar {
+    background: linear-gradient(135deg, #4D87FF, #7AA9FF);
+    border-color: rgba(77, 135, 255, 0.5);
+  }
+  .claim-card--theo .claim-card__avatar {
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-300));
+    border-color: rgba(255, 87, 51, 0.5);
+  }
+  .claim-card__name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .claim-card__handle {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+  }
+  .claim-card__corner-tag {
+    position: absolute;
+    top: 0; right: 0;
+    padding: 5px 14px;
+    font-family: var(--font-hud);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    border-bottom-left-radius: var(--r-md);
+    color: var(--text-primary);
+  }
+  .claim-card--joel .claim-card__corner-tag {
+    background: rgba(77, 135, 255, 0.18);
+    color: #7AA9FF;
+  }
+  .claim-card--theo .claim-card__corner-tag {
+    background: rgba(255, 87, 51, 0.18);
+    color: var(--orange-400);
+  }
+  .claim-card__claim {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--s-4);
+    padding: var(--s-4);
+    background: rgba(0, 0, 0, 0.22);
+    border-radius: var(--r-md);
+    align-items: center;
+  }
+  .claim-card__verdict {
+    display: grid; gap: 4px;
+  }
+  .claim-card__verdict-label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+  .claim-card__verdict-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+  .claim-card__score {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 40px;
+    line-height: 1;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .claim-card__score .sep { color: var(--text-muted); margin: 0 2px; }
+
+  .claim-card__evidence {
+    display: grid; gap: var(--s-3);
+  }
+  .claim-card__evidence-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .claim-card__evidence-label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+  .claim-card__evidence-link {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--purple-500);
+    font-weight: 600;
+    word-break: break-all;
+  }
+  .claim-card__evidence-link:hover { color: var(--purple-400); }
+
+  /* CSS placeholder preview tile — no real iframe */
+  .evidence-preview {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    background:
+      linear-gradient(135deg, rgba(155, 107, 255, 0.10), rgba(77, 135, 255, 0.06)),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 8px, transparent 8px 16px),
+      var(--bg-input);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .evidence-preview:hover { border-color: var(--purple-500); }
+  .evidence-preview__source {
+    position: absolute; top: 10px; left: 12px;
+    font-family: var(--font-hud);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    color: var(--text-secondary);
+    background: rgba(11, 12, 16, 0.7);
+    padding: 3px 8px;
+    border-radius: var(--r-sm);
+    font-weight: 700;
+  }
+  .evidence-preview__duration {
+    position: absolute; bottom: 10px; right: 12px;
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-primary);
+    background: rgba(11, 12, 16, 0.7);
+    padding: 3px 8px;
+    border-radius: var(--r-sm);
+  }
+  .evidence-preview__play {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: rgba(11, 12, 16, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-primary);
+  }
+  .evidence-preview__play svg { width: 18px; height: 18px; margin-left: 2px; }
+
+  .evidence-actions {
+    display: flex; gap: var(--s-2);
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .evidence-actions__group { display: flex; gap: var(--s-3); align-items: center; }
+  .evidence-link-out {
+    color: var(--purple-500);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .evidence-link-out svg { width: 12px; height: 12px; }
+
+  .claim-card__submitted {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+    border-top: 1px dashed var(--border-subtle);
+    padding-top: var(--s-3);
+  }
+  .claim-card__submitted strong { color: var(--text-primary); font-weight: 600; }
+
+  /* "VS" divider between claim cards */
+  .claims-vs {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-hud);
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--purple-500);
+    letter-spacing: var(--tr-stamp);
+    padding: 0 8px;
+    position: relative;
+  }
+  @media (min-width: 900px) {
+    .claims-vs { display: flex; flex-direction: column; gap: 12px; }
+  }
+  .claims-vs::before, .claims-vs::after {
+    content: ""; flex: 1; width: 1px;
+    background: linear-gradient(180deg, transparent, var(--border-strong), transparent);
+  }
+  .claims-vs__icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(155, 107, 255, 0.4);
+    background: rgba(155, 107, 255, 0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--purple-500);
+  }
+  .claims-vs__icon svg { width: 16px; height: 16px; }
+
+  /* Amber conflict banner */
+  .conflict-banner {
+    display: flex; align-items: center; gap: var(--s-3);
+    margin-top: var(--s-4);
+    padding: var(--s-3) var(--s-4);
+    border: 1px solid rgba(255, 170, 34, 0.45);
+    background: var(--amber-tint);
+    border-radius: var(--r-md);
+    color: var(--amber-500);
+    font-weight: 600;
+  }
+  .conflict-banner__icon {
+    width: 36px; height: 36px;
+    border-radius: var(--r-sm);
+    background: rgba(255, 170, 34, 0.22);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .conflict-banner__icon svg { width: 20px; height: 20px; }
+  .conflict-banner__body { flex: 1; font-size: var(--t-body-sm); }
+  .conflict-banner__body small {
+    display: block; margin-top: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* ===== Main two-column grid ============================================= */
+  @media (min-width: 1100px) {
+    .dispute-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: var(--s-6); align-items: flex-start; }
+  }
+
+  /* Reused: def-list / timeline / action-grid — lifted shape from aml-flag-detail */
+  .def-list { display: grid; gap: 0; }
+  .def-list > div {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: var(--s-4);
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .def-list > div:last-child { border-bottom: none; }
+  .def-list dt {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .def-list dd {
+    margin: 0;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* ===== Evidence review checklist ======================================== */
+  .checklist {
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .checklist__item {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 14px var(--s-4);
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .checklist__item:last-child { border-bottom: none; }
+  .checklist__item:hover { background: rgba(155, 107, 255, 0.04); }
+  .checklist__box {
+    width: 20px; height: 20px;
+    border-radius: var(--r-sm);
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg-input);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--purple-500);
+  }
+  .checklist__box svg { width: 14px; height: 14px; opacity: 0; }
+  .checklist__item.is-checked .checklist__box {
+    background: var(--purple-tint);
+    border-color: var(--purple-500);
+  }
+  .checklist__item.is-checked .checklist__box svg { opacity: 1; }
+  .checklist__item.is-checked .checklist__label { color: var(--text-secondary); }
+  .checklist__label {
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+  }
+  .checklist__meta {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+  }
+  .checklist__progress {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px var(--s-4);
+    background: rgba(155, 107, 255, 0.05);
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+  }
+  .checklist__progress strong { color: var(--text-primary); font-weight: 600; }
+
+  /* ===== Player history mini-profile cards =============================== */
+  .history-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
+  @media (min-width: 700px) {
+    .history-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .mini-profile {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: var(--s-4);
+    background: rgba(255, 255, 255, 0.02);
+    display: grid; gap: var(--s-3);
+  }
+  .mini-profile__head {
+    display: flex; align-items: center; gap: var(--s-3);
+    padding-bottom: var(--s-3);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .mini-profile__avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4D87FF, #7AA9FF);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .mini-profile--theo .mini-profile__avatar {
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-300));
+  }
+  .mini-profile__name { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+  .mini-profile__id { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+  .mini-profile__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--s-3);
+    font-size: var(--t-meta);
+    padding: 6px 0;
+  }
+  .mini-profile__row dt {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .mini-profile__row dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+  }
+  .strike-bar {
+    display: inline-grid;
+    grid-auto-flow: column;
+    gap: 4px;
+    align-items: center;
+  }
+  .strike-pip {
+    width: 12px; height: 4px;
+    border-radius: 2px;
+    background: var(--border-strong);
+  }
+  .strike-pip.is-on { background: var(--amber-500); box-shadow: 0 0 6px var(--amber-500); }
+
+  /* ===== Decision panel ================================================== */
+  .decision-card {
+    border: 1px solid rgba(155, 107, 255, 0.4);
+    background: linear-gradient(180deg, rgba(155, 107, 255, 0.06), transparent 100%), var(--bg-panel);
+    border-radius: var(--r-lg);
+    padding: var(--s-5);
+  }
+  .decision-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 600px) {
+    .decision-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .decision-tile {
+    position: relative;
+    display: grid;
+    grid-template-columns: 40px 1fr 20px;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-4);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+    text-align: left;
+    width: 100%;
+  }
+  .decision-tile:hover {
+    border-color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.06);
+    transform: translateY(-1px);
+  }
+  .decision-tile.is-selected {
+    border-color: var(--purple-500);
+    box-shadow: 0 0 0 3px rgba(155, 107, 255, 0.15);
+    background: rgba(155, 107, 255, 0.1);
+  }
+  .decision-tile__radio {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg-input);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--dur-fast);
+  }
+  .decision-tile__radio::after {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--purple-500);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all var(--dur-fast);
+  }
+  .decision-tile.is-selected .decision-tile__radio {
+    border-color: var(--purple-500);
+  }
+  .decision-tile.is-selected .decision-tile__radio::after {
+    opacity: 1; transform: scale(1);
+  }
+  .decision-tile__icon {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--r-sm);
+    background: var(--purple-tint);
+    color: var(--purple-500);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .decision-tile__icon svg { width: 22px; height: 22px; }
+  .decision-tile__body { display: grid; gap: 2px; }
+  .decision-tile__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+  }
+  .decision-tile__sub {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .decision-tile--success .decision-tile__icon { background: rgba(255, 87, 51, 0.16); color: var(--orange-400); }
+  .decision-tile--warning .decision-tile__icon { background: var(--amber-tint); color: var(--amber-500); }
+  .decision-tile--danger .decision-tile__icon { background: var(--red-tint); color: var(--red-500); }
+
+  .decision-footer {
+    margin-top: var(--s-4);
+    padding-top: var(--s-4);
+    border-top: 1px dashed var(--border-default);
+    display: flex; gap: var(--s-3); justify-content: space-between; align-items: center;
+    flex-wrap: wrap;
+  }
+  .decision-footer__hint {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+  }
+  .decision-footer__hint strong { color: var(--text-secondary); font-weight: 600; }
+
+  /* ===== Timeline (lifted shape from aml-flag-detail) ===================== */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: ""; position: absolute;
+    left: 11px; top: 12px; bottom: 12px; width: 1px;
+    background: var(--border-subtle);
+  }
+  .tl-event {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: var(--s-3);
+    padding: 12px 0;
+    align-items: start;
+  }
+  .tl-event__dot {
+    width: 12px; height: 12px;
+    margin-top: 4px; margin-left: 6px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 2px solid var(--bg-panel);
+    z-index: 1;
+    position: relative;
+  }
+  .tl-event--accent .tl-event__dot {
+    background: var(--purple-500);
+    box-shadow: 0 0 0 4px var(--purple-tint), 0 0 12px var(--purple-500);
+  }
+  .tl-event--danger .tl-event__dot {
+    background: var(--red-500);
+    box-shadow: 0 0 0 4px var(--red-tint);
+  }
+  .tl-event__body { display: grid; gap: 4px; }
+  .tl-event__head {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .tl-event__time { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); }
+  .tl-event__title { font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500; }
+  .tl-event__meta { font-size: var(--t-micro); color: var(--text-muted); font-family: var(--font-mono); }
+
+  .note-composer {
+    border-top: 1px dashed var(--border-default);
+    padding-top: var(--s-4);
+    margin-top: var(--s-4);
+  }
+
+  /* ===== Prize-release strip ============================================= */
+  .prize-strip {
+    margin-top: var(--s-6);
+    border: 1px solid rgba(155, 107, 255, 0.3);
+    border-radius: var(--r-lg);
+    background:
+      linear-gradient(135deg, rgba(155, 107, 255, 0.06), transparent 60%),
+      var(--bg-panel);
+    padding: var(--s-5);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .prize-strip { grid-template-columns: 1fr auto; }
+  }
+  .prize-strip__head {
+    display: flex; align-items: center; gap: var(--s-3);
+    margin-bottom: var(--s-2);
+  }
+  .prize-strip__icon {
+    width: 40px; height: 40px;
+    border-radius: var(--r-sm);
+    background: var(--purple-tint);
+    color: var(--purple-500);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .prize-strip__icon svg { width: 22px; height: 22px; }
+  .prize-strip__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .prize-strip__copy {
+    font-size: var(--t-body-sm);
+    color: var(--text-secondary);
+    line-height: 1.55;
+    max-width: 70ch;
+  }
+  .prize-strip__copy strong { color: var(--text-primary); font-weight: 600; }
+  .prize-strip__actions {
+    display: flex; gap: var(--s-3); flex-wrap: wrap;
+  }
+
+  /* ===== Section title (reused) ========================================== */
+  .section-title {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: var(--s-4); flex-wrap: wrap; gap: var(--s-3);
+  }
+  .section-title h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .section-title__sub {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+  }
+
+  /* Tabular nums utility */
+  .tnum { font-variant-numeric: tabular-nums; }
+  /* Mono inline references */
+  .mono { font-family: var(--font-mono); }
+</style>
+</head>
+<body>
+
+<div class="compliance-strip"></div>
+
+<div class="shell shell--with-rail">
+
+  <!-- Header (logo lives in sidebar) -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search users, flags, brands, audit IDs…" />
+      <kbd class="kbd">⌘K</kbd>
+    </div>
+    <div class="header-actions">
+      <span class="mlro-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        MLRO · K. Owusu
+      </span>
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot" style="background: var(--purple-500); box-shadow: 0 0 8px var(--purple-500);"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar — compliance theme, Disputes active -->
+  <aside class="nav-rail" aria-label="Compliance navigation">
+    <a href="../index.html" class="nav-rail__brand" aria-label="Boadman MLRO">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <span class="mlro-label" style="margin-left: auto; padding: 3px 8px; font-size: 9px;">MLRO</span>
+    </a>
+    <span class="nav-section">Compliance</span>
+    <a class="nav-item" href="home.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a class="nav-item" href="queue-template.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      AML flags<span class="nav-badge">17</span>
+    </a>
+    <a class="nav-item" href="kyc-submission-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      KYC queue<span class="nav-badge">42</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      Sanctions<span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item is-active" href="dispute-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+      Disputes<span class="nav-badge">8</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16M4 2h16M16 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-3.414 3.414A2 2 0 0 0 8 16.828V22"/></svg>
+      Complaints<span class="nav-badge">5</span>
+    </a>
+
+    <span class="nav-section">Operations</span>
+    <a class="nav-item" href="user-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      Users
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
+      Brands<span class="nav-badge">4</span>
+    </a>
+    <a class="nav-item" href="redemption-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/></svg>
+      Redemptions<span class="nav-badge">11</span>
+    </a>
+    <a class="nav-item" href="competition-controls.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 0 12 0a6 6 0 0 0-12 0z"/><path d="M8 13v8l4-3 4 3v-8"/></svg>
+      Tournaments
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Rectification<span class="nav-badge">6</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Audit log
+    </a>
+  </aside>
+
+  <main class="app-main">
+
+    <!-- Breadcrumb + chips -->
+    <div class="row" style="margin-bottom: var(--s-3); font-size: var(--t-meta); color: var(--text-muted); justify-content: space-between;">
+      <div class="row" style="gap: 10px;">
+        <a href="#" style="color: var(--text-muted)">← Disputes queue</a>
+        <span>›</span>
+        <span class="mono" style="color: var(--text-secondary)">DSP_2026_9A82</span>
+      </div>
+      <div class="row" style="gap: 8px;">
+        <span class="badge badge--neutral">Standard severity</span>
+        <span class="badge badge--compliance">In SLA</span>
+        <span class="mono" style="color: var(--text-muted); font-size: var(--t-micro);">Opened 22 May · 23:08 UTC</span>
+      </div>
+    </div>
+
+    <!-- ===== DISPUTE HERO (match identity) ===== -->
+    <section class="dispute-hero">
+      <div class="dispute-hero__content">
+        <div>
+          <div class="dispute-hero__strip">
+            <span class="badge badge--compliance">Match dispute</span>
+            <span class="badge badge--warning">Awaiting decision</span>
+            <span class="badge badge--neutral">1v1 challenge</span>
+          </div>
+
+          <div class="dispute-hero__id">
+            <span class="kbd">DSP_2026_9A82</span> · match <a href="../player/match.html" class="mono" style="color: var(--purple-500);">MTC_8c2f1e</a> · best-of-3 challenge
+          </div>
+
+          <h1 class="dispute-hero__title">
+            Joel H.<span class="vs">vs</span>Theo W.
+          </h1>
+
+          <div class="meta-grid">
+            <div class="meta-grid__item">
+              <span class="meta-grid__label">Game</span>
+              <span class="meta-grid__value">Cyberpunk 2077</span>
+            </div>
+            <div class="meta-grid__item">
+              <span class="meta-grid__label">Format</span>
+              <span class="meta-grid__value">Best of 3</span>
+            </div>
+            <div class="meta-grid__item">
+              <span class="meta-grid__label">Pot</span>
+              <span class="meta-grid__value tnum">500 coins</span>
+            </div>
+            <div class="meta-grid__item">
+              <span class="meta-grid__label">Net to winner</span>
+              <span class="meta-grid__value tnum">440 coins</span>
+            </div>
+          </div>
+
+          <p class="text-secondary" style="font-size: var(--t-body); margin-bottom: var(--s-4); max-width: 60ch; line-height: 1.55;">
+            Both players submitted opposing results within 30 minutes of match end. Pot is held in escrow; 12 % platform fee (60 coins) is settled to platform regardless of outcome. Net winner-take is <strong class="text-primary tnum">440 coins</strong>.
+          </p>
+
+          <div class="row" style="gap: 12px;">
+            <a href="../player/match.html" class="btn btn-secondary btn-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Open player match view
+            </a>
+            <button class="btn btn-secondary btn-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              Escalate to peer
+            </button>
+          </div>
+        </div>
+
+        <!-- SLA ring + key facts -->
+        <div class="hero-side">
+          <div class="sla-ring" aria-label="SLA progress 75%">
+            <svg viewBox="0 0 132 132">
+              <circle class="sla-ring__track" cx="66" cy="66" r="58"/>
+              <circle class="sla-ring__bar" cx="66" cy="66" r="58"
+                stroke-dasharray="364.4"
+                stroke-dashoffset="93"
+              />
+            </svg>
+            <div class="sla-ring__label">
+              <div class="sla-ring__time">18 h</div>
+              <div class="sla-ring__sub">22 m remaining</div>
+            </div>
+          </div>
+          <div class="hero-side__numbers">
+            <div class="hero-side__stat"><span class="hero-side__stat-label">SLA target</span><span class="hero-side__stat-value">72 h</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Elapsed</span><span class="hero-side__stat-value">53 h 38 m</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Deadline</span><span class="hero-side__stat-value">25 May 17:30</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Platform fee</span><span class="hero-side__stat-value text-muted tnum">12 % · 60c</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Pot in escrow</span><span class="hero-side__stat-value text-warning tnum">500 coins</span></div>
+            <div class="hero-side__stat"><span class="hero-side__stat-label">Prize hold</span><span class="hero-side__stat-value">48 h post-award</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SIDE-BY-SIDE CLAIM PANELS (centerpiece) ===== -->
+    <section class="claims-section">
+      <div class="claims-head">
+        <h2>Submitted results</h2>
+        <span class="section-title__sub">Both players submitted within 30 m of match end · auto-flagged conflict</span>
+      </div>
+
+      <div class="claims-grid">
+
+        <!-- Joel's submission ───────────────────────────────────────────── -->
+        <article class="claim-card claim-card--joel">
+          <span class="claim-card__corner-tag">Claimant A</span>
+
+          <div class="claim-card__head">
+            <div class="claim-card__avatar">JH</div>
+            <div>
+              <div class="claim-card__name">Joel Henderson</div>
+              <div class="claim-card__handle">@joelh · USR_8d2941</div>
+            </div>
+          </div>
+
+          <div class="claim-card__claim">
+            <div class="claim-card__verdict">
+              <span class="claim-card__verdict-label">Declared winner</span>
+              <span class="claim-card__verdict-value">Joel (self)</span>
+            </div>
+            <div class="claim-card__score tnum">3<span class="sep">–</span>2</div>
+          </div>
+
+          <div class="claim-card__evidence">
+            <div class="claim-card__evidence-head">
+              <span class="claim-card__evidence-label">Evidence</span>
+              <span class="mono" style="font-size: var(--t-micro); color: var(--text-muted);">Twitch clip · 1m 14s</span>
+            </div>
+            <div class="evidence-preview" role="button" tabindex="0" aria-label="Preview Joel's evidence clip">
+              <span class="evidence-preview__source">Twitch · clips</span>
+              <span class="evidence-preview__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+              </span>
+              <span class="evidence-preview__duration tnum">1:14</span>
+            </div>
+            <div class="evidence-actions">
+              <span class="claim-card__evidence-link">clips.twitch.tv/joel/dispute-9a82</span>
+              <span class="evidence-actions__group">
+                <a href="#" class="evidence-link-out" target="_blank" rel="noopener">
+                  Open in new tab
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+              </span>
+            </div>
+          </div>
+
+          <div class="claim-card__submitted">
+            Submitted <strong>1 h 14 m ago</strong> · 22 May 23:14 UTC · from IP <span class="mono">82.36.··.117</span> (UK · stable)
+          </div>
+        </article>
+
+        <!-- VS divider -->
+        <div class="claims-vs" aria-hidden="true">
+          <span class="claims-vs__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10M17 7L7 17"/></svg>
+          </span>
+          <span>VS</span>
+          <span class="claims-vs__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-9 10-9 10 9 10 9"/></svg>
+          </span>
+        </div>
+
+        <!-- Theo's submission ───────────────────────────────────────────── -->
+        <article class="claim-card claim-card--theo">
+          <span class="claim-card__corner-tag">Claimant B</span>
+
+          <div class="claim-card__head">
+            <div class="claim-card__avatar">TW</div>
+            <div>
+              <div class="claim-card__name">Theo W.</div>
+              <div class="claim-card__handle">@theo_w · USR_b1c702</div>
+            </div>
+          </div>
+
+          <div class="claim-card__claim">
+            <div class="claim-card__verdict">
+              <span class="claim-card__verdict-label">Declared winner</span>
+              <span class="claim-card__verdict-value">Theo (self)</span>
+            </div>
+            <div class="claim-card__score tnum">3<span class="sep">–</span>2</div>
+          </div>
+
+          <div class="claim-card__evidence">
+            <div class="claim-card__evidence-head">
+              <span class="claim-card__evidence-label">Evidence</span>
+              <span class="mono" style="font-size: var(--t-micro); color: var(--text-muted);">YouTube · 4m 02s</span>
+            </div>
+            <div class="evidence-preview" role="button" tabindex="0" aria-label="Preview Theo's evidence clip">
+              <span class="evidence-preview__source">YouTube · unlisted</span>
+              <span class="evidence-preview__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+              </span>
+              <span class="evidence-preview__duration tnum">4:02</span>
+            </div>
+            <div class="evidence-actions">
+              <span class="claim-card__evidence-link">youtu.be/dQw4w9WgXcQ-dispute-9a82-theo</span>
+              <span class="evidence-actions__group">
+                <a href="#" class="evidence-link-out" target="_blank" rel="noopener">
+                  Open in new tab
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+              </span>
+            </div>
+          </div>
+
+          <div class="claim-card__submitted">
+            Submitted <strong>47 m ago</strong> · 22 May 23:41 UTC · from IP <span class="mono">109.144.··.42</span> (UK · stable)
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Conflict banner -->
+      <div class="conflict-banner" role="status">
+        <span class="conflict-banner__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </span>
+        <div class="conflict-banner__body">
+          Submissions disagree — both players claim a 3–2 victory.
+          <small>Auto-rule R-082 · match.dispute.conflict_detected · auto-escalated to MLRO queue · 22 May 23:42 UTC</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TWO-COLUMN GRID ===== -->
+    <div class="dispute-grid">
+
+      <!-- LEFT — checklist, history, timeline ─────────────────────────── -->
+      <div class="stack" style="gap: var(--s-5);">
+
+        <!-- Evidence review checklist -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Evidence review checklist</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">Required before decision</span>
+          </div>
+          <div class="checklist" id="reviewChecklist">
+            <div class="checklist__item is-checked" data-check>
+              <span class="checklist__box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span class="checklist__label">Reviewed Joel's evidence (Twitch clip, 1m 14s)</span>
+              <span class="checklist__meta">2 m ago</span>
+            </div>
+            <div class="checklist__item is-checked" data-check>
+              <span class="checklist__box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span class="checklist__label">Reviewed Theo's evidence (YouTube clip, 4m 02s)</span>
+              <span class="checklist__meta">1 m ago</span>
+            </div>
+            <div class="checklist__item" data-check>
+              <span class="checklist__box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span class="checklist__label">Confirmed evidence timestamps fall inside match window (23:08–23:11 UTC)</span>
+              <span class="checklist__meta">—</span>
+            </div>
+            <div class="checklist__item" data-check>
+              <span class="checklist__box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span class="checklist__label">No prior frivolous-strike history materially affects judgement</span>
+              <span class="checklist__meta">—</span>
+            </div>
+            <div class="checklist__item" data-check>
+              <span class="checklist__box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span class="checklist__label">Confirmed no off-platform side-betting or collusion signals</span>
+              <span class="checklist__meta">—</span>
+            </div>
+            <div class="checklist__progress">
+              <span><strong>2</strong> of <strong>5</strong> review steps complete</span>
+              <span class="badge badge--warning">Decision locked until 5/5</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Player history snapshots -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Player history</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">Last 12 months · PII read audited</span>
+          </div>
+          <div class="history-grid">
+
+            <!-- Joel mini-profile -->
+            <article class="mini-profile">
+              <div class="mini-profile__head">
+                <div class="mini-profile__avatar">JH</div>
+                <div>
+                  <div class="mini-profile__name">Joel Henderson</div>
+                  <div class="mini-profile__id">USR_8d2941 · UK · joined 4 Mar 2026</div>
+                </div>
+              </div>
+              <dl style="margin: 0; display: grid; gap: 0;">
+                <div class="mini-profile__row"><dt>KYC level</dt><dd><span class="badge badge--success">L2</span></dd></div>
+                <div class="mini-profile__row"><dt>On platform</dt><dd>7 months</dd></div>
+                <div class="mini-profile__row"><dt>Prior matches</dt><dd>12 · <span class="text-success">10 W</span> / <span class="text-muted">2 L</span></dd></div>
+                <div class="mini-profile__row">
+                  <dt>Frivolous strikes</dt>
+                  <dd>
+                    <span class="strike-bar" aria-label="1 of 3 strikes">
+                      <span class="strike-pip is-on"></span>
+                      <span class="strike-pip"></span>
+                      <span class="strike-pip"></span>
+                    </span>
+                    <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro); margin-left: 6px;">1/3</span>
+                  </dd>
+                </div>
+                <div class="mini-profile__row"><dt>Last dispute</dt><dd style="text-align: right; font-size: var(--t-meta);">8 wks ago · <span class="text-success">won</span></dd></div>
+              </dl>
+            </article>
+
+            <!-- Theo mini-profile -->
+            <article class="mini-profile mini-profile--theo">
+              <div class="mini-profile__head">
+                <div class="mini-profile__avatar">TW</div>
+                <div>
+                  <div class="mini-profile__name">Theo W.</div>
+                  <div class="mini-profile__id">USR_b1c702 · UK · joined 8 Jan 2026</div>
+                </div>
+              </div>
+              <dl style="margin: 0; display: grid; gap: 0;">
+                <div class="mini-profile__row"><dt>KYC level</dt><dd><span class="badge badge--info">L1</span></dd></div>
+                <div class="mini-profile__row"><dt>On platform</dt><dd>4 months</dd></div>
+                <div class="mini-profile__row"><dt>Prior matches</dt><dd>8 · <span class="text-success">5 W</span> / <span class="text-muted">3 L</span></dd></div>
+                <div class="mini-profile__row">
+                  <dt>Frivolous strikes</dt>
+                  <dd>
+                    <span class="strike-bar" aria-label="0 of 3 strikes">
+                      <span class="strike-pip"></span>
+                      <span class="strike-pip"></span>
+                      <span class="strike-pip"></span>
+                    </span>
+                    <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro); margin-left: 6px;">0/3</span>
+                  </dd>
+                </div>
+                <div class="mini-profile__row"><dt>Last dispute</dt><dd style="text-align: right; font-size: var(--t-meta);" class="text-muted">First dispute</dd></div>
+              </dl>
+            </article>
+          </div>
+        </section>
+
+        <!-- Match facts (lifted def-list pattern) -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Match facts</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">match.challenge.bo3 · v1.2</span>
+          </div>
+          <dl class="def-list">
+            <div><dt>Match ID</dt><dd class="mono">MTC_8c2f1e · <a href="../player/match.html" style="color: var(--purple-500); font-weight: 600;">Open match →</a></dd></div>
+            <div><dt>Game</dt><dd>Cyberpunk 2077 · platform PC (Steam)</dd></div>
+            <div><dt>Format</dt><dd>1v1 challenge · best-of-3 · no host</dd></div>
+            <div><dt>Stake per player</dt><dd class="tnum">250 coins (held in escrow)</dd></div>
+            <div><dt>Pot</dt><dd class="tnum">500 coins</dd></div>
+            <div><dt>Platform fee</dt><dd class="tnum">12 % · 60 coins (settled regardless of outcome)</dd></div>
+            <div><dt>Net to winner</dt><dd class="tnum"><strong>440 coins</strong></dd></div>
+            <div><dt>Match window</dt><dd>22 May 23:08 UTC → 23:11 UTC (3 m 14 s play time)</dd></div>
+            <div><dt>Cross-room evidence</dt><dd class="text-muted">Both clips show the same final scoreboard frame — verdict differs in interpretation of game-3 timeout (auto-rule could not resolve)</dd></div>
+          </dl>
+        </section>
+
+        <!-- Investigation timeline -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">Investigation timeline</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">MLR 2017 §40 · append-only</span>
+          </div>
+          <div class="timeline">
+
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">22 May 23:08 UTC</span>
+                  <span class="tl-event__title">Match started · MTC_8c2f1e</span>
+                </div>
+                <div class="tl-event__meta">audit match.started · escrow 500 coins locked · stake 250 each</div>
+              </div>
+            </div>
+
+            <div class="tl-event">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">22 May 23:14 UTC</span>
+                  <span class="tl-event__title">Joel submitted result: 3–2 in Joel's favour</span>
+                </div>
+                <div class="tl-event__meta">audit match.result.submitted · evidence_url=clips.twitch.tv/joel/dispute-9a82</div>
+              </div>
+            </div>
+
+            <div class="tl-event tl-event--accent">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">22 May 23:41 UTC</span>
+                  <span class="tl-event__title">Theo submitted opposing result: 3–2 in Theo's favour</span>
+                </div>
+                <div class="tl-event__meta">audit match.result.submitted · evidence_url=youtu.be/dQw4w9WgXcQ-dispute-9a82-theo</div>
+              </div>
+            </div>
+
+            <div class="tl-event tl-event--danger">
+              <span class="tl-event__dot"></span>
+              <div class="tl-event__body">
+                <div class="tl-event__head">
+                  <span class="tl-event__time">22 May 23:42 UTC</span>
+                  <span class="tl-event__title">Auto-flagged conflict · routed to Disputes queue</span>
+                </div>
+                <div class="tl-event__meta">audit match.dispute.opened · rule R-082 · assigned MLRO K. Owusu (53 h 38 m ago)</div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="note-composer">
+            <label class="label" for="dispute-note">Add investigation note</label>
+            <textarea id="dispute-note" class="textarea" placeholder="Reasoning, what each clip shows, why the verdict — stamped with role + decision."></textarea>
+            <div class="row" style="justify-content: space-between; margin-top: 12px;">
+              <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">Notes attach to the decision audit row · visible to peers, not to players</span>
+              <button class="btn btn-secondary btn-sm">Save note</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT — decision panel + related ──────────────────────────── -->
+      <aside class="stack" style="gap: var(--s-5);">
+
+        <!-- Decision panel -->
+        <section class="decision-card">
+          <div class="card-header">
+            <div class="card-title">Decision</div>
+            <span class="badge badge--compliance">Mutually exclusive</span>
+          </div>
+          <p class="text-secondary" style="font-size: var(--t-meta); margin-bottom: var(--s-4); line-height: 1.55;">
+            Pick one outcome. Every action writes an audit row, emails both players, and either settles or returns the 500-coin escrow per
+            <code class="kbd">notification-channels.md</code>.
+          </p>
+
+          <div class="decision-grid" id="decisionGrid">
+
+            <button class="decision-tile decision-tile--success is-selected" data-decide>
+              <span class="decision-tile__radio" aria-hidden="true"></span>
+              <span class="decision-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 22v-7h12v7M6 15h12M9 2v7M15 2v7"/></svg>
+              </span>
+              <span class="decision-tile__body">
+                <span class="decision-tile__title">Award to Joel</span>
+                <span class="decision-tile__sub">Release 440 coins to Joel · audit dispute.awarded</span>
+              </span>
+              <span aria-hidden="true"></span>
+            </button>
+
+            <button class="decision-tile decision-tile--success" data-decide>
+              <span class="decision-tile__radio" aria-hidden="true"></span>
+              <span class="decision-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 22v-7h12v7M6 15h12M9 2v7M15 2v7"/></svg>
+              </span>
+              <span class="decision-tile__body">
+                <span class="decision-tile__title">Award to Theo</span>
+                <span class="decision-tile__sub">Release 440 coins to Theo · audit dispute.awarded</span>
+              </span>
+              <span aria-hidden="true"></span>
+            </button>
+
+            <button class="decision-tile decision-tile--warning" data-decide style="grid-column: 1 / -1;">
+              <span class="decision-tile__radio" aria-hidden="true"></span>
+              <span class="decision-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+              </span>
+              <span class="decision-tile__body">
+                <span class="decision-tile__title">Split pot 50/50 — escrow returns</span>
+                <span class="decision-tile__sub">Refund 250 coins each · platform fee waived · audit dispute.split_refund</span>
+              </span>
+              <span aria-hidden="true"></span>
+            </button>
+
+            <button class="decision-tile decision-tile--danger" data-decide style="grid-column: 1 / -1;">
+              <span class="decision-tile__radio" aria-hidden="true"></span>
+              <span class="decision-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              </span>
+              <span class="decision-tile__body">
+                <span class="decision-tile__title">Reject as frivolous</span>
+                <span class="decision-tile__sub">Frivolous-strike +1 on rejected party · 5 % frivolous-fee (25c) debited · audit dispute.rejected_frivolous</span>
+              </span>
+              <span aria-hidden="true"></span>
+            </button>
+
+          </div>
+
+          <div class="decision-footer">
+            <span class="decision-footer__hint">
+              <strong>Currently selected:</strong> Award to Joel · pending 3 more checklist items
+            </span>
+            <button class="btn btn-compliance btn-uppercase btn-sm" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Commit decision
+            </button>
+          </div>
+        </section>
+
+        <!-- Related artefacts -->
+        <section class="card">
+          <div class="card-title" style="margin-bottom: 16px;">Related artefacts</div>
+          <ul class="stack" style="gap: 10px; list-style: none; padding: 0; margin: 0; font-size: var(--t-meta);">
+            <li class="row row--between">
+              <span class="row" style="gap: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+                Match record
+              </span>
+              <a href="../player/match.html" style="color: var(--purple-500); font-weight: 600;">MTC_8c2f1e →</a>
+            </li>
+            <li class="row row--between">
+              <span class="row" style="gap: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg>
+                Escrow ledger entry
+              </span>
+              <a href="#" style="color: var(--purple-500); font-weight: 600;">LED_4f1a0c →</a>
+            </li>
+            <li class="row row--between">
+              <span class="row" style="gap: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Joel · prior disputes
+              </span>
+              <span class="text-muted">1 (won)</span>
+            </li>
+            <li class="row row--between">
+              <span class="row" style="gap: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Theo · prior disputes
+              </span>
+              <span class="text-muted">None</span>
+            </li>
+            <li class="row row--between">
+              <span class="row" style="gap: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Collusion signals
+              </span>
+              <span class="text-success">None detected</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Policy crib -->
+        <section class="card" style="border-style: dashed;">
+          <div class="card-title" style="margin-bottom: 12px; font-size: 14px;">Policy reminders</div>
+          <ul style="padding-left: 18px; margin: 0; font-size: var(--t-meta); color: var(--text-secondary); line-height: 1.6;">
+            <li>Award decisions trigger a <strong class="text-primary">48 h prize hold</strong> per complaint window.</li>
+            <li>Frivolous strikes accumulate — <strong class="text-primary">3 strikes</strong> = automatic dispute-rights suspension.</li>
+            <li>Split-pot waives platform fee and returns escrow gross.</li>
+            <li>Reject-as-frivolous is the only non-euphemistic outcome — choose deliberately.</li>
+          </ul>
+        </section>
+
+      </aside>
+    </div>
+
+    <!-- ===== PRIZE-RELEASE CONTROLS (bottom strip) ===== -->
+    <section class="prize-strip" aria-label="Prize release controls">
+      <div>
+        <div class="prize-strip__head">
+          <span class="prize-strip__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <div>
+            <div class="prize-strip__title">Prize-release controls</div>
+            <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">Applies after a winning decision is committed</span>
+          </div>
+        </div>
+        <p class="prize-strip__copy">
+          After decision, the winning prize of <strong class="tnum">440 coins</strong> releases automatically <strong>48 hours after award</strong> per the complaint-window policy. The losing party may file a complaint within that window — releasing immediately bypasses that right and must be justified in the audit note.
+        </p>
+      </div>
+      <div class="prize-strip__actions">
+        <button class="btn btn-secondary btn-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Hold for additional review
+        </button>
+        <button class="btn btn-secondary btn-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          Release immediately
+        </button>
+      </div>
+    </section>
+
+    <!-- Footnote -->
+    <footer style="margin-top: var(--s-7); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;">
+      <span>© 2026 Boadman Ltd · MLRO terminal · FCA AML registered · UK MLR 2017 · ADR provider ProMediate</span>
+      <span>Rates illustrative — pending SP8-ECON economics review.</span>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // Checklist toggle — prototype only.
+  document.querySelectorAll('#reviewChecklist [data-check]').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('is-checked');
+      const total = document.querySelectorAll('#reviewChecklist [data-check]').length;
+      const done = document.querySelectorAll('#reviewChecklist [data-check].is-checked').length;
+      const progress = document.querySelector('#reviewChecklist .checklist__progress');
+      if (progress) {
+        progress.querySelector('span:first-child').innerHTML =
+          `<strong>${done}</strong> of <strong>${total}</strong> review steps complete`;
+      }
+    });
+  });
+
+  // Decision radio-style tiles — exactly one selected at a time.
+  document.querySelectorAll('#decisionGrid [data-decide]').forEach(tile => {
+    tile.addEventListener('click', () => {
+      document.querySelectorAll('#decisionGrid [data-decide]').forEach(t => t.classList.remove('is-selected'));
+      tile.classList.add('is-selected');
+      const label = tile.querySelector('.decision-tile__title')?.textContent ?? '—';
+      const hint = document.querySelector('.decision-footer__hint');
+      if (hint) {
+        hint.innerHTML = `<strong>Currently selected:</strong> ${label} · pending 3 more checklist items`;
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

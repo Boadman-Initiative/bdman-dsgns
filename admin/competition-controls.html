@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="compliance">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boadman Admin · Competition controls · TRN_2026_0312</title>
+<link rel="stylesheet" href="../_tokens/tokens.css" />
+<link rel="stylesheet" href="../_tokens/components.css" />
+<style>
+  /* ============================================================
+     COMPLIANCE PAGE CHROME (mirrors home.html / aml-flag-detail.html)
+     ============================================================ */
+  body {
+    background:
+      radial-gradient(at 10% 0%, rgba(155, 107, 255, 0.06), transparent 50%),
+      radial-gradient(at 100% 100%, rgba(155, 107, 255, 0.04), transparent 60%),
+      var(--bg-page);
+    min-height: 100vh;
+  }
+  .compliance-strip {
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple-500) 0%, var(--blue-500) 50%, var(--purple-500) 100%);
+    position: relative;
+  }
+  .compliance-strip::after {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(11,12,16,0.4) 60px, rgba(11,12,16,0.4) 62px);
+  }
+  .mlro-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(155, 107, 255, 0.5);
+    border-radius: var(--r-sm);
+    font-family: var(--font-hud);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--purple-500);
+    background: rgba(155, 107, 255, 0.08);
+  }
+
+  /* ----- Override the orange state-switcher to purple for compliance theme ----- */
+  .state-switcher { border-bottom-color: rgba(155, 107, 255, 0.25); }
+  .state-switcher::before { color: var(--purple-500); content: "ADMIN VIEW"; }
+  .state-switcher__btn.is-active {
+    background: var(--purple-500);
+    color: var(--text-primary);
+  }
+  /* ----- Wire up custom state names (components.css only ships open|live|awaiting|completed) ----- */
+  [data-active-state="overview"] [data-state="overview"],
+  [data-active-state="create"] [data-state="create"] { display: block; }
+
+  /* ============================================================
+     TOURNAMENT HERO — game banner over the calm compliance shell
+     ============================================================ */
+  .t-hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    border: 1px solid rgba(155, 107, 255, 0.3);
+    margin-bottom: var(--s-5);
+    isolation: isolate;
+    background: var(--bg-panel);
+  }
+  .t-hero__bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(at 25% 30%, rgba(255, 87, 51, 0.25), transparent 55%),
+      radial-gradient(at 85% 60%, rgba(155, 107, 255, 0.22), transparent 60%),
+      radial-gradient(at 50% 100%, rgba(11, 12, 16, 0.9), transparent 50%),
+      linear-gradient(135deg, #2A1810 0%, #1A1325 60%, #0F1015 100%);
+  }
+  .t-hero__bg::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: var(--tex-grain);
+    opacity: 0.55;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  .t-hero__bg::before {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(115deg, rgba(255,87,51,0.045) 0px, rgba(255,87,51,0.045) 1px, transparent 1px, transparent 14px);
+    pointer-events: none;
+  }
+  .t-hero__vignette {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(11,12,16,0.10) 0%, rgba(11,12,16,0.55) 75%, rgba(15,16,21,0.95) 100%);
+    pointer-events: none;
+  }
+  .t-hero__content {
+    position: relative; z-index: 2;
+    padding: var(--s-6);
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 1100px) {
+    .t-hero__content {
+      padding: var(--s-8) var(--s-10);
+      grid-template-columns: 1.5fr 1fr;
+      align-items: end;
+      gap: var(--s-8);
+    }
+  }
+  .t-hero__meta-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: var(--s-2); }
+  .t-hero__game-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 10px 4px 4px;
+    border-radius: var(--r-pill);
+    background: rgba(11, 12, 16, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 87, 51, 0.4);
+    font-family: var(--font-hud);
+    font-weight: 700; font-size: 11px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .t-hero__game-pill-icon {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-300));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-family: var(--font-display); font-size: 11px; font-weight: 800;
+  }
+  .live-pulse {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    background: rgba(238, 68, 86, 0.18);
+    border: 1px solid rgba(238, 68, 86, 0.6);
+    font-family: var(--font-hud);
+    font-weight: 700; font-size: 11px;
+    letter-spacing: var(--tr-stamp); text-transform: uppercase;
+    color: var(--red-500);
+  }
+  .live-pulse::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--red-500);
+    box-shadow: 0 0 8px var(--red-500);
+    animation: pulse-soft 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+  .t-hero__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(32px, 4.2vw, 56px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    text-shadow: 0 4px 32px rgba(0,0,0,0.5);
+    margin-bottom: var(--s-3);
+  }
+  .t-hero__sub {
+    color: var(--text-secondary);
+    font-size: var(--t-body);
+    max-width: 56ch;
+    margin-bottom: var(--s-4);
+  }
+  .t-hero__sub strong { color: var(--text-primary); font-weight: 600; }
+
+  .t-hero__round-card {
+    padding: var(--s-5);
+    background: rgba(11, 12, 16, 0.55);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(155, 107, 255, 0.35);
+    border-radius: var(--r-lg);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-4);
+  }
+  .t-hero__round-stat-label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .t-hero__round-stat-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .t-hero__round-stat-sub {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+  }
+
+  /* ============================================================
+     OVERVIEW STATE — content grid
+     ============================================================ */
+  .overview-grid {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 1100px) {
+    .overview-grid {
+      grid-template-columns: 1.6fr 1fr;
+      align-items: flex-start;
+    }
+  }
+
+  /* Definition list (lifted from aml-flag-detail.html) */
+  .def-list { display: grid; gap: 0; }
+  .def-list > div {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--s-4);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .def-list > div:last-child { border-bottom: none; }
+  .def-list dt {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tr-stamp);
+    font-weight: 700;
+  }
+  .def-list dd {
+    margin: 0;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .def-list dd .money {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Sponsor strip in def-list */
+  .sponsor-strip { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sponsor-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 10px 6px 6px;
+    border-radius: var(--r-pill);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-default);
+    font-size: var(--t-meta);
+  }
+  .sponsor-pill__mark {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700; font-size: 11px;
+  }
+  .sponsor-pill__mark--n { background: linear-gradient(135deg, #FF5733, #FFAA22); }
+  .sponsor-pill__mark--r { background: linear-gradient(135deg, #4D87FF, #9B6BFF); }
+  .sponsor-pill__mark--c { background: linear-gradient(135deg, #22D279, #4D87FF); }
+  .sponsor-pill__amt {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Live activity feed */
+  .feed-card, .timeline-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    background: var(--bg-panel);
+    padding: var(--s-5);
+  }
+  .feed-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: var(--s-3);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: start;
+  }
+  .feed-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .feed-row__dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    margin: 7px 8px 0;
+  }
+  .feed-row--accent .feed-row__dot { background: var(--purple-500); box-shadow: 0 0 8px var(--purple-500); }
+  .feed-row--danger .feed-row__dot { background: var(--red-500); }
+  .feed-row--success .feed-row__dot { background: var(--green-500); }
+  .feed-row--flame .feed-row__dot { background: var(--orange-500); box-shadow: 0 0 8px var(--orange-500); }
+  .feed-row__title { font-size: var(--t-body-sm); color: var(--text-primary); margin-bottom: 2px; }
+  .feed-row__title strong { font-weight: 600; }
+  .feed-row__meta { font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted); }
+  .feed-row__time {
+    font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted);
+    text-align: right; white-space: nowrap;
+  }
+
+  /* Section title */
+  .section-title {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: var(--s-4);
+  }
+  .section-title h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .section-title__link {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--purple-500);
+    text-decoration: none;
+  }
+
+  /* Roster grid (4x4 squads) */
+  .squad-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-3);
+  }
+  @media (min-width: 640px) { .squad-grid { grid-template-columns: repeat(4, 1fr); } }
+  .squad-tile {
+    padding: var(--s-3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: var(--bg-panel);
+    display: grid;
+    gap: 6px;
+    position: relative;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .squad-tile:hover { border-color: var(--purple-500); }
+  .squad-tile__head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+  }
+  .squad-tile__num {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .squad-tile__status {
+    font-family: var(--font-hud);
+    font-size: 9px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: var(--r-sm);
+  }
+  .squad-tile__status--live {
+    color: var(--green-500);
+    background: var(--green-tint);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .squad-tile__status--live::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--green-500); box-shadow: 0 0 6px var(--green-500);
+    animation: pulse-soft 1.6s ease-in-out infinite;
+  }
+  .squad-tile__status--out { color: var(--red-500); background: var(--red-tint); }
+  .squad-tile__status--no { color: var(--amber-500); background: var(--amber-tint); }
+  .squad-tile__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .squad-tile__captain {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+  }
+  .squad-tile--out { opacity: 0.55; }
+
+  /* ============================================================
+     OVERRIDE ACTIONS RAIL (right column, sticky)
+     ============================================================ */
+  .override-rail {
+    position: sticky;
+    top: 80px;
+    display: grid;
+    gap: var(--s-3);
+  }
+  .override-rail__intro {
+    padding: var(--s-4);
+    border: 1px solid rgba(155, 107, 255, 0.4);
+    background: rgba(155, 107, 255, 0.06);
+    border-radius: var(--r-md);
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .override-rail__intro strong { color: var(--text-primary); }
+
+  .override-tile {
+    text-align: left;
+    width: 100%;
+    padding: var(--s-4);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: var(--bg-panel);
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: var(--s-3);
+    align-items: center;
+  }
+  .override-tile:hover {
+    border-color: var(--purple-500);
+    transform: translateX(2px);
+  }
+  .override-tile[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .override-tile[disabled]:hover { transform: none; border-color: var(--border-subtle); }
+  .override-tile__icon {
+    width: 40px; height: 40px;
+    border-radius: var(--r-sm);
+    background: var(--purple-tint);
+    color: var(--purple-500);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .override-tile__icon svg { width: 22px; height: 22px; }
+  .override-tile__body { display: grid; gap: 2px; min-width: 0; }
+  .override-tile__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--t-body-sm);
+    color: var(--text-primary);
+  }
+  .override-tile__sub {
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+  .override-tile__arrow {
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .override-tile--warning { border-color: rgba(255, 170, 34, 0.35); background: linear-gradient(180deg, rgba(255,170,34,0.04), transparent 60%), var(--bg-panel); }
+  .override-tile--warning .override-tile__icon { background: var(--amber-tint); color: var(--amber-500); }
+  .override-tile--warning:hover { border-color: var(--amber-500); }
+
+  .override-tile--danger { border-color: rgba(238, 68, 86, 0.35); background: linear-gradient(180deg, rgba(238,68,86,0.04), transparent 60%), var(--bg-panel); }
+  .override-tile--danger .override-tile__icon { background: var(--red-tint); color: var(--red-500); }
+  .override-tile--danger:hover { border-color: var(--red-500); }
+
+  /* Audit trail (timeline) */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: ""; position: absolute;
+    left: 11px; top: 12px; bottom: 12px; width: 1px;
+    background: var(--border-subtle);
+  }
+  .tl-event {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: var(--s-3);
+    padding: 12px 0;
+    align-items: start;
+  }
+  .tl-event__dot {
+    width: 12px; height: 12px;
+    margin-top: 4px; margin-left: 6px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 2px solid var(--bg-panel);
+    z-index: 1; position: relative;
+  }
+  .tl-event--accent .tl-event__dot { background: var(--purple-500); box-shadow: 0 0 0 4px var(--purple-tint); }
+  .tl-event--danger .tl-event__dot { background: var(--red-500); box-shadow: 0 0 0 4px var(--red-tint); }
+  .tl-event--warning .tl-event__dot { background: var(--amber-500); box-shadow: 0 0 0 4px var(--amber-tint); }
+  .tl-event__body { display: grid; gap: 4px; }
+  .tl-event__head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .tl-event__time { font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); }
+  .tl-event__title { font-size: var(--t-body-sm); color: var(--text-primary); font-weight: 500; }
+  .tl-event__meta { font-size: var(--t-micro); color: var(--text-muted); font-family: var(--font-mono); }
+
+  /* ============================================================
+     CREATE STATE — form
+     ============================================================ */
+  .create-grid {
+    display: grid; gap: var(--s-5);
+  }
+  @media (min-width: 1100px) {
+    .create-grid { grid-template-columns: 1.5fr 1fr; align-items: flex-start; }
+  }
+  .form-section {
+    padding: var(--s-5);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+  }
+  .form-section__head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--s-3);
+    margin-bottom: 4px;
+  }
+  .form-section__num {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    color: var(--purple-500);
+    background: var(--purple-tint);
+    padding: 3px 8px;
+    border-radius: var(--r-sm);
+    font-weight: 700;
+  }
+  .form-section h3 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 6px 0;
+  }
+  .form-section .sub {
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    margin-bottom: var(--s-4);
+    line-height: 1.5;
+  }
+
+  .tier-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tier-pick button {
+    text-align: left;
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-default);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .tier-pick button:hover { border-color: var(--purple-500); color: var(--text-primary); }
+  .tier-pick button.is-active {
+    border-color: var(--purple-500);
+    background: var(--purple-tint);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 1px var(--purple-500);
+  }
+  .tier-pick__label {
+    font-family: var(--font-hud);
+    font-size: 10px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .tier-pick button.is-active .tier-pick__label { color: var(--purple-300); }
+  .tier-pick__name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .tier-pick__desc {
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .image-upload {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    border: 2px dashed var(--border-default);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+    padding: var(--s-4);
+    text-align: center;
+  }
+  .image-upload:hover { border-color: var(--purple-500); color: var(--purple-500); }
+
+  .split-row {
+    display: grid;
+    grid-template-columns: 56px 1fr 110px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .split-row:last-child { border: none; }
+  .tier-emblem {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    font-family: var(--font-hud);
+    font-weight: 800; font-size: 18px;
+    color: #14161F;
+  }
+  .tier-emblem--gold   { background: linear-gradient(135deg, #FFE491, var(--tier-gold) 60%, var(--tier-gold-deep)); }
+  .tier-emblem--silver { background: linear-gradient(135deg, #F2F4F8, var(--tier-silver) 60%, var(--tier-silver-deep)); }
+  .tier-emblem--bronze { background: linear-gradient(135deg, #F4B07A, var(--tier-bronze) 60%, var(--tier-bronze-deep)); color: #FFF; }
+
+  .field { display: flex; flex-direction: column; gap: var(--s-2); }
+  .label {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr; gap: var(--s-4); }
+  @media (min-width: 600px) { .field-row.field-row--2 { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 600px) { .field-row.field-row--3 { grid-template-columns: 1fr 1fr 1fr; } }
+
+  /* Compliance attestation block */
+  .attestation {
+    margin-top: var(--s-4);
+    padding: var(--s-4);
+    border: 1px dashed rgba(155, 107, 255, 0.4);
+    background: rgba(155, 107, 255, 0.04);
+    border-radius: var(--r-md);
+    display: grid; grid-template-columns: 24px 1fr; gap: 12px;
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .attestation input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--purple-500); margin-top: 2px; }
+  .attestation strong { color: var(--text-primary); }
+
+  /* Right-column preview */
+  .preview-card {
+    padding: var(--s-5);
+    background:
+      radial-gradient(at 85% -20%, rgba(155, 107, 255, 0.10), transparent 50%),
+      var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-lg);
+    position: sticky;
+    top: 80px;
+  }
+  .preview-card__head {
+    font-family: var(--font-hud);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: var(--tr-stamp);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .preview-card h2 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .preview-card .meta {
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  .preview-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: var(--t-meta);
+  }
+  .preview-row:last-child { border: none; }
+  .preview-row strong { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+
+  .footnote-rates {
+    font-family: var(--font-mono);
+    font-size: var(--t-micro);
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Make breadcrumb in compliance theme */
+  .crumb {
+    display: flex; gap: 8px; align-items: center;
+    margin-bottom: var(--s-3);
+    font-size: var(--t-meta);
+    color: var(--text-muted);
+  }
+  .crumb a { color: var(--text-muted); }
+  .crumb a:hover { color: var(--purple-500); }
+  .crumb .here { color: var(--text-secondary); }
+
+  /* Header strip on overview state */
+  .page-strip {
+    display: flex; align-items: center; gap: var(--s-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--s-4);
+  }
+  .page-strip__id {
+    font-family: var(--font-mono);
+    font-size: var(--t-meta);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-sm);
+  }
+</style>
+</head>
+<body>
+
+<div class="compliance-strip"></div>
+
+<div class="shell shell--with-rail">
+
+  <!-- HEADER ─────────────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search tournaments, users, brands, audit IDs…" />
+      <kbd class="kbd">⌘K</kbd>
+    </div>
+    <div class="header-actions">
+      <span class="mlro-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Admin · A. Ferreira
+      </span>
+      <button class="icon-bell" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        <span class="dot" style="background: var(--purple-500); box-shadow: 0 0 8px var(--purple-500);"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR ────────────────────────────────────────────────────────── -->
+  <aside class="nav-rail" aria-label="Admin navigation">
+    <a href="../index.html" class="nav-rail__brand" aria-label="Boadman Admin">
+      <img src="../_assets/svgs/BoadmanLogo.svg" alt="Boadman" />
+      <span class="mlro-label" style="margin-left: auto; padding: 3px 8px; font-size: 9px;">ADMIN</span>
+    </a>
+    <span class="nav-section">Compliance</span>
+    <a class="nav-item" href="home.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </a>
+    <a class="nav-item" href="queue-template.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      AML flags<span class="nav-badge">17</span>
+    </a>
+    <a class="nav-item" href="kyc-submission-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      KYC queue<span class="nav-badge">42</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      Sanctions<span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item" href="dispute-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-9 10-9 10 9 10 9-3 9-10 9-10-9-10-9z"/><circle cx="12" cy="12" r="3"/></svg>
+      Disputes<span class="nav-badge">8</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16M4 2h16M16 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-3.414 3.414A2 2 0 0 0 8 16.828V22"/></svg>
+      Complaints<span class="nav-badge">5</span>
+    </a>
+
+    <span class="nav-section">Operations</span>
+    <a class="nav-item" href="user-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      Users
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
+      Brands<span class="nav-badge">4</span>
+    </a>
+    <a class="nav-item" href="redemption-detail.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/></svg>
+      Redemptions<span class="nav-badge">11</span>
+    </a>
+    <a class="nav-item is-active" href="competition-controls.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 0 12 0a6 6 0 0 0-12 0z"/><path d="M8 13v8l4-3 4 3v-8"/></svg>
+      Tournaments
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Rectification<span class="nav-badge">6</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Audit log
+    </a>
+  </aside>
+
+  <!-- MAIN ────────────────────────────────────────────────────────── -->
+  <main class="app-main" data-active-state="overview">
+
+    <!-- State switcher (prototype only) -->
+    <div class="state-switcher">
+      <button class="state-switcher__btn is-active" data-set-state="overview">Live tournament overview</button>
+      <button class="state-switcher__btn" data-set-state="create">Create admin-hosted</button>
+    </div>
+
+    <!-- =====================================================
+         STATE 1 · OVERVIEW
+         ===================================================== -->
+    <section data-state="overview">
+
+      <!-- Breadcrumb -->
+      <div class="crumb">
+        <a href="#">Tournaments</a>
+        <span>›</span>
+        <span class="here">TRN_2026_0312</span>
+      </div>
+
+      <!-- Page strip -->
+      <div class="page-strip">
+        <span class="page-strip__id">TRN_2026_0312</span>
+        <span class="live-pulse">Live · Round 2 of 5</span>
+        <span class="mlro-label">Platform-hosted · headline event</span>
+        <span class="badge badge--neutral" style="font-family: var(--font-mono); font-size: 11px;">Registration closed · 22 May 18:00 BST</span>
+      </div>
+
+      <!-- HERO ─────────────────────────────────────────────────── -->
+      <section class="t-hero">
+        <div class="t-hero__bg" aria-hidden="true"></div>
+        <div class="t-hero__vignette" aria-hidden="true"></div>
+        <div class="t-hero__content">
+          <div>
+            <div class="t-hero__meta-strip">
+              <span class="t-hero__game-pill">
+                <span class="t-hero__game-pill-icon">A</span>
+                Apex Legends
+              </span>
+              <span class="t-hero__game-pill" style="border-color: rgba(155, 107, 255, 0.4);">Squads · 16-team bracket</span>
+              <span class="badge badge--compliance">Boadman-hosted</span>
+            </div>
+            <h1 class="t-hero__title">Boadman Open<br/>Apex Legends · Squads</h1>
+            <p class="t-hero__sub">
+              Round 2 of 5 in progress. <strong>14 of 16 squads</strong> remaining on the bracket. Match served on game-publisher servers — Boadman officials are recording results live.
+            </p>
+          </div>
+
+          <div class="t-hero__round-card">
+            <div>
+              <div class="t-hero__round-stat-label">Prize pool</div>
+              <div class="t-hero__round-stat-value" style="font-family: var(--font-display);">40,000</div>
+              <div class="t-hero__round-stat-sub">coins · ≈ £4,000.00</div>
+            </div>
+            <div>
+              <div class="t-hero__round-stat-label">Squads remaining</div>
+              <div class="t-hero__round-stat-value">14 / 16</div>
+              <div class="t-hero__round-stat-sub">2 eliminated round 1</div>
+            </div>
+            <div>
+              <div class="t-hero__round-stat-label">Round timer</div>
+              <div class="t-hero__round-stat-value" style="color: var(--orange-500);">12:48</div>
+              <div class="t-hero__round-stat-sub">elapsed of 25:00 cap</div>
+            </div>
+            <div>
+              <div class="t-hero__round-stat-label">Scheduled end</div>
+              <div class="t-hero__round-stat-value" style="font-size: 18px;">23:30</div>
+              <div class="t-hero__round-stat-sub">BST · 24 May 2026</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2-COL GRID: facts/roster/feed · override rail ────────────── -->
+      <div class="overview-grid">
+
+        <!-- LEFT column -->
+        <div class="stack" style="display: grid; gap: var(--s-5);">
+
+          <!-- TOURNAMENT IDENTITY ─────────────────────────────── -->
+          <section class="feed-card">
+            <div class="section-title" style="margin-bottom: var(--s-3);">
+              <h2 style="font-size: 18px;">Tournament identity</h2>
+              <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">comp.row · TRN_2026_0312</span>
+            </div>
+            <dl class="def-list">
+              <div><dt>Competition ID</dt><dd><span class="kbd" style="font-family: var(--font-mono);">TRN_2026_0312</span></dd></div>
+              <div><dt>Host actor</dt><dd>Platform · <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">host_user_id = NULL · host_brand_id = NULL</span></dd></div>
+              <div><dt>Game · format</dt><dd>Apex Legends · Squads (3 v 3) · single-bracket elimination</dd></div>
+              <div><dt>Prize pool</dt><dd><span class="money">40,000 coins</span> <span class="text-muted">· ≈ £4,000.00 · seeded by platform 25,000 + entries 16,000</span></dd></div>
+              <div><dt>Entry fee</dt><dd><span class="money">1,000 coins</span> <span class="text-muted">· per squad · 16 paid</span></dd></div>
+              <div><dt>Commission rate</dt><dd>12 % platform <span class="text-muted">· no host cut (Boadman-hosted)</span></dd></div>
+              <div><dt>Registration closed</dt><dd>22 May 2026 · 18:00:00 BST</dd></div>
+              <div><dt>Scheduled end</dt><dd>24 May 2026 · 23:30 BST <span class="text-muted">· bracket-rounds × 5</span></dd></div>
+              <div>
+                <dt>Brand sponsorships</dt>
+                <dd>
+                  <div class="sponsor-strip">
+                    <span class="sponsor-pill"><span class="sponsor-pill__mark sponsor-pill__mark--n">N</span> Nova Esports · <span class="sponsor-pill__amt">10,000</span></span>
+                    <span class="sponsor-pill"><span class="sponsor-pill__mark sponsor-pill__mark--r">R</span> Redline Energy · <span class="sponsor-pill__amt">8,000</span></span>
+                    <span class="sponsor-pill"><span class="sponsor-pill__mark sponsor-pill__mark--c">C</span> Coreflow PC · <span class="sponsor-pill__amt">7,000</span></span>
+                  </div>
+                  <div class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro); margin-top: 6px;">
+                    25,000 coins sponsorship · payable into prize pool · escrow ref BR_ESC_0312
+                  </div>
+                </dd>
+              </div>
+              <div><dt>Prize distribution</dt><dd>60 / 30 / 10 (1st / 2nd / 3rd) <span class="text-muted">· platform_config.default</span></dd></div>
+              <div><dt>48 h prize hold</dt><dd>Will activate on winner declaration · per <span style="color: var(--purple-500); font-weight: 600;">prize-hold policy v2</span></dd></div>
+            </dl>
+          </section>
+
+          <!-- LIVE ACTIVITY FEED ───────────────────────────────── -->
+          <section class="feed-card">
+            <div class="section-title" style="margin-bottom: var(--s-3);">
+              <h2 style="font-size: 18px;">
+                <span class="live-pulse" style="font-size: 9px; padding: 3px 8px;">Live feed</span>
+              </h2>
+              <a class="section-title__link" href="#">Full event stream →</a>
+            </div>
+
+            <div class="feed-row feed-row--danger">
+              <span class="feed-row__dot" aria-hidden="true"></span>
+              <div>
+                <div class="feed-row__title"><strong>Squad 07 · Phantom Vipers</strong> eliminated · round 2</div>
+                <div class="feed-row__meta">match_event.elimination · MTC_R2_a4f1 · result accepted by host-of-record</div>
+              </div>
+              <div class="feed-row__time">14 s</div>
+            </div>
+
+            <div class="feed-row feed-row--flame">
+              <span class="feed-row__dot" aria-hidden="true"></span>
+              <div>
+                <div class="feed-row__title"><strong>Squad 03 · Iron Halo</strong> declared winner of round 2 quarter A</div>
+                <div class="feed-row__meta">match_event.round_win · MTC_R2_a4f1 · advances to semi</div>
+              </div>
+              <div class="feed-row__time">1 m</div>
+            </div>
+
+            <div class="feed-row feed-row--accent">
+              <span class="feed-row__dot" aria-hidden="true"></span>
+              <div>
+                <div class="feed-row__title"><strong>System</strong> opened round 2 quarter B · captains pinged</div>
+                <div class="feed-row__meta">tournament.round.started · round 2 · 4 squads queued</div>
+              </div>
+              <div class="feed-row__time">6 m</div>
+            </div>
+
+            <div class="feed-row feed-row--danger">
+              <span class="feed-row__dot" aria-hidden="true"></span>
+              <div>
+                <div class="feed-row__title"><strong>Squad 11 · Sable Recon</strong> eliminated · round 1 finals</div>
+                <div class="feed-row__meta">match_event.elimination · MTC_R1_f9b2</div>
+              </div>
+              <div class="feed-row__time">22 m</div>
+            </div>
+
+            <div class="feed-row feed-row--success">
+              <span class="feed-row__dot" aria-hidden="true"></span>
+              <div>
+                <div class="feed-row__title">Tournament moved from <strong>registration</strong> → <strong>live</strong></div>
+                <div class="feed-row__meta">tournament.status_changed · auto · 14 squads checked in (2 no-shows)</div>
+              </div>
+              <div class="feed-row__time">1 h 04 m</div>
+            </div>
+          </section>
+
+          <!-- ROSTER GRID 4×4 ──────────────────────────────────── -->
+          <section class="feed-card">
+            <div class="section-title" style="margin-bottom: var(--s-3);">
+              <h2 style="font-size: 18px;">Roster · 16 squads</h2>
+              <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">
+                <span style="color: var(--green-500);">●</span> 12 active
+                · <span style="color: var(--red-500);">●</span> 2 eliminated
+                · <span style="color: var(--amber-500);">●</span> 2 no-show
+              </span>
+            </div>
+
+            <div class="squad-grid">
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 01</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Apex Wraiths</div>
+                <div class="squad-tile__captain">cap · @nia_p</div>
+              </div>
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 02</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Northgate</div>
+                <div class="squad-tile__captain">cap · @theo_w_uk</div>
+              </div>
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 03</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Iron Halo</div>
+                <div class="squad-tile__captain">cap · @rhys.ea</div>
+              </div>
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 04</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Vanta Six</div>
+                <div class="squad-tile__captain">cap · @kowusu_</div>
+              </div>
+
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 05</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Hollowpoint</div>
+                <div class="squad-tile__captain">cap · @joel_h</div>
+              </div>
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 06</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Drift Cartel</div>
+                <div class="squad-tile__captain">cap · @aferreira</div>
+              </div>
+              <div class="squad-tile squad-tile--out">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 07</span><span class="squad-tile__status squad-tile__status--out">Eliminated</span></div>
+                <div class="squad-tile__name">Phantom Vipers</div>
+                <div class="squad-tile__captain">cap · @sami_ng</div>
+              </div>
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 08</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Olive Branch</div>
+                <div class="squad-tile__captain">cap · @ruth.gh</div>
+              </div>
+
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 09</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Spartan Run</div>
+                <div class="squad-tile__captain">cap · @max.uk</div>
+              </div>
+              <div class="squad-tile squad-tile--out">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 10</span><span class="squad-tile__status squad-tile__status--no">No-show</span></div>
+                <div class="squad-tile__name">Lighthouse</div>
+                <div class="squad-tile__captain">cap · @ade.lg · ⚠ 24 h ban</div>
+              </div>
+              <div class="squad-tile squad-tile--out">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 11</span><span class="squad-tile__status squad-tile__status--out">Eliminated</span></div>
+                <div class="squad-tile__name">Sable Recon</div>
+                <div class="squad-tile__captain">cap · @bex.ie</div>
+              </div>
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 12</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Mercury Lane</div>
+                <div class="squad-tile__captain">cap · @tinashe</div>
+              </div>
+
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 13</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Brimstone</div>
+                <div class="squad-tile__captain">cap · @ola.boa</div>
+              </div>
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 14</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Quartermasters</div>
+                <div class="squad-tile__captain">cap · @ivy.ke</div>
+              </div>
+              <div class="squad-tile squad-tile--out">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 15</span><span class="squad-tile__status squad-tile__status--no">No-show</span></div>
+                <div class="squad-tile__name">Cinder Crew</div>
+                <div class="squad-tile__captain">cap · @leo.zw · ⚠ 24 h ban</div>
+              </div>
+              <div class="squad-tile">
+                <div class="squad-tile__head"><span class="squad-tile__num">SQUAD 16</span><span class="squad-tile__status squad-tile__status--live">Live</span></div>
+                <div class="squad-tile__name">Northshore</div>
+                <div class="squad-tile__captain">cap · @amaka.s</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- AUDIT TRAIL ───────────────────────────────────────── -->
+          <section class="timeline-card">
+            <div class="section-title" style="margin-bottom: var(--s-3);">
+              <h2 style="font-size: 18px;">Audit trail</h2>
+              <span class="text-muted" style="font-family: var(--font-mono); font-size: var(--t-micro);">MLR 2017 §40 · append-only</span>
+            </div>
+
+            <div class="timeline">
+              <div class="tl-event tl-event--accent">
+                <span class="tl-event__dot"></span>
+                <div class="tl-event__body">
+                  <div class="tl-event__head">
+                    <span class="tl-event__time">22 May · 11:08 UTC</span>
+                    <span class="tl-event__title">Tournament created · platform-hosted</span>
+                  </div>
+                  <div class="tl-event__meta">audit competition.created · actor admin/A. Ferreira · seed 25,000 coins · reason="monthly headline"</div>
+                </div>
+              </div>
+              <div class="tl-event">
+                <span class="tl-event__dot"></span>
+                <div class="tl-event__body">
+                  <div class="tl-event__head">
+                    <span class="tl-event__time">22 May · 11:14 UTC</span>
+                    <span class="tl-event__title">Sponsorship bound · Nova Esports + Redline + Coreflow</span>
+                  </div>
+                  <div class="tl-event__meta">audit competition.sponsorship_bound · 3 brands · 25,000 coins escrowed BR_ESC_0312</div>
+                </div>
+              </div>
+              <div class="tl-event">
+                <span class="tl-event__dot"></span>
+                <div class="tl-event__body">
+                  <div class="tl-event__head">
+                    <span class="tl-event__time">22 May · 18:00 UTC</span>
+                    <span class="tl-event__title">Registration auto-closed at scheduled time</span>
+                  </div>
+                  <div class="tl-event__meta">audit competition.registration_closed · 16 squads paid · 2 marked no-show at 22:00</div>
+                </div>
+              </div>
+              <div class="tl-event tl-event--warning">
+                <span class="tl-event__dot"></span>
+                <div class="tl-event__body">
+                  <div class="tl-event__head">
+                    <span class="tl-event__time">24 May · 22:00 UTC</span>
+                    <span class="tl-event__title">No-show ban issued · Squad 10 + Squad 15</span>
+                  </div>
+                  <div class="tl-event__meta">audit competition.no_show_penalty · 24 h soft ban applied · entry fees forfeited to pool</div>
+                </div>
+              </div>
+              <div class="tl-event tl-event--accent">
+                <span class="tl-event__dot"></span>
+                <div class="tl-event__body">
+                  <div class="tl-event__head">
+                    <span class="tl-event__time">24 May · 22:01 UTC</span>
+                    <span class="tl-event__title">Tournament moved registration → live</span>
+                  </div>
+                  <div class="tl-event__meta">audit competition.status_changed · auto · 14 squads checked in</div>
+                </div>
+              </div>
+              <div class="tl-event">
+                <span class="tl-event__dot"></span>
+                <div class="tl-event__body">
+                  <div class="tl-event__head">
+                    <span class="tl-event__time">24 May · 22:34 UTC</span>
+                    <span class="tl-event__title">Round 2 quarter A · Squad 03 declared winner by host-of-record</span>
+                  </div>
+                  <div class="tl-event__meta">audit match.result_recorded · MTC_R2_a4f1 · host-of-record admin/A. Ferreira</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- RIGHT column · OVERRIDE RAIL ───────────────────── -->
+        <aside>
+          <div class="override-rail">
+
+            <div class="override-rail__intro">
+              <strong>Admin override actions.</strong> Every action below writes an immutable row to <span style="font-family: var(--font-mono);">competition_audit_log</span>. Reason text is required on every override and surfaces on the player-side tournament card. Refer to <span style="color: var(--purple-500); font-weight: 600;">platform-runbook §7.4</span> before force-resolving a live competition.
+            </div>
+
+            <button class="override-tile" disabled aria-disabled="true">
+              <span class="override-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              </span>
+              <div class="override-tile__body">
+                <div class="override-tile__title">Pause registration</div>
+                <div class="override-tile__sub">Only available while status = registration. Currently <strong>live</strong>.</div>
+              </div>
+              <span class="override-tile__arrow">›</span>
+            </button>
+
+            <button class="override-tile override-tile--warning">
+              <span class="override-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </span>
+              <div class="override-tile__body">
+                <div class="override-tile__title">Force-end registration early</div>
+                <div class="override-tile__sub">Closes new sign-ups immediately. Entries remain locked-in. Use when planned start needs to slide forward.</div>
+              </div>
+              <span class="override-tile__arrow">›</span>
+            </button>
+
+            <button class="override-tile override-tile--danger">
+              <span class="override-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </span>
+              <div class="override-tile__body">
+                <div class="override-tile__title">Force-resolve tournament</div>
+                <div class="override-tile__sub">Opens winner-picker · 1st / 2nd / 3rd · attach evidence URL · MLRO reason required (50 char min). Triggers 48 h prize hold.</div>
+              </div>
+              <span class="override-tile__arrow">›</span>
+            </button>
+
+            <button class="override-tile override-tile--danger">
+              <span class="override-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              </span>
+              <div class="override-tile__body">
+                <div class="override-tile__title">Cancel + refund all</div>
+                <div class="override-tile__sub">Refunds 16 × 1,000-coin entries to squad captains and reverses 25,000-coin brand escrow. <strong>No partial refunds</strong>.</div>
+              </div>
+              <span class="override-tile__arrow">›</span>
+            </button>
+
+            <button class="override-tile override-tile--warning">
+              <span class="override-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 5-5"/></svg>
+              </span>
+              <div class="override-tile__body">
+                <div class="override-tile__title">Adjust prize distribution</div>
+                <div class="override-tile__sub">Override <span style="font-family: var(--font-mono);">platform_config.default = 60/30/10</span>. Must total 100 %. Locks immediately.</div>
+              </div>
+              <span class="override-tile__arrow">›</span>
+            </button>
+
+            <button class="override-tile">
+              <span class="override-tile__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              </span>
+              <div class="override-tile__body">
+                <div class="override-tile__title">Add audit note</div>
+                <div class="override-tile__sub">Append a free-text annotation to the audit log. Visible to MLRO + auditors. Not visible to players.</div>
+              </div>
+              <span class="override-tile__arrow">›</span>
+            </button>
+
+            <p class="footnote-rates" style="margin-top: var(--s-3);">
+              All actions are 2-step (confirm modal) and require typed reason ≥ 20 char. Refer to <span style="color: var(--purple-500); font-weight: 600;">backend gap #BG-T-014</span> — force-resolve currently writes the row but does not require reason text.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         STATE 2 · CREATE ADMIN-HOSTED TOURNAMENT
+         ===================================================== -->
+    <section data-state="create">
+
+      <!-- Breadcrumb -->
+      <div class="crumb">
+        <a href="#">Tournaments</a>
+        <span>›</span>
+        <span class="here">New admin-hosted</span>
+      </div>
+
+      <div class="row row--between" style="display: flex; justify-content: space-between; align-items: flex-end; gap: var(--s-4); margin-bottom: var(--s-6); flex-wrap: wrap;">
+        <div>
+          <h1 style="font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 2.8vw, 38px); letter-spacing: var(--tr-display); margin: 0 0 6px 0;">Spin up an admin-hosted tournament</h1>
+          <p style="font-size: var(--t-body-sm); color: var(--text-secondary); max-width: 64ch; margin: 0;">
+            For platform-owned flagship events (monthly headline, charity, marketing partnerships). Subject to MLR 2017 record-keeping and the Boadman platform-host attestation. The published competition appears to players identical to a brand-hosted event — but the audit log records <span style="font-family: var(--font-mono);">host_actor = platform</span>.
+          </p>
+        </div>
+        <span class="mlro-label">Admin · A. Ferreira</span>
+      </div>
+
+      <div class="create-grid">
+
+        <!-- LEFT — sections -->
+        <div class="stack" style="display: grid; gap: var(--s-5);">
+
+          <!-- 1. IDENTITY ───────────────────────────────────── -->
+          <section class="form-section">
+            <div class="form-section__head">
+              <h3>Identity</h3>
+              <span class="form-section__num">Section 1 of 5</span>
+            </div>
+            <p class="sub">The discoverable shell of the event — what players see in the tournaments hub.</p>
+
+            <div class="field-row field-row--2">
+              <div class="field">
+                <label class="label" for="game">Game</label>
+                <select class="select" id="game">
+                  <option>Apex Legends · Squads</option>
+                  <option>Call of Duty · Warzone</option>
+                  <option>FC25</option>
+                  <option>Valorant</option>
+                  <option>Rocket League · 3 v 3</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="format">Format</label>
+                <select class="select" id="format">
+                  <option>Single-bracket elimination (16-squad)</option>
+                  <option>Double elimination (16-squad)</option>
+                  <option>Round-robin group → bracket</option>
+                  <option>Free-for-all leaderboard</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field" style="margin-top: var(--s-4);">
+              <label class="label" for="title">Title</label>
+              <input class="input" id="title" type="text" value="Boadman Summer Open · Apex Legends · Squads" />
+            </div>
+
+            <div class="field" style="margin-top: var(--s-4);">
+              <label class="label">Sponsorship tier</label>
+              <div class="tier-pick">
+                <button type="button">
+                  <div class="tier-pick__label">Free</div>
+                  <div class="tier-pick__name">Free</div>
+                  <div class="tier-pick__desc">No sponsor surface · standard listing</div>
+                </button>
+                <button type="button" class="is-active">
+                  <div class="tier-pick__label">Mid</div>
+                  <div class="tier-pick__name">Featured</div>
+                  <div class="tier-pick__desc">Tournaments hub featured row · up to 3 brand logos</div>
+                </button>
+                <button type="button">
+                  <div class="tier-pick__label">Top</div>
+                  <div class="tier-pick__name">Headline</div>
+                  <div class="tier-pick__desc">Hub takeover · push notification · email blast · up to 5 brand logos</div>
+                </button>
+              </div>
+            </div>
+
+            <div class="field" style="margin-top: var(--s-4);">
+              <label class="label">Banner image</label>
+              <div class="image-upload">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                <div style="font-family: var(--font-display); font-weight: 600;">Upload custom banner</div>
+                <div style="font-family: var(--font-mono); font-size: 11px;">≥ 1600 × 800 · WebP / PNG · ≤ 6 MB</div>
+                <div style="font-size: 11px;">Default: Apex Legends stock banner from publisher kit</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. STAKES ────────────────────────────────────── -->
+          <section class="form-section">
+            <div class="form-section__head">
+              <h3>Stakes</h3>
+              <span class="form-section__num">Section 2 of 5</span>
+            </div>
+            <p class="sub">Money mechanics. Entry fee may be 0 for free-to-enter promotional events. Prize pool may be platform-subsidised.</p>
+
+            <div class="field-row field-row--2">
+              <div class="field">
+                <label class="label" for="entry">Entry fee per squad</label>
+                <input class="input" id="entry" type="text" value="1,000 coins · £100.00" />
+                <div class="field-helper">Set to <strong>0</strong> for free-to-enter (promotional / charity)</div>
+              </div>
+              <div class="field">
+                <label class="label" for="seed">Platform seed (subsidy)</label>
+                <input class="input" id="seed" type="text" value="25,000 coins · £2,500.00" />
+                <div class="field-helper">Pulled from <span style="font-family: var(--font-mono);">platform.promo_budget</span></div>
+              </div>
+            </div>
+
+            <div class="field-row field-row--3" style="margin-top: var(--s-4);">
+              <div class="field">
+                <label class="label" for="min">Min participants</label>
+                <input class="input" id="min" type="text" value="8 squads" />
+              </div>
+              <div class="field">
+                <label class="label" for="max">Max participants</label>
+                <input class="input" id="max" type="text" value="16 squads" />
+              </div>
+              <div class="field">
+                <label class="label" for="size">Squad size</label>
+                <input class="input" id="size" type="text" value="3 players (Squads)" />
+              </div>
+            </div>
+
+            <div style="margin-top: var(--s-4); padding: var(--s-3) var(--s-4); border: 1px solid var(--border-default); border-radius: var(--r-md); display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--s-3); font-size: var(--t-meta);">
+              <div>
+                <span class="text-muted">Calculated prize pool (entries × 16 + platform seed + sponsor)</span>
+              </div>
+              <div style="font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 22px; color: var(--purple-500);">
+                66,000 coins
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. SCHEDULE ──────────────────────────────────── -->
+          <section class="form-section">
+            <div class="form-section__head">
+              <h3>Schedule</h3>
+              <span class="form-section__num">Section 3 of 5</span>
+            </div>
+            <p class="sub">All times in BST. Server runs UTC; we convert on submit.</p>
+
+            <div class="field-row field-row--3">
+              <div class="field">
+                <label class="label" for="reg-open">Registration opens</label>
+                <input class="input" id="reg-open" type="text" value="01 Jun 2026 · 10:00 BST" />
+              </div>
+              <div class="field">
+                <label class="label" for="reg-close">Registration closes</label>
+                <input class="input" id="reg-close" type="text" value="18 Jun 2026 · 18:00 BST" />
+              </div>
+              <div class="field">
+                <label class="label" for="sched-end">Scheduled end</label>
+                <input class="input" id="sched-end" type="text" value="21 Jun 2026 · 23:00 BST" />
+              </div>
+            </div>
+
+            <div class="field-row field-row--2" style="margin-top: var(--s-4);">
+              <div class="field">
+                <label class="label" for="check-in">Check-in window</label>
+                <select class="select" id="check-in">
+                  <option>30 minutes before round 1</option>
+                  <option>60 minutes before round 1</option>
+                  <option>2 hours before round 1</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="round-len">Per-round time cap</label>
+                <select class="select" id="round-len">
+                  <option>25 minutes</option>
+                  <option>40 minutes</option>
+                  <option>No cap</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. DISTRIBUTION & RAKE ────────────────────────── -->
+          <section class="form-section">
+            <div class="form-section__head">
+              <h3>Distribution &amp; rake</h3>
+              <span class="form-section__num">Section 4 of 5</span>
+            </div>
+            <p class="sub">Override <span style="font-family: var(--font-mono);">platform_config.default = 60 / 30 / 10</span>. For free promotional events, set platform cut to 0.</p>
+
+            <div class="stamp" style="margin-bottom: 12px;">Prize tiers — top 3 podium</div>
+
+            <div class="split-row">
+              <span class="tier-emblem tier-emblem--gold">1</span>
+              <input class="input" type="text" value="60 %" />
+              <span class="text-secondary" style="font-family: var(--font-mono); font-size: 12px; text-align: right;">= 39,600 coins</span>
+            </div>
+            <div class="split-row">
+              <span class="tier-emblem tier-emblem--silver">2</span>
+              <input class="input" type="text" value="30 %" />
+              <span class="text-secondary" style="font-family: var(--font-mono); font-size: 12px; text-align: right;">= 19,800 coins</span>
+            </div>
+            <div class="split-row">
+              <span class="tier-emblem tier-emblem--bronze">3</span>
+              <input class="input" type="text" value="10 %" />
+              <span class="text-secondary" style="font-family: var(--font-mono); font-size: 12px; text-align: right;">= 6,600 coins</span>
+            </div>
+
+            <div class="field-row field-row--2" style="margin-top: var(--s-5);">
+              <div class="field">
+                <label class="label" for="cut">Platform cut</label>
+                <input class="input" id="cut" type="text" value="0 %" />
+                <div class="field-helper">Set to <strong>0</strong> for promotional events (no commission)</div>
+              </div>
+              <div class="field">
+                <label class="label" for="royalty">Publisher royalty</label>
+                <input class="input" id="royalty" type="text" value="15 % of platform cut" />
+                <div class="field-helper">Disabled when platform cut = 0</div>
+              </div>
+            </div>
+
+            <p class="footnote-rates" style="margin-top: var(--s-4);">Rates illustrative — pending SP8-ECON economics review.</p>
+          </section>
+
+          <!-- 5. AUDIT ATTESTATION ──────────────────────────── -->
+          <section class="form-section">
+            <div class="form-section__head">
+              <h3>Audit · compliance attestation</h3>
+              <span class="form-section__num">Section 5 of 5</span>
+            </div>
+            <p class="sub">Admin-hosted competitions are scrutinised more than player- or brand-hosted ones. We capture intent + supporting docs at creation time so auditors can reconstruct the decision.</p>
+
+            <div class="field">
+              <label class="label" for="reason">Reason for admin-hosting</label>
+              <textarea class="textarea" id="reason" placeholder="e.g. Monthly Boadman-Open headline event, marketed via June newsletter campaign…">Monthly Boadman-Open headline event. Marketed via the June newsletter campaign. Platform-seeded prize pool funded from the Q2 marketing accrual (PROMO-2026-Q2-014).</textarea>
+              <div class="field-helper">Min 50 characters · stored on the audit row · visible to the MLRO + external auditor</div>
+            </div>
+
+            <div class="field" style="margin-top: var(--s-4);">
+              <label class="label" for="refs">Reference docs</label>
+              <input class="input" id="refs" type="text" value="https://confluence.boadman.com/marketing/2026-Q2-promo-budget · PROMO-2026-Q2-014" />
+              <div class="field-helper">Comma-separated URLs. We snapshot the page on submit.</div>
+            </div>
+
+            <div class="field-row field-row--2" style="margin-top: var(--s-4);">
+              <div class="field">
+                <label class="label" for="approver">Co-approver (4-eyes)</label>
+                <select class="select" id="approver">
+                  <option>K. Owusu · MLRO</option>
+                  <option>D. Singh · Head of Risk</option>
+                  <option>R. Olufowobi · CFO</option>
+                </select>
+                <div class="field-helper">Required for prize pool ≥ 25,000 coins</div>
+              </div>
+              <div class="field">
+                <label class="label" for="cost-centre">Cost centre</label>
+                <input class="input" id="cost-centre" type="text" value="MKTG-PROMO-2026-Q2" />
+              </div>
+            </div>
+
+            <div class="attestation">
+              <input type="checkbox" id="attest" checked />
+              <label for="attest">
+                I confirm this Boadman-hosted competition complies with the platform-host attestation in <strong>boadman-policy.platform-host v1.4</strong>, and that no individual brand contributed &gt; 60 % of the prize pool. I have logged the marketing budget reference and acknowledge that this row is immutable.
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT — preview + publish -->
+        <aside>
+          <div class="preview-card">
+            <div class="preview-card__head">Tournament preview · admin view</div>
+            <h2>Boadman Summer Open · Apex Squads</h2>
+            <div class="meta">Apex Legends · 16-squad bracket · 21 Jun 23:00 BST</div>
+
+            <div class="preview-row"><span class="text-secondary">Sponsorship tier</span><strong>Featured</strong></div>
+            <div class="preview-row"><span class="text-secondary">Entry fee per squad</span><strong>1,000 coins</strong></div>
+            <div class="preview-row"><span class="text-secondary">Platform seed</span><strong style="color: var(--purple-500);">25,000 coins</strong></div>
+            <div class="preview-row"><span class="text-secondary">Calculated prize pool</span><strong>66,000 coins</strong></div>
+            <div class="preview-row"><span class="text-secondary">Winners</span><strong>Top 3 · 60 / 30 / 10</strong></div>
+            <div class="preview-row"><span class="text-secondary">Platform cut</span><strong>0 % · promotional</strong></div>
+            <div class="preview-row"><span class="text-secondary">Host actor</span><strong>Platform</strong></div>
+            <div class="preview-row" style="padding-top: 14px; margin-top: 6px; border-top: 1px solid var(--border-default);"><span class="text-secondary">Co-approver</span><strong style="color: var(--purple-500);">K. Owusu · MLRO</strong></div>
+
+            <div class="stack" style="display: grid; gap: 10px; margin-top: 24px;">
+              <button class="btn btn-compliance btn-block btn-uppercase" style="height: 48px; padding: 0 var(--s-5); display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Publish admin-hosted tournament
+              </button>
+              <button class="btn btn-secondary btn-block">Save draft</button>
+              <button class="btn btn-ghost btn-block">Discard</button>
+            </div>
+
+            <p class="footnote-rates" style="margin-top: var(--s-4);">
+              On publish: row appended to <span style="font-family: var(--font-mono);">competitions</span>, audit event <span style="font-family: var(--font-mono);">competition.admin_created</span> written, co-approver notified, 25,000 coins escrowed against <span style="font-family: var(--font-mono);">platform.promo_budget</span>.
+            </p>
+            <p class="footnote-rates" style="margin-top: 8px;">Rates illustrative — pending SP8-ECON review.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Footnote ──────────────────────────────────────────────────── -->
+    <footer style="margin-top: var(--s-8); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;">
+      <span>© 2026 Boadman Ltd · admin terminal · FCA AML registered · UK MLR 2017</span>
+      <span>Override actions are 2-step + reason-required · audit log is append-only · session terminates after 15 m idle.</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('[data-set-state]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelector('main').dataset.activeState = btn.dataset.setState;
+      document.querySelectorAll('[data-set-state]').forEach(b =>
+        b.classList.toggle('is-active', b === btn)
+      );
+    });
+  });
+</script>
+
+</body>
+</html>
