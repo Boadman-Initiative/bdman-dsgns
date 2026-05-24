@@ -369,7 +369,7 @@
   }
   .refusal strong { color: var(--text-primary); font-weight: 500; }
 
-  /* ===== Legal small-print (UK GDPR Art 7, 17) ===== */
+  /* ===== Legal small-print (consent + erasure rights) ===== */
   .legal-print {
     padding-top: 24px;
     border-top: 1px solid var(--border-subtle);
@@ -421,8 +421,8 @@
     <p class="card-body">
       We've published a new version of the Boadman Privacy Policy. Before
       you can continue using your account, please read the changes and
-      record your acceptance. We're asking because UK GDPR <strong>Articles 6, 7
-      and 13</strong> require us to keep your consent current and to tell you,
+      record your acceptance. We're asking because applicable consent + lawful-basis rules
+      require us to keep your consent current and to tell you,
       plainly, what we do with your data when we change it.
     </p>
 
@@ -448,9 +448,9 @@
         <li>
           <span class="diff-tag diff-tag--add">Added</span>
           <span>
-            <strong style="color: var(--text-primary);">NCA SAR retention · 5 years.</strong>
+            <strong style="color: var(--text-primary);">SAR retention · 5 years.</strong>
             Suspicious-activity report metadata is now kept for five years
-            after the report date per UK MLR 2017 § 40.
+            after the report date per applicable AML retention (5-year minimum).
             <a href="/legal/privacy#aml-retention">Read § 9.3</a>
           </span>
         </li>
@@ -550,14 +550,14 @@
       you're ready to accept. Nothing is forfeited by signing out now.
     </p>
 
-    <!-- UK GDPR small print -->
+    <!-- Consent withdrawal + erasure small print -->
     <p class="legal-print">
       You can withdraw consent at any time from <a href="/settings/privacy">Settings · Privacy</a>;
       withdrawal applies prospectively and does not affect the lawfulness of
-      prior processing (UK GDPR <strong>Art 7(3)</strong>). You also retain the
-      right to request erasure of your personal data under
-      <strong>Art 17</strong>, subject to AML record-keeping carve-outs documented
-      in § 9 of the policy. Questions: <a href="mailto:privacy@boadman.com">privacy@boadman.com</a>.
+      prior processing (<strong>consent-withdrawal rights</strong>). You also retain the
+      right to request erasure of your personal data, subject to AML record-keeping
+      carve-outs documented in § 9 of the policy.
+      Questions: <a href="mailto:privacy@boadman.com">privacy@boadman.com</a>.
     </p>
   </article>
 </main>

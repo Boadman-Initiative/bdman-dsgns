@@ -60,7 +60,7 @@ brand, different temperature.
 - **Money is sacred.** Every coin / GBP / NGN amount is rendered in
   Space Grotesk, never abbreviated for prizes. Explicit units.
 - **Compliance copy is non-euphemistic.** "Cash-out frozen" — not
-  "Temporarily restricted". UK MLR 2017 demands honesty.
+  "Temporarily restricted". Regulators demand honesty.
 - **Provisional rates footnote** on every economics-revealing surface:
   > Rates illustrative — pending SP8-ECON economics review.
 - **No filler.** Every element earns its place. No data slop, no

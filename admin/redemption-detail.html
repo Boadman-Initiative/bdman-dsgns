@@ -857,7 +857,7 @@
         <section class="card">
           <div class="card-header">
             <div class="card-title">Investigation timeline</div>
-            <span class="card-sub">UK MLR 2017 §40 · append-only · 5-year retention</span>
+            <span class="card-sub">applicable AML retention (5-year minimum) · append-only</span>
           </div>
           <div class="timeline">
             <div class="tl-event tl-event--system">
@@ -1047,7 +1047,7 @@
       </div>
 
       <p class="text-secondary" style="font-size: var(--t-body-sm); margin-bottom: var(--s-4); line-height: 1.6;">
-        Filing a SAR (Suspicious Activity Report) routes the case to the National Crime Agency via the SAR Online portal under <strong style="color: var(--text-primary);">POCA 2002 §330</strong>. Submission auto-freezes the user's wallet + cash-out, blocks further deposits, and writes an immutable SAR record into the compliance vault. Filing is a one-way action — only the MLRO may withdraw a SAR after submission, and only with NCA confirmation.
+        Filing a SAR (Suspicious Activity Report) routes the case to the relevant financial-intelligence authority under <strong style="color: var(--text-primary);">applicable financial-crime reporting law</strong>. Submission auto-freezes the user's wallet + cash-out, blocks further deposits, and writes an immutable SAR record into the compliance vault. Filing is a one-way action — only the MLRO may withdraw a SAR after submission, and only with regulator confirmation.
       </p>
 
       <div style="display: grid; gap: var(--s-3); grid-template-columns: 1fr 1fr;">
@@ -1081,7 +1081,7 @@
 
       <div class="row" style="justify-content: space-between; align-items: center; margin-top: var(--s-5); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); gap: var(--s-3); flex-wrap: wrap;">
         <span style="font-family: var(--font-mono); font-size: var(--t-micro); color: var(--text-muted);">
-          On submit · POSTs to NCA SAR Online · returns a SAR reference (SAR_xxx) · stored in compliance vault for 5 years per UK MLR 2017 §40
+          On submit · POSTs to regulator SAR portal · returns a SAR reference (SAR_xxx) · stored in compliance vault for 5 years per applicable AML retention
         </span>
         <div class="row" style="gap: 8px;">
           <button class="btn btn-ghost btn-sm btn-uppercase">Cancel</button>
@@ -1093,7 +1093,7 @@
 
     <!-- Footer -->
     <footer style="margin-top: var(--s-7); padding-top: var(--s-4); border-top: 1px dashed var(--border-default); font-family: var(--font-mono); font-size: var(--t-meta); color: var(--text-muted); display: flex; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap;">
-      <span>© 2026 Boadman Ltd · MLRO terminal · FCA AML registered · UK MLR 2017 §40 · 5-year retention on this record</span>
+      <span>© 2026 Boadman Ltd · MLRO terminal · 5-year retention on this record</span>
       <span>Decision audited · idle session timeout 15 m · append-only ledger</span>
     </footer>
   </main>

@@ -69,7 +69,7 @@ feel they are in different rooms of the same building.
 - **Compliance copy is non-euphemistic.** "Account suspended" — not "Take
   a break". "Cash-out frozen pending AML review" — not "Temporarily
   restricted". The platform is honest with the user about regulatory
-  consequences because UK MLR 2017 demands it and because trust depends
+  consequences because regulators demand it and because trust depends
   on it.
 - **State is visible.** Every screen with an interesting state machine
   (wallet, dispute, KYC, account, brand application, prize hold, AML flag)
