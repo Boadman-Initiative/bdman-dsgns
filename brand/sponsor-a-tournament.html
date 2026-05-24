@@ -576,13 +576,13 @@
                 <p class="vis-tile__copy">Logo + message appear on the tournament detail page, sponsors panel, and the winner-announcement post.</p>
                 <span class="vis-tile__cost">Included</span>
               </div>
-              <div class="vis-tile" data-vis="every-match" onclick="setVis(this)">
+              <div class="vis-tile" data-vis="every-match" aria-disabled="true" style="opacity: 0.55; cursor: not-allowed;" title="Premium tier ships with SP24 — sponsorship visibility schema additive">
                 <div class="vis-tile__head">
                   <span class="vis-tile__title">Tournament + every match card</span>
-                  <span class="badge badge--flame" style="font-size: 9px;">Premium</span>
+                  <span class="badge badge--neutral" style="font-size: 9px;">Coming soon</span>
                 </div>
-                <p class="vis-tile__copy">All of the above, plus your logo rendered on the in-app card for every match in the bracket. Higher visibility, higher CPM equivalent.</p>
-                <span class="vis-tile__cost">+ 1,000 coins · £100</span>
+                <p class="vis-tile__copy">All of the above, plus your logo rendered on the in-app card for every match. Premium tier ships with SP24 once the sponsorship-visibility schema additive lands.</p>
+                <span class="vis-tile__cost">Tier rate TBC</span>
               </div>
             </div>
           </section>
@@ -826,13 +826,13 @@
   }
 
   // ----- step 2: visibility tile -----
+  // The 'every-match' premium tier is disabled until SP24 ships the
+  // schema additive — only the tournament-level tile is selectable.
   function setVis(tile) {
+    if (tile.getAttribute('aria-disabled') === 'true') return;
     document.querySelectorAll('.vis-tile').forEach(t => t.classList.remove('is-active'));
     tile.classList.add('is-active');
-    document.getElementById('sumVis').textContent = tile.dataset.vis === 'every-match'
-      ? 'Tournament + every match card (premium)'
-      : 'Tournament-level';
-    // recompute math (premium adds 1000 coins)
+    document.getElementById('sumVis').textContent = 'Tournament-level';
     const active = document.querySelector('.preset-tile.is-active');
     const amt = active ? parseInt(active.dataset.amt, 10) : 5000;
     applyAmt(amt);
